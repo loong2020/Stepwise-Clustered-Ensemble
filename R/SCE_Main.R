@@ -102,29 +102,30 @@ SCA <- function(alpha,Input,Nmin)
   return(o_model)
 }
 
-SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05) {
+SCE_main <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05) {
   # New environment
-  rSCA.env = new.env()
+  rSCA.env <- new.env()
 
   # Define X and Y
-  o_xdata = data.frame(na.omit(Training_data[, X]))
-  o_ydata = data.frame(na.omit(Training_data[, Y]))
+  o_xdata <- data.frame(na.omit(Training_data[, X]))
+  o_ydata <- data.frame(na.omit(Training_data[, Y]))
 
   colnames(o_xdata) <- X
   colnames(o_ydata) <- Y
 
   # Setup bootstrap
-  Tree_name <- vector("list", Ntree)
-  for(i in seq_len(Ntree)) {
-    Tree_name[[i]] <- paste0("SCA_", i)
+  Tree_name <- list()
+  for(i in 1:Ntree) {
+    Tree_index <- i
+    Tree_name[[i]] <- paste("SCA_", Tree_index, sep = "_")
   }
 
   # Random feature
-  sample_matrix <- matrix(rep(seq_len(ncol(o_xdata)), Ntree), nrow = Ntree, ncol = ncol(o_xdata), byrow = TRUE)
-  Random_col_matrix <- matrix(0, nrow = Ntree, ncol = mfeature)
-  Random_col <- vector("list", Ntree)
+  sample_matrix <- matrix(rep(1:ncol(o_xdata), Ntree), Ntree, ncol(o_xdata), byrow = TRUE)
+  Random_col_matrix <- matrix(0, nrow = Ntree, ncol = mfeature) # which columns will be used in the prediction
+  Random_col <- list()
   set.seed(10)
-  for (i in seq_len(Ntree)) {
+  for (i in 1:Ntree) {
     Random_col_matrix[i,] <- sort(sample(sample_matrix[i,], mfeature))
     Random_col[[i]] <- Random_col_matrix[i,]
   }
@@ -132,10 +133,9 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05) {
   # Bootstrap
   temp <- o_xdata
   theta <- function(temp) {temp}
-
-  # Assuming bootstrap is a function from a package; make sure to declare that package in DESCRIPTION
   tree_mat <- bootstrap(1:nrow(temp), Ntree, theta)$thetastar
-  tree_list <- lapply(as.data.frame(tree_mat), list)
+  tree_list <- apply(tree_mat, 2, list)
+  tree_list <- lapply(tree_list, function(x) x[[1]])
 
   Bootst_rep <- mapply(function(x, y, z) list(Tree = x, mfeature = y, sample = z), x = Tree_name, y = Random_col, z = tree_list, SIMPLIFY = FALSE)
 
@@ -143,36 +143,41 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05) {
   numcores <- parallel::detectCores()
   Clus <- parallel::makeCluster(numcores)
 
-  training_path <- system.file("SCE_Training.r", package = "SCE")
-  prediction_path <- system.file("SCE_Prediction.r", package = "SCE")
-
+  # Source training and prediction scripts within the cluster
   parallel::clusterEvalQ(Clus, {
-    source(training_path)
-    source(prediction_path)
+    source("SCE_Training.R", local = TRUE)
+    source("SCE_Prediction.R", local = TRUE)
     library(car)
   })
 
-  # The following exports have been modified to use parallel package's functions
-  parallel::clusterExport(Clus, "o_xdata", envir = environment())
-  parallel::clusterExport(Clus, "o_ydata", envir = environment())
-  parallel::clusterExport(Clus, "Bootst_rep", envir = environment())
-  parallel::clusterExport(Clus, "Nmin", envir = environment())
-  parallel::clusterExport(Clus, "alpha", envir = environment())
-  parallel::clusterExport(Clus, "rSCA.env", envir = environment())
+  # Export variables to the workers
+  parallel::clusterExport(Clus, c("o_xdata", "o_ydata", "Bootst_rep", "Nmin", "alpha", "rSCA.env"), envir = environment())
 
-  SCE_res = parallel::parLapply(Clus, Bootst_rep, SCA, alpha = alpha, Nmin = Nmin)
+  # Evaluate variables on workers
+  parallel::clusterEvalQ(Clus, {
+    o_xdata
+    o_ydata
+    Bootst_rep
+    Nmin
+    alpha
+    rSCA.env
+  })
+
+  # Parallel processing
+  SCE_res <- parallel::parLapply(Clus, Bootst_rep, SCA, alpha = alpha, Nmin = Nmin)
   parallel::stopCluster(Clus)
 
   # Calculate the weights based on OOB_RSQ
   OOB_RSQ <- lapply(SCE_res, function(x) x$OOB_error)
-  weight_OOB <- lapply(OOB_RSQ, function(x) log10(x/(1-x)))
+  weight_OOB <- lapply(OOB_RSQ, function(x) log10(x / (1 - x)))
   weight_OOB <- data.frame(do.call(rbind, weight_OOB))
 
-  # Re-scale the weight into [0, 1]
-  for(i in seq_len(ncol(weight_OOB))) {
+  # Re-scale the weight into [0,1]
+  for(i in 1:ncol(weight_OOB)) {
     weight_OOB[, i] <- (weight_OOB[, i] - min(weight_OOB[, i])) / (max(weight_OOB[, i]) - min(weight_OOB[, i]))
     weight_OOB[, i] <- weight_OOB[, i] / sum(weight_OOB[, i])
   }
+
   weight_OOB <- apply(weight_OOB, 1, function(x) list(as.numeric(x)))
   weight_OOB <- lapply(weight_OOB, function(x) x[[1]])
 
