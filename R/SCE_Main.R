@@ -230,16 +230,23 @@ OOB_validation <- function(model)
   OOB_predicted <- lapply(model,function(x) data.frame(ID=setdiff(1:length(x[["Sample"]]),unique(x[["Sample"]])),x[["OOB_sim"]],weight=matrix(x[["weight"]],nrow=1)))
   OOB_predicted <- do.call(rbind,OOB_predicted)
   OOB <- list()
-  for (i in 1:Num_Pre)
-  {
-    DT_OOB <- data.table(OOB_predicted[,c(1,1+i,1+i+Num_Pre)])
-    colnames(DT_OOB) <- c("ID","Predicted","weight")
+  for (i in 1:Num_Pre) {
+    DT_OOB <- OOB_predicted[,c(1,1+i,1+i+Num_Pre)]
+    DT_OOB <- data.frame(DT_OOB)
+    colnames(DT_OOB) <- c("ID", "Predicted", "weight")
     Predicted <- DT_OOB$Predicted
     weight <- DT_OOB$weight
-    DT_OOB <- DT_OOB[,list(predicted=weighted.mean(Predicted,weight)),by=ID]
-    OOB[[i]] <- as.data.frame(DT_OOB)
-    OOB[[i]] <- OOB[[i]][order(OOB[[i]]$ID),]
+    # Calculate weighted means for each ID manually
+    ID_list <- unique(DT_OOB$ID)
+    weighted_means <- sapply(ID_list, function(id) {
+      subset <- DT_OOB[DT_OOB$ID == id, ]
+      sum(subset$Predicted * subset$weight) / sum(subset$weight)
+    })
+    # Create a data frame for the results
+    OOB[[i]] <- data.frame(ID = ID_list, predicted = weighted_means)
+    OOB[[i]] <- OOB[[i]][order(OOB[[i]]$ID), ]
   }
+  # Combine the results into a single data frame
   OOB <- data.frame(do.call(cbind,lapply(OOB,function(x)x[,-1])))
   colnames(OOB) <- Nam_Pre
   return(OOB)
