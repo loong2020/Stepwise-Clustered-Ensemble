@@ -102,7 +102,7 @@ SCA <- function(alpha,Input,Nmin)
   return(o_model)
 }
 
-SCE_main <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05) {
+SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05) {
   # New environment
   rSCA.env <- new.env()
 
@@ -234,6 +234,8 @@ OOB_validation <- function(model)
   {
     DT_OOB <- data.table(OOB_predicted[,c(1,1+i,1+i+Num_Pre)])
     colnames(DT_OOB) <- c("ID","Predicted","weight")
+    Predicted <- DT_OOB$Predicted
+    weight <- DT_OOB$weight
     DT_OOB <- DT_OOB[,list(predicted=weighted.mean(Predicted,weight)),by=ID]
     OOB[[i]] <- as.data.frame(DT_OOB)
     OOB[[i]] <- OOB[[i]][order(OOB[[i]]$ID),]
