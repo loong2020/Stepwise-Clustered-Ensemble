@@ -1,3 +1,24 @@
+#################################################################
+# Filename: 	SCE_Main.R
+# Part of the SCE package, https://github.com/loong2020/Stepwise-Clustered-Ensemble.git
+# Created: 		2019/05/17, Regina, SK, Canada
+# Author: 		Kailong Li
+# Email:		lkl98509509@gmail.com
+# ===============================================================
+# History: 	2019/05/17		created by Kailong Li
+#			      2019/09/18		added Wilks feature importance (WFI), by Kailong Li
+#	     	    2023/03/10   	enabled weighted and non-weighted options for calculating WFI, by Kailong Li
+##################################################################
+
+# reference:
+# Li, Kailong, Guohe Huang, and Brian Baetz
+# Development of a Wilks feature importance method with improved variable rankings for supporting hydrological inference and modelling
+# Hydrology and Earth System Sciences 25.9 (2021): 4947-4966.
+# https://doi.org/10.5194/hess-25-4947-2021
+
+# ---------------------------------------------------------------
+# Function definitions
+# ---------------------------------------------------------------
 SCA <- function(alpha,Input,Nmin)
 {
   #: retrieve the out-of-bag data
@@ -132,11 +153,12 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05) {
 
   # Bootstrap
   temp <- o_xdata
-  theta <- function(temp) {temp}
-  tree_mat <- bootstrap(1:nrow(temp), Ntree, theta)$thetastar
-  tree_list <- apply(tree_mat, 2, list)
-  tree_list <- lapply(tree_list, function(x) x[[1]])
-
+  set.seed(10)  # Set a seed for reproducibility
+  tree_list <- list()
+  for (i in 1:Ntree) {
+    # Create a bootstrap sample
+    tree_list[[i]] <- sample(1:nrow(temp), replace = TRUE)
+  }
   Bootst_rep <- mapply(function(x, y, z) list(Tree = x, mfeature = y, sample = z), x = Tree_name, y = Random_col, z = tree_list, SIMPLIFY = FALSE)
 
   # Parallel computing
@@ -147,7 +169,6 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05) {
   parallel::clusterEvalQ(Clus, {
     source("SCE_Training.R", local = TRUE)
     source("SCE_Prediction.R", local = TRUE)
-    library(car)
   })
 
   # Export variables to the workers
@@ -280,7 +301,7 @@ Model_simulation <- function(Testing_data, X, model)
 
 Wilks_importance <- function(model,OOB_weight=FALSE)
 {
-  #: Extract the Tree matrix
+  #: Extract information from Trees
   Wilk_mat <- lapply(model,function(x) data.frame(x$Tree))
   #: replace the wilks_min smaller than zero to zero
   Wilk_mat <- lapply(Wilk_mat,function(x) {x$wilk_min[which(x$wilk_min <= 0)] <- 0; return(x)})

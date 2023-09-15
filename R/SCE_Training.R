@@ -1,3 +1,15 @@
+#################################################################
+# Filename: 	SCE_Training.R
+# Part of the SCE package, https://github.com/loong2020/Stepwise-Clustered-Ensemble.git
+# Author: 		Kailong Li & Xiuquan Wang
+# Email:		  lkl98509509@gmail.com; xiuquan.wang@gmail.com
+# ===============================================================
+# History: 	2019/06/15		modified the the rsca_training.r file from the rsca package developed by Xiuquan Wang
+#			      2019/06/15		fixed the issue of infinite cut-merge loop, by Kailong Li
+#			      2019/06/18		changed model input and output from .csv/.txt to data.frame, by Kailong Li
+#			      2019/09/15		added minimal Wilks value to the tree output, by Kailong Li
+#			      2019/06/08		revised model inference function, by Kailong Li
+##################################################################
 #: calculate radius for a leaf node
 #: input: column vector from y data
 f_cal_radius = function(o_colvec)
@@ -806,7 +818,7 @@ f_main = function(Max_merge_time,Nmin)
   o_results_matrix = matrix(0, length(rSCA.env$o_output_tree), 8)
 
   #: if mapvalue set as "mean" ==> calculate the mean of all samples
-  #: else (i.e. set as "interval") ==> find the max and min of all samples to contruct a interval
+  #: else (i.e. set as "interval") ==> find the max and min of all samples to construct a interval
   n_mapfile_cols = rSCA.env$n_sample_y_cols
   if (rSCA.env$n_mapvalue == "mean") n_mapfile_cols = rSCA.env$n_sample_y_cols
   if (rSCA.env$n_mapvalue == "max") n_mapfile_cols = rSCA.env$n_sample_y_cols

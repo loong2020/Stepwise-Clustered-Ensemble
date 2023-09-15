@@ -1,3 +1,15 @@
+#################################################################
+# Filename: 	SCE_Prediction.R
+# Part of the SCE package, https://github.com/loong2020/Stepwise-Clustered-Ensemble.git
+# Author: 		Kailong Li & Xiuquan Wang
+# Email:		  lkl98509509@gmail.com; xiuquan.wang@gmail.com
+# ===============================================================
+# History: 	2019/06/06		modified the the rsca_predicion.r file from the rsca package developed by Xiuquan Wang
+#			      2019/06/08		revised model inference function, by Kailong Li
+##################################################################
+# ---------------------------------------------------------------
+# Function definitions
+# ---------------------------------------------------------------
 #: predict one input
 #: input: o_precitor = c(x1, x2, x3, ... )
 #: output: o_predictant = c(y1, y2, y3, ... )
