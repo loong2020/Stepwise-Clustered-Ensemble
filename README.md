@@ -2,14 +2,19 @@
 
 A statistical prediction and inference model.
 
+Author:
 Kailong li  <lkl98509509@gmail.com>
 
 references:
 Li, Kailong, Guohe Huang, and Brian Baetz. Development of a Wilks feature importance method with improved variable rankings for supporting hydrological inference and modelling. Hydrology and Earth System Sciences 25.9 (2021): 4947-4966.
 
 How to use:
-## Load SCE package
+## Load SCE package and supporting packages 
 library(SCE)
+#: parallel computing package
+library(parallel)
+#: goodness-of-fit package
+library(hydroGOF) 
 
 ## Training data file
 data("Training_input")
