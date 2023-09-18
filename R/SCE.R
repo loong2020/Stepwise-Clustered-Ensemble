@@ -63,8 +63,7 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05) {
 
   # Source training and prediction scripts within the cluster
   parallel::clusterEvalQ(Clus, {
-    source("Training.R", local = TRUE)
-    source("Prediction.R", local = TRUE)
+    library(SCE)
   })
 
   # Export variables to the workers
