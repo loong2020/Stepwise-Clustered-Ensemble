@@ -35,9 +35,9 @@ Kailong li  <lkl98509509@gmail.com>
 library(SCE)
 
 ## Training data file
-Training_input <- data("Training_input")
+data("Training_input")
 ## Testing data file
-Testing_input <- data("Testing_input")
+data("Testing_input")
 
 ## Define independent (x) and dependent (y) variables
 Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2")
