@@ -11,9 +11,13 @@ Li, Kailong, Guohe Huang, and Brian Baetz. Development of a Wilks feature import
 How to use:
 ## Load SCE package and supporting packages 
 library(SCE)
+
 #: parallel computing package
+
 library(parallel)
+
 #: goodness-of-fit package
+
 library(hydroGOF) 
 
 ## Training data file
