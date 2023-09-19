@@ -1,6 +1,8 @@
 # Stepwise-Clustered-Ensemble
 
-A statistical prediction and inference model.
+SCE (Stepwise Clustered Ensemble) is a versatile tool for statistical multivariate prediction and inference. This R package facilitates the generation of an ensemble of tree-structured models that analyze the interrelationships between independent (input) variables and the variance in dependent (output) variables. Each ensemble member within SCE is  designed to evaluate these relationships. When the number of ensemble members increases, the variation of the unstable predictions is reduced, thereby increasing the predictive accuracy and inference robustness.
+
+One of the standout features of SCE is its ability to simultaneously handle multiple inputs to predict multiple outputs, offering a comprehensive analysis that goes a step further than conventional tree-structured tools like random forest. Another key feature of SCE is that it offers a sophisticated ranking of input variables based on a statistical F-test, serving as a reliable method for determining the dominant controlling effects within a study system. This approach stands as a beacon of reliability as it doesn't hinge on evaluation metrics for ranking, significantly reducing the potential bias often introduced by these metrics. 
 
 Author:
 Kailong li  <lkl98509509@gmail.com>
