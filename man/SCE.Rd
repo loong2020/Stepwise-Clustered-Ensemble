@@ -25,13 +25,13 @@ SCE(Training_data, X, Y, mfeature,Nmin,Ntree,alpha)
 		a string to specify the name(s) for dependent (y) variable(s) (e.g., c("swvl3","swvl4")).
 	}
 	\item{mfeature}{
-		a value to specify how many features will be drawed for each tree. Default value is round(0.5*length(X)).
+		a value to specify how many features will be drawed for each tree. Recommended value is round(0.5*length(X)).
 	}
 	\item{Nmin}{
-		a value to specify the minimal number of sample in a leaf node for cutting. Default value is 5.
+		a value to specify the minimal number of sample in a leaf node for cutting.
 	}
 	\item{Ntree}{
-		a value to specify how many trees (snsemble members) will be built. Default value is 48.
+		a value to specify how many trees (snsemble members) will be built.
 	}
 	\item{alpha}{
 		significance level for clustering, usually in 0.001 - 0.1, default value is 0.05.
