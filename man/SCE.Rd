@@ -7,11 +7,11 @@
 }
 
 \description{
-	This function aims to build an SCE model that contains information for prediction and inference
+	This function aims to build an SCE model that contains information for prediction and inference.
 }
 
 \usage{
-SCE(Training_data, X, Y, mfeature,Nmin,Ntree,alpha)
+SCE(Training_data, X, Y, mfeature, Nmin, Ntree, alpha)
 }
 
 \arguments{
@@ -19,19 +19,19 @@ SCE(Training_data, X, Y, mfeature,Nmin,Ntree,alpha)
 		a data.frame used for training the model.
 	}
 	\item{X}{
-		a string to specify names for independent (x) variable (e.g., c("Prcp","SRad",...,"swvl2")). The length for independent variables must be greater than it for depedent variables.
+		a string to specify names for independent (x) variable (e.g., c("Prcp","SRad",...,"swvl2")). The length for independent variables must be greater than it for dependent variables.
 	}
 	\item{Y}{
 		a string to specify the name(s) for dependent (y) variable(s) (e.g., c("swvl3","swvl4")).
 	}
 	\item{mfeature}{
-		a value to specify how many features will be drawed for each tree. Recommended value is round(0.5*length(X)).
+		a value to specify how many features will be drawn for each tree. Recommended value is round(0.5*length(X)).
 	}
 	\item{Nmin}{
 		a value to specify the minimal number of sample in a leaf node for cutting.
 	}
 	\item{Ntree}{
-		a value to specify how many trees (snsemble members) will be built.
+		a value to specify how many trees (ensemble members) will be built.
 	}
 	\item{alpha}{
 		significance level for clustering, usually in 0.001 - 0.1, default value is 0.05.
@@ -67,3 +67,4 @@ Predictants <- c("swvl3","swvl4")
 
 ## Build the SCE model
 Model <- SCE(Training_data=Training_input, X=Predictors, Y=Predictants, mfeature=round(0.5*length(Predictors)),Nmin=5,Ntree=48,alpha=0.05)
+}

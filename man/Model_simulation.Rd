@@ -3,11 +3,11 @@
 \alias{Model_simulation}
 
 \title{
-	Make simulations based on a trained SCE model
+  Perform Simulations using a Trained SCE Model
 }
 
 \description{
-	This function aims to simulate dependent variables based on independent ones, given a trained SCE model.
+  This function facilitates the simulation of dependent variables based on the specified independent variables utilizing a previously trained SCE model. It is vital to ensure that the independent variables passed to this function match those used during the model training process.
 }
 
 \usage{
@@ -15,39 +15,36 @@ Model_simulation(Testing_data, X, model)
 }
 
 \arguments{
-	\item{Testing_data}{
-		a data.frame used for testing the model.
-	}
-	\item{X}{
-		a string to specify names for independent (x) variable (e.g., c("Prcp","SRad",...,"swvl2")), must be as same as those used for training.
-	}
-	\item{model}{
-		the trained SCE model.
-	}
+  \item{Testing_data}{
+    A data.frame comprising the data that will be used to test the model. It should contain all the independent variables specified in the X parameter.
+  }
+  \item{X}{
+    A vector of strings specifying the names of independent (x) variables to be used in the simulation (e.g., c("Prcp","SRad",...,"swvl2")). The variable names must exactly match those used during the model training phase.
+  }
+  \item{model}{
+    The trained SCE model object generated through the \code{SCE} function. This model contains the necessary information and parameters for conducting simulation and inferences.
+  }
 }
 
 \author{
-Kailong li  <lkl98509509@gmail.com>
+  Kailong Li <lkl98509509@gmail.com>
 }
 
 \examples{
-## Load SCE package
-library(SCE)
+  ## Load SCE package
+  library(SCE)
 
-## Training data file
-data("Training_input")
-## Testing data file
-data("Testing_input")
+  ## Load training and testing data
+  data("Training_input")
+  data("Testing_input")
 
-## Define independent (x) and dependent (y) variables
-Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2")
-Predictants <- c("swvl3","swvl4")
+  ## Define independent (x) and dependent (y) variables
+  Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2")
+  Predictants <- c("swvl3","swvl4")
 
-## Build the SCE model
-Model <- SCE(Training_data=Training_input, X=Predictors, Y=Predictants, mfeature=round(0.5*length(Predictors)),Nmin=5,Ntree=48,alpha=0.05)
+  ## Build the SCE model
+  Model <- SCE(Training_data = Training_input, X = Predictors, Y = Predictants, mfeature = round(0.5 * length(Predictors)), Nmin = 5, Ntree = 48, alpha = 0.05)
 
-## Make predictions
-Results <- Model_simulation(Testing_data=Testing_input, X=Predictors, model=Model)
-
+  ## Conduct simulations using the trained SCE model
+  Results <- Model_simulation(Testing_data = Testing_input, X = Predictors, model = Model)
 }
-
