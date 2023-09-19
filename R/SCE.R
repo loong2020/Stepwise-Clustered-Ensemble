@@ -1,5 +1,5 @@
 #################################################################
-# Filename: 	SCE_Main.R
+# Filename: 	SCE.R
 # Part of the SCE package, https://github.com/loong2020/Stepwise-Clustered-Ensemble.git
 # Created: 		2019/05/17, Regina, SK, Canada
 # Author: 		Kailong Li
@@ -61,7 +61,7 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05) {
   numcores <- parallel::detectCores()
   Clus <- parallel::makeCluster(numcores)
 
-  # Source training and prediction scripts within the cluster
+  # use SCE library within the cluster
   parallel::clusterEvalQ(Clus, {
     library(SCE)
   })

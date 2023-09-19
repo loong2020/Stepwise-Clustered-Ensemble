@@ -1,5 +1,5 @@
 #################################################################
-# Filename: 	SCE_Training.R
+# Filename: 	Training.R
 # Part of the SCE package, https://github.com/loong2020/Stepwise-Clustered-Ensemble.git
 # Author: 		Kailong Li & Xiuquan Wang
 # Email:		  lkl98509509@gmail.com; xiuquan.wang@gmail.com
