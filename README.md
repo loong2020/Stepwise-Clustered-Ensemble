@@ -9,6 +9,11 @@ references:
 Li, Kailong, Guohe Huang, and Brian Baetz. Development of a Wilks feature importance method with improved variable rankings for supporting hydrological inference and modelling. Hydrology and Earth System Sciences 25.9 (2021): 4947-4966.
 
 How to use:
+## Install SCE package 
+library(devtools)
+
+devtools::install_github("loong2020/Stepwise-Clustered-Ensemble")
+
 ## Load SCE package and supporting packages 
 library(SCE)
 
