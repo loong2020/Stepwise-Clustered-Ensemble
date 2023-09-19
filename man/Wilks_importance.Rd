@@ -32,8 +32,10 @@ Kailong Li <lkl98509509@gmail.com>
 }
 
 \examples{
-## Load the SCE package
+## Load SCE package and the supporting packages
 library(SCE)
+library(parallel)
+library(hydroGOF)
 
 ## Load the training and testing data files
 data("Training_input")

@@ -53,8 +53,10 @@ Liu, Y. Y. and Y. L. Wang (1979). Application of stepwise cluster analysis in me
 }
 
 \examples{
-## Load SCE package
+## Load SCE package and the supporting packages
 library(SCE)
+library(parallel)
+library(hydroGOF)
 
 ## Training data file
 data("Training_input")

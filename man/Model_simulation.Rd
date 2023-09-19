@@ -31,8 +31,10 @@ Model_simulation(Testing_data, X, model)
 }
 
 \examples{
-  ## Load SCE package
+  ## Load SCE package and the supporting packages
   library(SCE)
+  library(parallel)
+  library(hydroGOF)
 
   ## Load training and testing data
   data("Training_input")
