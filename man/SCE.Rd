@@ -1,45 +1,82 @@
 \name{SCE}
 \alias{SCE}
-\alias{SCE}
 
 \title{
-	Build an SCE model
+	Build a Stepwise Clustered Ensemble (SCE) model
 }
 
 \description{
-	This function aims to build an SCE model that contains information for prediction and inference.
+	This function builds an SCE model that contains information for prediction and inference. The SCE model is an ensemble of Stepwise Cluster Analysis (SCA) trees, where each tree is built using bootstrap samples and random feature selection.
 }
 
 \usage{
-SCE(Training_data, X, Y, mfeature, Nmin, Ntree, alpha)
+SCE(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolution = 1000)
 }
 
 \arguments{
 	\item{Training_data}{
-		a data.frame used for training the model.
+		a data.frame or matrix used for training the model. Must contain all specified predictors and predictants.
 	}
 	\item{X}{
-		a string to specify names for independent (x) variable (e.g., c("Prcp","SRad",...,"swvl2")). The length for independent variables must be greater than it for dependent variables.
+		a character vector specifying names for independent (predictor) variables (e.g., c("Prcp","SRad","Tmax")). The length must be greater than the number of dependent variables.
 	}
 	\item{Y}{
-		a string to specify the name(s) for dependent (y) variable(s) (e.g., c("swvl3","swvl4")).
+		a character vector specifying the name(s) for dependent (predictant) variable(s) (e.g., c("swvl3","swvl4")).
 	}
 	\item{mfeature}{
-		a value to specify how many features will be drawn for each tree. Recommended value is round(0.5*length(X)).
+		an integer specifying how many features will be randomly selected for each tree. Recommended value is round(0.5*length(X)).
 	}
 	\item{Nmin}{
-		a value to specify the minimal number of sample in a leaf node for cutting.
+		an integer specifying the minimal number of samples in a leaf node for cutting. Must be greater than the number of predictants.
 	}
 	\item{Ntree}{
-		a value to specify how many trees (ensemble members) will be built.
+		an integer specifying how many trees (ensemble members) will be built.
 	}
 	\item{alpha}{
-		significance level for clustering, usually in 0.001 - 0.1, default value is 0.05.
+		numeric significance level for clustering, usually between 0.001 and 0.1. Default value is 0.05.
+	}
+	\item{resolution}{
+		numeric value specifying the resolution for splitting. Default value is 1000.
 	}
 }
 
+\value{
+A list containing:
+\itemize{
+  \item A list of SCA tree models, each containing:
+    \itemize{
+      \item Tree: The SCA tree structure
+      \item Map: Mapping information
+      \item XName: Names of predictors used
+      \item YName: Names of predictants
+      \item type: Mapping type
+      \item totalNodes: Total number of nodes
+      \item leafNodes: Number of leaf nodes
+      \item cuttingActions: Number of cutting actions
+      \item mergingActions: Number of merging actions
+      \item OOB_error: Out-of-bag R-squared error
+      \item OOB_sim: Out-of-bag predictions
+      \item Sample: Bootstrap sample indices
+      \item Tree_Info: Tree-specific information
+      \item Training_data: Training data used for the tree
+      \item weight: Tree weight based on OOB performance
+    }
+}
+}
+
+\details{
+The SCE model is built using the following steps:
+\enumerate{
+  \item Input validation and data preparation
+  \item Generation of bootstrap samples and random features for each tree
+  \item Parallel construction of SCA trees
+  \item Calculation of out-of-bag (OOB) errors
+  \item Weighting of trees based on OOB performance
+}
+}
+
 \author{
-Kailong li  <lkl98509509@gmail.com>
+Kailong Li <lkl98509509@gmail.com>
 }
 
 \references{
@@ -56,7 +93,6 @@ Liu, Y. Y. and Y. L. Wang (1979). Application of stepwise cluster analysis in me
 ## Load SCE package and the supporting packages
 library(SCE)
 library(parallel)
-library(hydroGOF)
 
 ## Training data file
 data("Training_input")
@@ -68,5 +104,14 @@ Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2")
 Predictants <- c("swvl3","swvl4")
 
 ## Build the SCE model
-Model <- SCE(Training_data=Training_input, X=Predictors, Y=Predictants, mfeature=round(0.5*length(Predictors)),Nmin=5,Ntree=48,alpha=0.05)
+Model <- SCE(
+  Training_data = Training_input,
+  X = Predictors,
+  Y = Predictants,
+  mfeature = round(0.5*length(Predictors)),
+  Nmin = 5,
+  Ntree = 48,
+  alpha = 0.05,
+  resolution = 1000
+)
 }

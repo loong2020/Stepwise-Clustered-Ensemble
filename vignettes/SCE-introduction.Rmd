@@ -1,0 +1,199 @@
+---
+title: "Introduction to SCE Package"
+author: "Kailong Li"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to SCE Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+The SCE (Stepwise Clustered Ensemble) package provides powerful tools for multivariate data analysis through the implementation of Stepwise Clustered Ensemble (SCE) and Stepwise Cluster Analysis (SCA) methods. This vignette will guide you through the basic usage of the package with practical examples.
+
+## Installation
+
+```{r install, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("loong2020/Stepwise-Clustered-Ensemble")
+```
+
+## Basic Usage
+
+### Loading the Package and Required Data
+
+```{r load}
+library(SCE)
+library(parallel)  # For parallel computing support
+
+# Load example datasets
+data(Training_input)
+data(Testing_input)
+```
+
+### Stepwise Cluster Analysis (SCA)
+
+The SCA function performs stepwise cluster analysis on your data. Here's a practical example:
+
+```{r sca_example}
+# Define predictors and predictants
+Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3","swvl4")
+Predictants <- c("Flow")
+
+# Perform SCA
+set.seed(123)
+model <- SCA(alpha = 0.05, 
+            Training_data = Training_input, 
+            X = Predictors, 
+            Y = Predictants, 
+            Nmin = 5, 
+            resolution = 100)
+
+# Make predictions
+prediction <- SCA_tree_predict(Test_data = Testing_input,
+                             X = Predictors,
+                             model = model)
+
+# Evaluate performance
+performance <- SCA_Model_evaluation(Testing_data = Testing_input,
+                                  Simulations = prediction,
+                                  Predictant = Predictants,
+                                  Num_predictor = length(Predictors),
+                                  digits = 2)
+print(performance)
+```
+
+### Stepwise Clustered Ensemble (SCE)
+
+The SCE function builds an ensemble model for more robust predictions:
+
+```{r sce_example}
+# Build SCE model
+set.seed(123)
+Ensemble <- SCE(Training_data = Training_input,
+               X = Predictors,
+               Y = Predictants,
+               mfeature = round(0.5 * length(Predictors)),
+               Nmin = 5,
+               Ntree = 40,
+               alpha = 0.05,
+               resolution = 100)
+
+# Make predictions
+Simulations <- Model_simulation(Testing_data = Testing_input,
+                              Training_data = Training_input,
+                              model = Ensemble)
+
+# Evaluate model performance
+Evaluation <- SCE_Model_evaluation(Testing_data = Testing_input,
+                                 Training_data = Training_input,
+                                 Simulations = Simulations,
+                                 Predictant = Predictants,
+                                 Num_predictor = length(Predictors),
+                                 digits = 2)
+
+# Calculate variable importance
+Importance_ranking <- Wilks_importance(Ensemble)
+
+print(Evaluation)
+```
+
+### Handling Multiple Predictants
+
+SCE can also handle multiple predictants:
+
+```{r multiple_predictants}
+# Define predictors and multiple predictants
+Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3")
+Predictants <- c("Flow","swvl4")
+
+# Build and evaluate model
+set.seed(123)
+Ensemble <- SCE(Training_data = Training_input,
+               X = Predictors,
+               Y = Predictants,
+               mfeature = round(0.5 * length(Predictors)),
+               Nmin = 5,
+               Ntree = 40,
+               alpha = 0.05,
+               resolution = 100)
+
+Simulations <- Model_simulation(Testing_data = Testing_input,
+                              Training_data = Training_input,
+                              model = Ensemble)
+
+Evaluation <- SCE_Model_evaluation(Testing_data = Testing_input,
+                                 Training_data = Training_input,
+                                 Simulations = Simulations,
+                                 Predictant = Predictants,
+                                 Num_predictor = length(Predictors),
+                                 digits = 2)
+
+print(Evaluation)
+```
+
+### Recursive Feature Elimination (RFE)
+
+The package includes a feature selection method using RFE:
+
+```{r rfe_example}
+# Perform RFE
+result <- RFE_SCE(
+  Training_data = Training_input,
+  Testing_data = Testing_input,
+  Predictors = Predictors,
+  Predictant = Predictants,
+  alpha = 0.05,
+  Nmin = 5,
+  Ntree = 48,
+  resolution = 100,
+  metric = "nse",
+  step = 1
+)
+```
+
+## Best Practices
+
+1. **Data Preparation**:
+   - Ensure your data is properly formatted
+   - Handle missing values appropriately
+   - Consider data normalization if needed
+
+2. **Parameter Selection**:
+   - `resolution`: Controls the granularity of clustering (higher values = finer clusters)
+   - `Nmin`: Minimum number of samples in a cluster
+   - `Ntree`: Number of trees in the ensemble
+   - `alpha`: Significance level for statistical tests
+
+3. **Performance Tuning**:
+   - Use cross-validation to tune parameters
+   - Monitor model performance using evaluation metrics
+   - Consider using RFE for feature selection
+
+4. **Computational Considerations**:
+   - For large datasets, consider using parallel computing
+   - Adjust resolution and Nmin based on data size
+   - Monitor memory usage for large ensembles
+
+## References
+
+For more detailed information about the methods implemented in this package, please refer to:
+
+- Li, K., et al. (Year). Title of the paper. Journal Name, Volume(Issue), pages.
+
+## Getting Help
+
+If you encounter any issues or have questions about using the SCE package, please:
+
+1. Check the package documentation: `?SCE`
+2. Review the other vignettes
+3. Contact the package maintainer: lkl98509509@gmail.com 
