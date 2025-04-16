@@ -10,7 +10,9 @@ You can install the development version of SCE from GitHub:
 
 ```r
 # install.packages("devtools")
-devtools::install_github("loong2020/Stepwise-Clustered-Ensemble")
+devtools::install_github("loong2020/Stepwise-Clustered-Ensemble", 
+                         build_vignettes = TRUE, 
+                         force = TRUE)
 ```
 
 ## Main Functions
