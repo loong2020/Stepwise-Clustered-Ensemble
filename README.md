@@ -10,8 +10,7 @@ You can install the development version of SCE from GitHub:
 
 ```r
 # install.packages("devtools")
-devtools::install_github("loong2020/Stepwise-Clustered-Ensemble", 
-                         build_vignettes = TRUE)
+devtools::install_github("loong2020/Stepwise-Clustered-Ensemble")
 ```
 
 ## Main Functions
@@ -25,12 +24,113 @@ devtools::install_github("loong2020/Stepwise-Clustered-Ensemble",
 - `RFE_SCE`: Recursive Feature Elimination for SCE
 - `Wilks_importance`: Calculate variable importance using Wilks' lambda
 
-## Usage
+## Usage Examples
 
-For detailed usage examples and tutorials, please refer to the package vignettes. To view the vignettes:
-
+### Basic SCA Analysis
 ```r
-vignette("SCE-introduction", package = "SCE")
+# Define predictors and predictants
+Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3","swvl4")
+Predictants <- c("Flow")
+
+# Perform SCA
+set.seed(123)
+model <- SCA(alpha = 0.05, 
+            Training_data = Training_input, 
+            X = Predictors, 
+            Y = Predictants, 
+            Nmin = 5, 
+            resolution = 100)
+
+# Make predictions
+prediction <- SCA_tree_predict(Test_data = Testing_input,
+                             X = Predictors,
+                             model = model)
+
+# Evaluate performance
+performance <- SCA_Model_evaluation(Testing_data = Testing_input,
+                                  Simulations = prediction,
+                                  Predictant = Predictants,
+                                  Num_predictor = length(Predictors),
+                                  digits = 2)
+print(performance)
+```
+
+### SCE Ensemble Analysis
+```r
+# Build SCE model
+set.seed(123)
+Ensemble <- SCE(Training_data = Training_input,
+               X = Predictors,
+               Y = Predictants,
+               mfeature = round(0.5 * length(Predictors)),
+               Nmin = 5,
+               Ntree = 40,
+               alpha = 0.05,
+               resolution = 100)
+
+# Make predictions
+Simulations <- Model_simulation(Testing_data = Testing_input,
+                              Training_data = Training_input,
+                              model = Ensemble)
+
+# Evaluate model performance
+Evaluation <- SCE_Model_evaluation(Testing_data = Testing_input,
+                                 Training_data = Training_input,
+                                 Simulations = Simulations,
+                                 Predictant = Predictants,
+                                 Num_predictor = length(Predictors),
+                                 digits = 2)
+
+# Calculate variable importance
+Importance_ranking <- Wilks_importance(Ensemble)
+print(Evaluation)
+```
+
+### Multiple Predictants
+```r
+# Define predictors and multiple predictants
+Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3")
+Predictants <- c("Flow","swvl4")
+
+# Build and evaluate model
+set.seed(123)
+Ensemble <- SCE(Training_data = Training_input,
+               X = Predictors,
+               Y = Predictants,
+               mfeature = round(0.5 * length(Predictors)),
+               Nmin = 5,
+               Ntree = 40,
+               alpha = 0.05,
+               resolution = 100)
+
+Simulations <- Model_simulation(Testing_data = Testing_input,
+                              Training_data = Training_input,
+                              model = Ensemble)
+
+Evaluation <- SCE_Model_evaluation(Testing_data = Testing_input,
+                                 Training_data = Training_input,
+                                 Simulations = Simulations,
+                                 Predictant = Predictants,
+                                 Num_predictor = length(Predictors),
+                                 digits = 2)
+print(Evaluation)
+```
+
+### Recursive Feature Elimination
+```r
+# Perform RFE
+result <- RFE_SCE(
+  Training_data = Training_input,
+  Testing_data = Testing_input,
+  Predictors = Predictors,
+  Predictant = Predictants,
+  alpha = 0.05,
+  Nmin = 5,
+  Ntree = 48,
+  resolution = 100,
+  metric = "nse",
+  step = 1
+)
 ```
 
 ## Documentation
