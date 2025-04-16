@@ -1,0 +1,16 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^README\.Rmd$
+^\.travis\.yml$
+^appveyor\.yml$
+^\.lintr$
+^data-raw$
+^docs$
+^pkgdown$
+^_pkgdown\.yml$
+^\.github$
+^\.git$
+^\.gitignore$
+^\.Rhistory$
+^\.RData$
+^\.Ruserdata$ 
