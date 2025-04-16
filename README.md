@@ -17,13 +17,13 @@ devtools::install_github("loong2020/Stepwise-Clustered-Ensemble",
 
 ## Main Functions
 
-- `SCE()`: Main function for Stepwise Clustered Ensemble analysis
-- `SCA()`: Stepwise Cluster Analysis function
-- `Model_evaluation()`: Evaluate model performance
-- `Model_simulation()`: Perform model simulations
+- `SCE()`: Main function for building a Stepwise Clustered Ensemble model
+- `SCA()`: Stepwise Cluster Analysis (ensemble member of SCE)
+- `Model_simulation()`: Perform SCE model preidction
+- `SCA_tree_predict()`: Perform SCA model preidction
+- `SCA_Model_evaluation()`: Evaluate model performance for SCA 
+- `SCE_Model_evaluation()`: Evaluate model performance for SCA 
 - `RFE_SCE()`: Recursive Feature Elimination for SCE
-- `Training()`: Training function for the ensemble model
-- `Prediction()`: Make predictions using the trained model
 - `Wilks_importance()`: Calculate variable importance using Wilks' lambda
 
 ## Usage
