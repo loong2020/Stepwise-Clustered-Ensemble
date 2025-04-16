@@ -25,8 +25,7 @@ The SCE (Stepwise Clustered Ensemble) package provides powerful tools for multiv
 ```{r install, eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("loong2020/Stepwise-Clustered-Ensemble", 
-                         build_vignettes = TRUE, 
-                         force = TRUE)
+                         build_vignettes = TRUE)
 ```
 
 ## Basic Usage
