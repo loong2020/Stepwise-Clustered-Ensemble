@@ -36,7 +36,8 @@ SCE(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolution = 1000)
 		numeric significance level for clustering, usually between 0.001 and 0.1. Default value is 0.05.
 	}
 	\item{resolution}{
-		numeric value specifying the resolution for splitting. Default value is 1000.
+		numeric value specifying the resolution for splitting (instead of searching every possible split point, only search every resolution-th point, and iterate until the potential splits is less than resolution). Default value is 1000.
+        Controls the granularity of the search for optimal split points.
 	}
 }
 
