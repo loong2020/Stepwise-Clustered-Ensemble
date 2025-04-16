@@ -38,7 +38,7 @@ SCA_tree_predict(Test_data, X, model)
     Must be greater than the number of predictants.
   }
   \item{resolution}{
-    Numeric value specifying the resolution for splitting.
+    Numeric value specifying the resolution for splitting (instead of searching every possible split point, only search every resolution-th point, and iterate until the potential splits is less than resolution).
     Controls the granularity of the search for optimal split points.
   }
   \item{Test_data}{
@@ -115,7 +115,8 @@ SCA_tree_predict(Test_data, X, model)
 }
 
 \author{
-  Kailong Li <lkl98509509@gmail.com>
+  Xiuquan Wang <xxwang@upei.ca> (original SCA)
+  Kailong Li <lkl98509509@gmail.com> (Resolution-search-based SCA)
 }
 
 \examples{
