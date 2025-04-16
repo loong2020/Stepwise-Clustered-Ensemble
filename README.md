@@ -154,6 +154,7 @@ Full documentation is available through the R help system:
 
 This package is licensed under the GPL-3 License.
 
-## Author
+## Authors
 
 - Kailong Li (lkl98509509@gmail.com) 
+- Xiuquan Wang (xxwang@upei.ca)
