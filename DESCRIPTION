@@ -2,7 +2,10 @@ Package: SCE
 Title: Stepwise Clustered Ensemble
 Version: 1.0.0
 Authors@R: 
-    person("Kailong Li", , "lkl98509509@gmail.com", role = c("author"))
+    person(given = "Kailong",
+           family = "Li",
+           email = "lkl98509509@gmail.com",
+           role = c("aut", "cre"))
 Description: Implementation of Stepwise Clustered Ensemble (SCE) and Stepwise Cluster Analysis (SCA) for multivariate data analysis.
 License: GPL-3
 Encoding: UTF-8
