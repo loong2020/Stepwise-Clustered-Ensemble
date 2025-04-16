@@ -26,7 +26,11 @@ devtools::install_github("loong2020/Stepwise-Clustered-Ensemble")
 
 ## Usage
 
-For detailed usage examples and tutorials, please refer to the package vignettes.
+For detailed usage examples and tutorials, please refer to the package vignettes. To view the vignettes:
+
+```r
+vignette("SCE-introduction", package = "SCE")
+```
 
 ## Documentation
 
