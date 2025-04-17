@@ -10,7 +10,7 @@ RFE_SCE <- function(
   Nmin = 5,
   Ntree = 40,
   resolution = 50,
-  metric = "rmse",  # Can be "rmse", "mae", "nse", "log_nse", "Adj_R2", "kge"
+  metric = "rmse",  # Can be "rmse", "mae", "nse", "log_nse", "R2", "kge"
   step = 1  # Number of predictors to remove at each iteration
 ) {
   # Input validation
@@ -31,16 +31,16 @@ RFE_SCE <- function(
   }
   
   # Define which metrics should be maximized vs minimized
-  maximize_metrics <- c("nse", "log_nse", "Adj_R2", "kge")
+  maximize_metrics <- c("nse", "log_nse", "R2", "kge")
   minimize_metrics <- c("rmse", "mae")
   
   if (!metric %in% c(maximize_metrics, minimize_metrics)) {
-    stop("Invalid metric. Must be one of: rmse, mae, nse, log_nse, Adj_R2, kge")
+    stop("Invalid metric. Must be one of: rmse, mae, nse, log_nse, R2, kge")
   }
   
-  # if the number of Predictant is more than 1, the metric must be one of "nse", "log_nse", "Adj_R2", "kge"
+  # if the number of Predictant is more than 1, the metric must be one of "nse", "log_nse", "R2", "kge"
   if (length(Predictant) > 1 && !metric %in% maximize_metrics) {
-    stop("For multiple predictants, the metric must be one of: nse, log_nse, Adj_R2, kge")
+    stop("For multiple predictants, the metric must be one of: nse, log_nse, R2, kge")
   }
   
   # Initialize variables
@@ -88,7 +88,6 @@ RFE_SCE <- function(
       Training_data = Training_data,
       Simulations = predictions,
       Predictant = Predictant,
-      Num_predictor = length(current_predictors),
       digits = 3
     )
     
@@ -157,7 +156,6 @@ RFE_SCE <- function(
 #   Testing_data = test_data,
 #   Predictors = c("x1", "x2", "x3", "x4"),
 #   Predictant = "y",
-#   Num_predictor = 3,
 #   alpha = 0.05,
 #   Nmin = 5,
 #   resolution = 50,

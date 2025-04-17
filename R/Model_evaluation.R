@@ -7,7 +7,6 @@
 # ===============================================================
 #: load the function
 rsq <- function(x, y) summary(lm(y~x))$r.squared #R squared function
-Adj_rsq <- function(x,y,z) 1-(1-rsq(x,y))*(length(y)-1)/(length(y)-z-1) #adjusted R squared function
 NSE_equation <- function(x, y) {1-(sum((x - y)^2)/ sum((x - mean(x))^2))} #obs = x, sim = y
 KGE_equation <- function(x,y) {
   # x = observed, y = simulated
@@ -18,7 +17,7 @@ KGE_equation <- function(x,y) {
   return(KGE)
 } #obs = x, sim = y
 
-GOF <- function(obs,sim,Num_predictor,digits=4)
+GOF <- function(obs,sim,digits=4)
 {
   sim[sim<=0] <- 0.0001
   obs[obs<=0] <- 0.0001
@@ -26,18 +25,17 @@ GOF <- function(obs,sim,Num_predictor,digits=4)
   rmse <- sqrt(mean((obs-sim)^2))
   nse <- NSE_equation(x=obs,y=sim)
   log_nse <- NSE_equation(x=log(obs),y=log(sim))
-  Adj_R2 <- Adj_rsq(obs,sim,Num_predictor)
+  R2 <- rsq(obs,sim)
   kge <- KGE_equation(x=obs,y=sim)
-  names(Adj_R2) <- "Adj_R2"
   names(log_nse) <- "Log.NSE"
-  GOF <- rbind(mae,rmse,nse,log_nse,Adj_R2,kge)
+  GOF <- rbind(mae,rmse,nse,log_nse,R2,kge)
   GOF <- format(GOF, scientific = FALSE, digits = digits)
   GOF <- as.matrix(GOF)
   colnames(GOF) <- "GOF"
   return(GOF)
 }
 
-SCA_Model_evaluation <- function(Testing_data, Simulations, Predictant, Num_predictor, digits=3)
+SCA_Model_evaluation <- function(Testing_data, Simulations, Predictant, digits=3)
 {
   # Input validation
   if (!is.data.frame(Testing_data)) {
@@ -50,10 +48,6 @@ SCA_Model_evaluation <- function(Testing_data, Simulations, Predictant, Num_pred
   
   if (!is.character(Predictant) || length(Predictant) == 0) {
     stop("Predictant must be a non-empty character vector")
-  }
-  
-  if (!is.numeric(Num_predictor) || Num_predictor < 0) {
-    stop("Num_predictor must be a positive number")
   }
   
   # Check if predictants exist in data
@@ -78,7 +72,7 @@ SCA_Model_evaluation <- function(Testing_data, Simulations, Predictant, Num_pred
   # For SCA, we only evaluate testing performance
   all_results <- list()
   for(pred in Predictant) {
-    Testing_GOF <- GOF(obs=Testing_data[,pred], sim=Simulations$Testing_sim[,pred], Num_predictor=Num_predictor, digits=digits)
+    Testing_GOF <- GOF(obs=Testing_data[,pred], sim=Simulations$Testing_sim[,pred], digits=digits)
     GOF_res <- data.frame(Testing=Testing_GOF)
     colnames(GOF_res) <- "Testing"
     all_results[[pred]] <- GOF_res
@@ -90,7 +84,7 @@ SCA_Model_evaluation <- function(Testing_data, Simulations, Predictant, Num_pred
   return(all_results)
 }
 
-SCE_Model_evaluation <- function(Testing_data, Training_data, Simulations, Predictant, Num_predictor, digits=3)
+SCE_Model_evaluation <- function(Testing_data, Training_data, Simulations, Predictant, digits=3)
 {
   # Input validation
   if (!is.data.frame(Testing_data) || !is.data.frame(Training_data)) {
@@ -103,10 +97,6 @@ SCE_Model_evaluation <- function(Testing_data, Training_data, Simulations, Predi
   
   if (!is.character(Predictant) || length(Predictant) == 0) {
     stop("Predictant must be a non-empty character vector")
-  }
-  
-  if (!is.numeric(Num_predictor) || Num_predictor < 0) {
-    stop("Num_predictor must be a positive number")
   }
   
   # Check if predictants exist in data
@@ -146,9 +136,9 @@ SCE_Model_evaluation <- function(Testing_data, Training_data, Simulations, Predi
   # Loop through each predictant
   for(pred in Predictant) {
     # Calculate GOF for each predictant
-    Training_GOF <- GOF(obs=Training_data[,pred],sim=Simulations[["Training"]][,pred],Num_predictor=Num_predictor,digits=digits)
-    Validation_GOF <- GOF(obs=Training_data[,pred],sim=Simulations[["Validation"]][,pred],Num_predictor=Num_predictor,digits=digits)
-    Testing_GOF <- GOF(obs=Testing_data[,pred],sim=Simulations[["Testing"]][,pred],Num_predictor=Num_predictor,digits=digits)
+    Training_GOF <- GOF(obs=Training_data[,pred],sim=Simulations[["Training"]][,pred],digits=digits)
+    Validation_GOF <- GOF(obs=Training_data[,pred],sim=Simulations[["Validation"]][,pred],digits=digits)
+    Testing_GOF <- GOF(obs=Testing_data[,pred],sim=Simulations[["Testing"]][,pred],digits=digits)
     
     # Combine results for this predictant
     GOF_res <- data.frame(Training_GOF,Validation_GOF,Testing_GOF)
