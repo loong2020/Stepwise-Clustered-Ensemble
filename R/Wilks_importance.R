@@ -5,7 +5,7 @@
 # Author: 		Kailong Li
 # Email:		lkl98509509@gmail.com
 # ===============================================================
-Wilks_importance <- function(model,OOB_weight=FALSE)
+Wilks_importance <- function(model,OOB_weight=TRUE)
 {
   #: Extract information from Trees
   Wilk_mat <- lapply(model,function(x) data.frame(x$Tree))
