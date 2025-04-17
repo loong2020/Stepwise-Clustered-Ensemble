@@ -227,13 +227,19 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
     weight_OOB <- rep(0, length(OOB_RSQ))
     weight_OOB[non_zero_indices] <- log10(OOB_RSQ[non_zero_indices] / (1 - OOB_RSQ[non_zero_indices]))
     
-    # Normalize non-zero weights
-    if (max(weight_OOB) == min(weight_OOB)) {
-      weight_OOB[non_zero_indices] <- 1/length(non_zero_indices)
+    # Check if all weights are 0
+    if (all(weight_OOB == 0)) {
+      # If all weights are 0, use uniform weights
+      weight_OOB <- rep(1/length(OOB_RSQ), length(OOB_RSQ))
     } else {
-      weight_OOB[non_zero_indices] <- (weight_OOB[non_zero_indices] - min(weight_OOB[non_zero_indices])) / 
-                                     (max(weight_OOB[non_zero_indices]) - min(weight_OOB[non_zero_indices]))
-      weight_OOB[non_zero_indices] <- weight_OOB[non_zero_indices] / sum(weight_OOB[non_zero_indices])
+      # Normalize non-zero weights
+      if (max(weight_OOB) == min(weight_OOB)) {
+        weight_OOB[non_zero_indices] <- 1/length(non_zero_indices)
+      } else {
+        weight_OOB[non_zero_indices] <- (weight_OOB[non_zero_indices] - min(weight_OOB[non_zero_indices])) / 
+                                       (max(weight_OOB[non_zero_indices]) - min(weight_OOB[non_zero_indices]))
+        weight_OOB[non_zero_indices] <- weight_OOB[non_zero_indices] / sum(weight_OOB[non_zero_indices])
+      }
     }
   } else {
     # If all R-squared values are zero, use uniform weights
