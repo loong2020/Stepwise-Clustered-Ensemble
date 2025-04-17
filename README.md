@@ -58,7 +58,6 @@ prediction <- SCA_tree_predict(Test_data = Testing_input,
 performance <- SCA_Model_evaluation(Testing_data = Testing_input,
                                   Simulations = prediction,
                                   Predictant = Predictants,
-                                  Num_predictor = length(Predictors),
                                   digits = 2)
 print(performance)
 ```
@@ -86,7 +85,6 @@ Evaluation <- SCE_Model_evaluation(Testing_data = Testing_input,
                                  Training_data = Training_input,
                                  Simulations = Simulations,
                                  Predictant = Predictants,
-                                 Num_predictor = length(Predictors),
                                  digits = 2)
 
 # Calculate variable importance
@@ -119,7 +117,6 @@ Evaluation <- SCE_Model_evaluation(Testing_data = Testing_input,
                                  Training_data = Training_input,
                                  Simulations = Simulations,
                                  Predictant = Predictants,
-                                 Num_predictor = length(Predictors),
                                  digits = 2)
 print(Evaluation)
 ```
