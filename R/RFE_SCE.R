@@ -44,14 +44,10 @@ RFE_SCE <- function(
   }
   
   # Initialize variables
-  current_predictors <- Predictors
-  best_predictors <- Predictors
-  best_metric <- if (metric %in% maximize_metrics) -Inf else Inf
   history <- list(
     summary = data.frame(
       n_predictors = integer(),
       predictors = character(),
-      current_metric = numeric(),
       stringsAsFactors = FALSE
     ),
     performances = list(),
@@ -91,14 +87,6 @@ RFE_SCE <- function(
       digits = 3
     )
     
-    # Extract metric value for best model selection
-    if (length(Predictant) == 1) {
-      current_metric <- as.numeric(evaluation[metric, "Validation"])
-    } else {
-      # For multiple predictants, use average metric
-      current_metric <- mean(sapply(evaluation, function(x) as.numeric(x[metric, "Validation"])))
-    }
-    
     # Store summary and performance
     history$summary <- rbind(history$summary, data.frame(
       n_predictors = length(current_predictors),
@@ -117,19 +105,6 @@ RFE_SCE <- function(
       }
     }
     
-    # Update best model if current is better
-    if (metric %in% maximize_metrics) {
-      if (current_metric > best_metric) {
-        best_metric <- current_metric
-        best_predictors <- current_predictors
-      }
-    } else {
-      if (current_metric < best_metric) {
-        best_metric <- current_metric
-        best_predictors <- current_predictors
-      }
-    }
-    
     # Calculate importance scores
     importance_scores <- Wilks_importance(
       model = model
@@ -143,8 +118,6 @@ RFE_SCE <- function(
   
   # Return results
   return(list(
-    best_predictors = best_predictors,
-    best_metric = best_metric,
     history = history,
     final_model = model
   ))
