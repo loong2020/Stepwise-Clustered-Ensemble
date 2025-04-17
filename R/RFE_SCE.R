@@ -44,6 +44,7 @@ RFE_SCE <- function(
   }
   
   # Initialize variables
+  current_predictors <- Predictors
   history <- list(
     summary = data.frame(
       n_predictors = integer(),
