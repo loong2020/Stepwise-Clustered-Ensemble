@@ -17,21 +17,34 @@ KGE_equation <- function(x,y) {
   return(KGE)
 } #obs = x, sim = y
 
-GOF <- function(obs,sim,digits=4)
+GOF <- function(obs, sim, digits=4)
 {
+  # Remove NaN values from both obs and sim
+  valid_idx <- !is.nan(sim) & !is.nan(obs)
+  obs <- obs[valid_idx]
+  sim <- sim[valid_idx]
+  
+  # Handle zero or negative values
   sim[sim<=0] <- 0.0001
   obs[obs<=0] <- 0.0001
+  
+  # Calculate metrics
   mae <- mean(abs(obs-sim))
   rmse <- sqrt(mean((obs-sim)^2))
   nse <- NSE_equation(x=obs,y=sim)
   log_nse <- NSE_equation(x=log(obs),y=log(sim))
   R2 <- rsq(obs,sim)
   kge <- KGE_equation(x=obs,y=sim)
+  
+  # Name the metrics
   names(log_nse) <- "Log.NSE"
+  
+  # Combine results
   GOF <- rbind(mae,rmse,nse,log_nse,R2,kge)
   GOF <- format(GOF, scientific = FALSE, digits = digits)
   GOF <- as.matrix(GOF)
   colnames(GOF) <- "GOF"
+  
   return(GOF)
 }
 
