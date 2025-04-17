@@ -10,7 +10,6 @@ RFE_SCE <- function(
   Nmin = 5,
   Ntree = 40,
   resolution = 50,
-  metric = "rmse",  # Can be "rmse", "mae", "nse", "log_nse", "R2", "kge"
   step = 1  # Number of predictors to remove at each iteration
 ) {
   # Input validation
@@ -28,19 +27,6 @@ RFE_SCE <- function(
   
   if (!is.numeric(step) || step < 1 || step > length(Predictors) - length(Predictant)) {
     stop("step must be a positive integer less than or equal to the number of predictors minus the number of predictants")
-  }
-  
-  # Define which metrics should be maximized vs minimized
-  maximize_metrics <- c("nse", "log_nse", "R2", "kge")
-  minimize_metrics <- c("rmse", "mae")
-  
-  if (!metric %in% c(maximize_metrics, minimize_metrics)) {
-    stop("Invalid metric. Must be one of: rmse, mae, nse, log_nse, R2, kge")
-  }
-  
-  # if the number of Predictant is more than 1, the metric must be one of "nse", "log_nse", "R2", "kge"
-  if (length(Predictant) > 1 && !metric %in% maximize_metrics) {
-    stop("For multiple predictants, the metric must be one of: nse, log_nse, R2, kge")
   }
   
   # Initialize variables
@@ -117,10 +103,7 @@ RFE_SCE <- function(
   }
   
   # Return results
-  return(list(
-    history = history,
-    final_model = model
-  ))
+  return(history)
 }
 
 # Example usage:
@@ -132,6 +115,5 @@ RFE_SCE <- function(
 #   alpha = 0.05,
 #   Nmin = 5,
 #   resolution = 50,
-#   metric = "rmse",
 #   step = 2  # Remove 2 predictors at a time
 # ) 
