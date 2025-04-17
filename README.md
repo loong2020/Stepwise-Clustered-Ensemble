@@ -133,7 +133,6 @@ result <- RFE_SCE(
   Nmin = 5,
   Ntree = 48,
   resolution = 100,
-  metric = "nse",
   step = 1
 )
 ```
