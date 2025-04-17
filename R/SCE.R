@@ -214,11 +214,28 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
     x$OOB_error
   })
   
+  # Handle negative R-squared values
+  if (any(OOB_RSQ < 0)) {
+    # Convert to positive scale using exponential transformation
+    OOB_RSQ <- exp(OOB_RSQ)
+  } else {
+    # Original handling for positive R-squared
+    OOB_RSQ <- pmax(pmin(OOB_RSQ, 0.999), 0.001)
+  }
+  
   # Calculate weights
-  OOB_RSQ <- pmax(pmin(OOB_RSQ, 0.999), 0.001)
   weight_OOB <- log10(OOB_RSQ / (1 - OOB_RSQ))
-  weight_OOB <- (weight_OOB - min(weight_OOB)) / (max(weight_OOB) - min(weight_OOB))
-  weight_OOB <- weight_OOB / sum(weight_OOB)
+  
+  # Handle case where all weights are the same
+  if (max(weight_OOB) == min(weight_OOB)) {
+    # If all weights are equal, use uniform weights
+    weight_OOB <- rep(1/length(weight_OOB), length(weight_OOB))
+  } else {
+    # Normalize weights
+    weight_OOB <- (weight_OOB - min(weight_OOB)) / (max(weight_OOB) - min(weight_OOB))
+    weight_OOB <- weight_OOB / sum(weight_OOB)
+  }
+  
   SCE_res <- Map(function(x, w) c(x, list(weight = w)), x = SCE_res, w = weight_OOB)
   
   # Clean up
