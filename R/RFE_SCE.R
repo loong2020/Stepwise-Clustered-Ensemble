@@ -54,7 +54,8 @@ RFE_SCE <- function(
       current_metric = numeric(),
       stringsAsFactors = FALSE
     ),
-    performances = list()
+    performances = list(),
+    importance_scores = list()
   )
   
   # Main RFE loop
@@ -134,7 +135,8 @@ RFE_SCE <- function(
     importance_scores <- Wilks_importance(
       model = model
     )
-    
+    history$importance_scores[[length(history$importance_scores) + 1]] <- importance_scores
+
     # Remove step number of least important predictors
     least_important <- importance_scores$col_index[order(importance_scores$Importance)[1:min(step, length(current_predictors) - length(Predictant))]]
     current_predictors <- setdiff(current_predictors, least_important)
