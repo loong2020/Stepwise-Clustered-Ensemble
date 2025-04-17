@@ -92,7 +92,6 @@ RFE_SCE <- function(
     history$summary <- rbind(history$summary, data.frame(
       n_predictors = length(current_predictors),
       predictors = paste(current_predictors, collapse = ","),
-      current_metric = current_metric,
       stringsAsFactors = FALSE
     ))
     
