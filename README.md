@@ -147,8 +147,20 @@ result <- RFE_SCE(
 Full documentation is available through the R help system:
 
 ```r
+# Core functions
 ?SCE
 ?SCA
+?Model_simulation
+?SCA_tree_predict
+
+# Evaluation functions
+?SCA_Model_evaluation
+?SCE_Model_evaluation
+
+# Feature selection and importance
+?RFE_SCE
+?Wilks_importance
+?SCA_importance
 ```
 
 ## License
