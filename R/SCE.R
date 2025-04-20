@@ -78,12 +78,6 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
     stop(sprintf("The following predictants are not numeric: %s", 
                 paste(non_numeric, collapse = ", ")))
   }
-
-  # check if the number of predictants is greater than Nmin
-  if (length(Y) > Nmin) {
-    stop(sprintf("The number of predictants (%d) is greater than Nmin (%d)", 
-                length(Y), Nmin))
-  }
   
   # Prepare data
   o_xdata <- as.data.frame(Training_data[, X, drop = FALSE])
