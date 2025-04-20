@@ -57,12 +57,6 @@ SCA <- function(alpha, Training_data, X, Y, Nmin, resolution)
                 paste(non_numeric, collapse = ", ")))
   }
 
-  # check if the number of predictants is greater than Nmin
-  if (length(Y) > Nmin) {
-    stop(sprintf("The number of predictants (%d) is greater than Nmin (%d)", 
-                length(Y), Nmin))
-  }
-
   #: create data structure
   data <- list()
   
