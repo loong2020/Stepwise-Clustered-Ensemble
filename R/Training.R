@@ -397,7 +397,7 @@ f_checkif_leaf <- function(data, n_nodeid)
 }
 
 #: process node
-f_processnode <- function(data, node_id, Max_merge_time, resolution)
+f_processnode <- function(data, node_id, Max_merge_iter, resolution)
 {
   #: if a leaf, just exit this function
   leaf_check <- f_checkif_leaf(data, node_id)
@@ -449,10 +449,10 @@ f_processnode <- function(data, node_id, Max_merge_time, resolution)
       n_cut_flag = f_cal_chk_f(data, min_wilks_list)
       
       # Comment out cutting information print
-      # cat(sprintf("Cutting Node %d: Wilks' lambda = %.4f, Cut Flag = %d\n", 
-      #            n_nodeid_cut_temp, min_wilks_list$min_wilks_value, n_cut_flag))
+      cat(sprintf("Cutting Node %d: Wilks' lambda = %.4f, Cut Flag = %d\n", 
+                  n_nodeid_cut_temp, min_wilks_list$min_wilks_value, n_cut_flag))
       
-      if ((n_cut_flag == 1) && (data$n_merge_times <= Max_merge_time))
+      if ((n_cut_flag == 1) && (data$Merge_iter <= Max_merge_iter))
       {
         #: if can be cut, then cut it and process it's sub nodes, respectively
         n_cursor_tree = length(data$o_output_tree) + 1
@@ -506,7 +506,7 @@ f_processnode <- function(data, node_id, Max_merge_time, resolution)
         #: update cut flag
         data$n_flag_cut <- 1
       }
-      else if ((n_cut_flag == 0) && (data$n_merge_times <= Max_merge_time))
+      else if ((n_cut_flag == 0) && (data$Merge_iter <= Max_merge_iter))
       {
         #: is a leaf, set it as a leaf and add into merge stack
         data$o_output_tree[[n_nodeid_cut_temp]]$left <- -1
@@ -596,6 +596,9 @@ f_processnode <- function(data, node_id, Max_merge_time, resolution)
               #: can be merged
               #: 1> do merge
               n_cursor_tree = length(data$o_output_tree) + 1
+
+              cat(sprintf("\nMerging nodes %d and %d into new node %d\n", 
+                         n_nodeid_merge_a, n_nodeid_merge_b, n_cursor_tree))
               
               #: set the cursor for output tree
               o_temp_list = list(id=n_cursor_tree, col_index=0, value=0, left=0, right=0, 
@@ -620,7 +623,6 @@ f_processnode <- function(data, node_id, Max_merge_time, resolution)
               #: 3> update merge times variable
               data$n_flag_merge <- 1
               data$n_merge_times <- data$n_merge_times + 1
-
               #: 4> break the FOR loop
               break
             }
@@ -652,6 +654,7 @@ f_processnode <- function(data, node_id, Max_merge_time, resolution)
 
       data$o_nodeid_stack_merge <- c()
       data$n_nodeid_statck_merge_cursor <- 1
+      data$Merge_iter = data$Merge_iter + 1
     }
   }
   
@@ -671,7 +674,7 @@ do_cluster <- function(data, Nmin, resolution)
   result <- f_init(data)
 
   #: do main function
-  result <- f_main(result, Max_merge_time=10, Nmin=Nmin, resolution = resolution)
+  result <- f_main(result, Max_merge_iter=10, Nmin=Nmin, resolution = resolution)
 
   # : calculate the total time used
   time_end <- (proc.time() - time_stat)[[3]]
@@ -738,6 +741,7 @@ f_init <- function(data)
   #: some statistical infos for the results
   data$n_cut_times <- 0
   data$n_merge_times <- 0
+  data$Merge_iter <- 0
   data$n_leafnodes_count <- 0
 
   return(data)
@@ -746,10 +750,10 @@ f_init <- function(data)
 # ---------------------------------------------------------------
 # Main functions
 # ---------------------------------------------------------------
-f_main <- function(data, Max_merge_time, Nmin, resolution)
+f_main <- function(data, Max_merge_iter, Nmin, resolution)
 {
   #: cut from the root node
-  data <- f_processnode(data, 1, Max_merge_time, resolution)
+  data <- f_processnode(data, 1, Max_merge_iter, resolution)
 
   #: results matrix structure -> matrix(id, col_id, x_value, left_id, right_id, left_mat, right_mat, wilk_min)
   o_results_matrix = matrix(0, length(data$o_output_tree), 8)

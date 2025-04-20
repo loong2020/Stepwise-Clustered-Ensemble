@@ -225,20 +225,34 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
   # Calculate weights for non-zero R-squared values
   if (length(non_zero_indices) > 0) {
     weight_OOB <- rep(0, length(OOB_RSQ))
-    weight_OOB[non_zero_indices] <- log10(OOB_RSQ[non_zero_indices] / (1 - OOB_RSQ[non_zero_indices]))
+    
+    # Prevent OOB_RSQ from being exactly 1 to avoid division by zero
+    OOB_RSQ[OOB_RSQ == 1] <- 0.999999
+    
+    # Calculate log odds ratio safely
+    log_odds <- log10(OOB_RSQ[non_zero_indices] / (1 - OOB_RSQ[non_zero_indices]))
     
     # Handle different cases for non-zero weights
     if (length(non_zero_indices) == 1) {
       # If only one non-zero value, give it full weight
       weight_OOB[non_zero_indices] <- 1
-    } else if (max(weight_OOB) == min(weight_OOB)) {
+    } else if (max(log_odds) == min(log_odds)) {
       # If all non-zero weights are equal, distribute weight equally
       weight_OOB[non_zero_indices] <- 1/length(non_zero_indices)
     } else {
-      # Normalize weights
-      weight_OOB[non_zero_indices] <- (weight_OOB[non_zero_indices] - min(weight_OOB[non_zero_indices])) / 
-                                     (max(weight_OOB[non_zero_indices]) - min(weight_OOB[non_zero_indices]))
-      weight_OOB[non_zero_indices] <- weight_OOB[non_zero_indices] / sum(weight_OOB[non_zero_indices])
+      # Normalize weights safely
+      weight_range <- max(log_odds) - min(log_odds)
+      if (weight_range == 0) {
+        weight_OOB[non_zero_indices] <- 1/length(non_zero_indices)
+      } else {
+        weight_OOB[non_zero_indices] <- (log_odds - min(log_odds)) / weight_range
+        weight_sum <- sum(weight_OOB[non_zero_indices])
+        if (weight_sum == 0) {
+          weight_OOB[non_zero_indices] <- 1/length(non_zero_indices)
+        } else {
+          weight_OOB[non_zero_indices] <- weight_OOB[non_zero_indices] / weight_sum
+        }
+      }
     }
   } else {
     # If all R-squared values are zero, use uniform weights
