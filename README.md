@@ -22,7 +22,7 @@ devtools::install_github("loong2020/Stepwise-Clustered-Ensemble")
 - `SCA_Model_evaluation`: Evaluate model performance for SCA 
 - `SCE_Model_evaluation`: Evaluate model performance for SCE
 - `RFE_SCE`: Recursive Feature Elimination for SCE
-- `Wilks_importance`: Calculate variable importance using Wilks' lambda
+- `Wilks_importance`: Calculate variable importance for SCE using Wilks' lambda
 - `SCA_importance`: Calculate variable importance for a single SCA tree
 
 ## Usage Examples
@@ -35,7 +35,7 @@ data(Training_input)
 data(Testing_input)
 ```
 
-### Basic SCA Analysis
+### SCA (Single tree) Analysis
 ```r
 # Define predictors and predictants
 Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3","swvl4")
@@ -67,7 +67,7 @@ performance <- SCA_Model_evaluation(Testing_data = Testing_input,
 print(performance)
 ```
 
-### SCE Ensemble Analysis
+### SCE (Tree ensemble) Analysis
 ```r
 # Build SCE model
 set.seed(123)
@@ -97,7 +97,7 @@ Importance_ranking <- Wilks_importance(Ensemble)
 print(Evaluation)
 ```
 
-### Multiple Predictants
+### Multiple Predictants Case
 ```r
 # Define predictors and multiple predictants
 Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3")
