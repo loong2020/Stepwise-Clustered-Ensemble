@@ -27,10 +27,10 @@ devtools::install_github("loong2020/Stepwise-Clustered-Ensemble")
 
 ## Usage Examples
 
-First, load the required package and data:
+First, load the required packages and data:
 
 ```r
-# Load required package
+# Load required packages
 library(SCE)
 library(parallel)
 
