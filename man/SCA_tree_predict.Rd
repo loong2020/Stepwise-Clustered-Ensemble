@@ -12,11 +12,11 @@
 }
 
 \usage{
-SCA_tree_predict(Test_data, model)
+SCA_tree_predict(Testing_data, model)
 }
 
 \arguments{
-	\item{Test_data}{
+	\item{Testing_data}{
 		A data.frame containing the test data with the same predictor variables as used in training.
 	}
 	\item{model}{
@@ -94,7 +94,7 @@ SCA_tree <- SCA(
 
 ## Make predictions using the single tree
 Predictions <- SCA_tree_predict(
-	Test_data = Testing_input,
+	Testing_data = Testing_input,
 	model = SCA_tree
 )
 

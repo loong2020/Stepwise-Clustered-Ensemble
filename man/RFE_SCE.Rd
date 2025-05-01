@@ -6,7 +6,7 @@
 }
 
 \description{
-  This function implements Recursive Feature Elimination (RFE) to identify the most important predictors for SCE models. It iteratively removes the least important predictors based on Wilks' feature importance scores and evaluates model performance using various metrics. The function supports both single and multiple predictants.
+  This function implements Recursive Feature Elimination (RFE) to identify the most important predictors for SCE models. It iteratively removes the least important predictors based on Wilks' feature importance scores and evaluates model performance. The function supports both single and multiple predictants, with comprehensive input validation and performance tracking across iterations.
 }
 
 \usage{
@@ -15,11 +15,11 @@ RFE_SCE(
   Testing_data,
   Predictors,
   Predictant,
+  Nmin,
+  Ntree,
+  mfeature,
   alpha = 0.05,
-  Nmin = 5,
-  Ntree = 40,
-  resolution = 50,
-  metric = "rmse",
+  resolution = 1000,
   step = 1
 )
 }
@@ -39,29 +39,22 @@ RFE_SCE(
     A character vector specifying the name(s) of dependent variable(s)
     (e.g., c("swvl3","swvl4")). Must be non-empty.
   }
-  \item{alpha}{
-    Numeric significance level for clustering, usually between 0.001 and 0.1.
-    Default value is 0.05.
-  }
   \item{Nmin}{
     Integer specifying the minimal number of samples in a leaf node for cutting.
-    Default value is 5.
   }
   \item{Ntree}{
     Integer specifying the number of trees in the ensemble.
-    Default value is 40.
+  }
+  \item{mfeature}{
+    Integer specifying how many features will be randomly selected for each tree.
+  }
+  \item{alpha}{
+    Numeric significance level for clustering, between 0 and 1.
+    Default value is 0.05.
   }
   \item{resolution}{
     Numeric value specifying the resolution for splitting.
-    Default value is 50.
-  }
-  \item{metric}{
-    Character string specifying the performance metric to optimize:
-    \itemize{
-      \item For single predictant: "rmse", "mae", "nse", "log_nse", "Adj_R2", "kge"
-      \item For multiple predictants: "nse", "log_nse", "Adj_R2", "kge"
-    }
-    Default value is "rmse".
+    Default value is 1000.
   }
   \item{step}{
     Integer specifying the number of predictors to remove at each iteration.
@@ -73,44 +66,50 @@ RFE_SCE(
 \value{
   A list containing:
   \itemize{
-    \item best_predictors: Character vector of the optimal set of predictors
-    \item best_metric: Numeric value of the best performance metric achieved
-    \item history: List containing:
+    \item summary: Data.frame with columns:
       \itemize{
-        \item summary: Data.frame with columns:
-          \itemize{
-            \item n_predictors: Number of predictors at each iteration
-            \item predictors: Comma-separated list of predictors used
-            \item current_metric: Performance metric value
-          }
-        \item performances: List of performance evaluations for each iteration
+        \item n_predictors: Number of predictors at each iteration
+        \item predictors: Comma-separated list of predictors used
       }
-    \item final_model: The SCE model trained with the best set of predictors
+    \item performances: List of performance evaluations for each iteration
+      \itemize{
+        \item For single predictant: Direct performance data.frame
+        \item For multiple predictants: Named list of performance data.frames
+      }
+    \item importance_scores: List of Wilks' importance scores for each iteration
   }
 }
 
 \details{
   The RFE process involves the following steps:
   \enumerate{
-    \item Input validation and initialization
-    \item Iterative process:
+    \item Input validation:
+      \itemize{
+        \item Data frame structure validation
+        \item Predictor and predictant validation
+        \item Step size validation
+      }
+    \item Initialization:
+      \itemize{
+        \item Set up history tracking structures
+        \item Initialize current predictor set
+      }
+    \item Main RFE loop (continues while predictors > predictants + 2):
       \itemize{
         \item Train SCE model with current predictors
-        \item Make predictions on testing data
-        \item Evaluate model performance
-        \item Calculate predictor importance using Wilks' method
-        \item Remove least important predictors
+        \item Generate predictions using Model_simulation
+        \item Evaluate model using SCE_Model_evaluation
+        \item Store performance metrics and importance scores
+        \item Remove least important predictors based on Wilks' scores
       }
-    \item Track performance history
-    \item Return best performing predictor set
   }
   
   The function handles:
   \itemize{
     \item Single and multiple predictants
-    \item Different performance metrics
-    \item Step-wise predictor removal
     \item Performance tracking across iterations
+    \item Importance score calculation
+    \item Step-wise predictor removal
   }
 }
 
@@ -138,23 +137,20 @@ RFE_SCE(
     Testing_data = Testing_input,
     Predictors = Predictors,
     Predictant = Predictants,
-    alpha = 0.05,
     Nmin = 5,
     Ntree = 40,
-    resolution = 50,
-    metric = "nse",
+    mfeature = round(0.5 * length(Predictors)),
+    alpha = 0.05,
+    resolution = 1000,
     step = 1
   )
 
   ## Access results
-  best_predictors <- RFE_results$best_predictors
-  best_metric <- RFE_results$best_metric
-  performance_history <- RFE_results$history
-  final_model <- RFE_results$final_model
+  summary <- RFE_results$summary
+  performances <- RFE_results$performances
+  importance_scores <- RFE_results$importance_scores
 
   ## Print summary
-  print("Best predictors:")
-  print(best_predictors)
-  print("Best metric value:")
-  print(best_metric)
+  print("RFE Summary:")
+  print(summary)
 } 
