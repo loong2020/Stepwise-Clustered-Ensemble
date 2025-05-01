@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------
 # Interface function
 # ---------------------------------------------------------------
-SCA <- function(alpha, Training_data, X, Y, Nmin, resolution)
+SCA <- function(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
 {
   #: store the start time
   time_stat <- proc.time()
