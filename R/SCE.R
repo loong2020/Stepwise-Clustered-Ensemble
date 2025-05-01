@@ -173,7 +173,6 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
     # Make predictions on OOB data
     oob_predictions <- SCA_tree_predict(
       Test_data = oob_xdata,
-      X = feature_names,
       model = tree_model
     )
     

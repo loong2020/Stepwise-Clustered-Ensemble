@@ -100,7 +100,7 @@ SCA <- function(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
   return(model)
 }
 
-SCA_tree_predict <- function(Test_data, X, model) {
+SCA_tree_predict <- function(Test_data, model) {
   # Input validation
   if (!is.data.frame(Test_data) && !is.matrix(Test_data)) {
     stop("Test_data must be a data frame or matrix")
@@ -111,31 +111,14 @@ SCA_tree_predict <- function(Test_data, X, model) {
   }
   
   # Check if all required predictors are present in test data
-  if (!all(X %in% colnames(Test_data))) {
-    missing_vars <- setdiff(X, colnames(Test_data))
+  if (!all(model$XName %in% colnames(Test_data))) {
+    missing_vars <- setdiff(model$XName, colnames(Test_data))
     stop(sprintf("The following predictors are not found in Test_data: %s", 
                 paste(missing_vars, collapse = ", ")))
   }
   
-  # Check if test data has the same predictors as the model
-  if (!all(X == model$XName)) {
-    stop("Predictors in test data do not match those used in model training")
-  }
-  
-  # Check for missing values
-  if (any(is.na(Test_data[, X]))) {
-    stop("Test_data contains missing values")
-  }
-  
-  # Check data types
-  if (!all(sapply(Test_data[, X], is.numeric))) {
-    non_numeric <- names(which(!sapply(Test_data[, X], is.numeric)))
-    stop(sprintf("The following predictors are not numeric: %s", 
-                paste(non_numeric, collapse = ", ")))
-  }
-  
   # Initialize Test_X
-  Test_X <- Test_data[,X]
+  Test_X <- Test_data[,model$XName]
   
   # Initialize data structure
   data <- list()
