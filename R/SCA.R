@@ -100,25 +100,25 @@ SCA <- function(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
   return(model)
 }
 
-SCA_tree_predict <- function(Test_data, model) {
+SCA_tree_predict <- function(Testing_data, model) {
   # Input validation
-  if (!is.data.frame(Test_data) && !is.matrix(Test_data)) {
-    stop("Test_data must be a data frame or matrix")
+  if (!is.data.frame(Testing_data) && !is.matrix(Testing_data)) {
+    stop("Testing_data must be a data frame or matrix")
   }
   
-  if (nrow(Test_data) == 0) {
-    stop("Test_data is empty")
+  if (nrow(Testing_data) == 0) {
+    stop("Testing_data is empty")
   }
   
   # Check if all required predictors are present in test data
-  if (!all(model$XName %in% colnames(Test_data))) {
-    missing_vars <- setdiff(model$XName, colnames(Test_data))
-    stop(sprintf("The following predictors are not found in Test_data: %s", 
+  if (!all(model$XName %in% colnames(Testing_data))) {
+    missing_vars <- setdiff(model$XName, colnames(Testing_data))
+    stop(sprintf("The following predictors are not found in Testing_data: %s", 
                 paste(missing_vars, collapse = ", ")))
   }
   
   # Initialize Test_X
-  Test_X <- Test_data[,model$XName]
+  Test_X <- Testing_data[,model$XName]
   
   # Initialize data structure
   data <- list()

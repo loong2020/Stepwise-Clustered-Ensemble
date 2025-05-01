@@ -130,7 +130,7 @@ SCE_Prediction <- function(X_sample, model)
   # Get model predictions for each tree
   predictions <- lapply(model, function(m) {
     SCA_tree_predict(
-      Test_data = X_sample,
+      Testing_data = X_sample,
       model = m
     )
   })

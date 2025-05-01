@@ -6,10 +6,11 @@ RFE_SCE <- function(
   Testing_data,
   Predictors,
   Predictant,
+  Nmin,
+  Ntree,
+  mfeature,
   alpha = 0.05,
-  Nmin = 5,
-  Ntree = 40,
-  resolution = 50,
+  resolution = 1000,
   step = 1  # Number of predictors to remove at each iteration
 ) {
   # Input validation
@@ -51,7 +52,7 @@ RFE_SCE <- function(
       Training_data = Training_data,
       X = current_predictors,
       Y = Predictant,
-      mfeature = round(0.5*length(current_predictors)),
+      mfeature = mfeature,
       Ntree = Ntree,
       alpha = alpha,
       Nmin = Nmin,
