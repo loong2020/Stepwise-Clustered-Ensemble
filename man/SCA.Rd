@@ -7,43 +7,48 @@
 }
 
 \description{
-  This function implements a Stepwise Cluster Analysis (SCA) model for multivariate data analysis. The SCA model recursively partitions the data space based on Wilks' Lambda statistic, creating a tree structure that can be used for prediction. The function includes comprehensive input validation and supports both single and multiple predictants.
+  This function implements a Stepwise Cluster Analysis (SCA) model for multivariate data analysis. The SCA model recursively partitions the data space based on Wilks' Lambda statistic, creating a tree structure that can be used for prediction. The function includes comprehensive input validation for data types, missing values, and sample size requirements, and supports both single and multiple predictants.
 }
 
 \usage{
-SCA(alpha, Training_data, X, Y, Nmin, resolution)
+SCA(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
 
 SCA_tree_predict(Test_data, X, model)
 }
 
 \arguments{
-  \item{alpha}{
-    Numeric significance level for clustering, usually between 0.001 and 0.1.
-    This parameter controls the stopping criterion for tree growth.
-  }
   \item{Training_data}{
     A data.frame or matrix containing the training data.
     Must include all specified predictors and predictants.
+    Must not contain missing values.
   }
   \item{X}{
     A character vector specifying the names of independent variables
     (e.g., c("Prcp","SRad","Tmax")). Must be present in Training_data.
+    All variables must be numeric.
   }
   \item{Y}{
     A character vector specifying the name(s) of dependent variable(s)
     (e.g., c("swvl3","swvl4")). Must be present in Training_data.
+    All variables must be numeric.
   }
   \item{Nmin}{
     Integer specifying the minimal number of samples in a leaf node for cutting.
-    Must be greater than the number of predictants.
+    Must be a positive number and less than the sample size.
+  }
+  \item{alpha}{
+    Numeric significance level for clustering, between 0 and 1.
+    Default value is 0.05.
   }
   \item{resolution}{
-    Numeric value specifying the resolution for splitting (instead of searching every possible split point, only search every resolution-th point, and iterate until the potential splits is less than resolution).
+    Numeric value specifying the resolution for splitting.
     Controls the granularity of the search for optimal split points.
+    Default value is 1000.
   }
   \item{Test_data}{
     A data.frame or matrix containing the test data.
     Must include all predictors used in model training.
+    Must not contain missing values.
   }
   \item{model}{
     A trained SCA model object returned by the SCA function.
@@ -78,15 +83,16 @@ SCA_tree_predict(Test_data, X, model)
   \enumerate{
     \item Input validation:
       \itemize{
-        \item Data type and structure checks
-        \item Missing value checks
-        \item Numeric data validation
-        \item Sample size requirements
+        \item Data type and structure checks (data.frame or matrix)
+        \item Missing value checks in both predictors and predictants
+        \item Numeric data validation for all variables
+        \item Sample size requirements (must be greater than Nmin)
+        \item Parameter validation (alpha, Nmin, resolution)
       }
     \item Data preparation:
       \itemize{
-        \item Conversion to matrix format
-        \item Dimension checks
+        \item Conversion of input data to matrix format
+        \item Dimension checks and storage
         \item Parameter initialization
       }
     \item Tree construction:
@@ -99,18 +105,23 @@ SCA_tree_predict(Test_data, X, model)
   
   The prediction process:
   \enumerate{
-    \item Input validation for test data
-    \item Data preparation and initialization
-    \item Tree traversal for each test sample
-    \item Prediction using leaf node mappings
-  }
-  
-  The function handles:
-  \itemize{
-    \item Single and multiple predictants
-    \item Missing value detection
-    \item Data type validation
-    \item Sample size requirements
+    \item Input validation for test data:
+      \itemize{
+        \item Data type and structure checks
+        \item Missing value checks
+        \item Predictor matching with training data
+        \item Numeric data validation
+      }
+    \item Data preparation:
+      \itemize{
+        \item Conversion to matrix format
+        \item Initialization of prediction matrix
+      }
+    \item Tree traversal and prediction:
+      \itemize{
+        \item Processing each test sample through the tree
+        \item Generating predictions using leaf node mappings
+      }
   }
 }
 
@@ -133,12 +144,12 @@ SCA_tree_predict(Test_data, X, model)
 
   ## Build the SCA model
   Model <- SCA(
-    alpha = 0.05,
     Training_data = Training_input,
     X = Predictors,
     Y = Predictants,
     Nmin = 5,
-    resolution = 50
+    alpha = 0.05,
+    resolution = 1000
   )
 
   ## Make predictions
