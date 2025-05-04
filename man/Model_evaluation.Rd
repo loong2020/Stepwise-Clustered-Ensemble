@@ -1,7 +1,6 @@
 \name{Model_evaluation}
-\alias{Model_evaluation}
-\alias{SCE_Model_evaluation}
 \alias{SCA_Model_evaluation}
+\alias{SCE_Model_evaluation}
 
 \title{
   Evaluate SCE and SCA Model Performances
@@ -16,20 +15,9 @@
 }
 
 \usage{
-SCE_Model_evaluation(
-  Testing_data,
-  Training_data,
-  Simulations,
-  Predictant,
-  digits = 3
-)
+SCA_Model_evaluation(Testing_data, Simulations, Predictant, digits = 3)
 
-SCA_Model_evaluation(
-  Testing_data,
-  Simulations,
-  Predictant,
-  digits = 3
-)
+SCE_Model_evaluation(Testing_data, Training_data, Simulations, Predictant, digits = 3)
 }
 
 \arguments{
@@ -60,15 +48,15 @@ SCA_Model_evaluation(
 }
 
 \value{
-  For SCE_Model_evaluation:
-  \itemize{
-    \item If single predictant: Returns a data.frame with columns "Training", "Validation", and "Testing"
-    \item If multiple predictants: Returns a list of data.frames, one for each predictant
-  }
-  
   For SCA_Model_evaluation:
   \itemize{
     \item If single predictant: Returns a data.frame with column "Testing"
+    \item If multiple predictants: Returns a list of data.frames, one for each predictant
+  }
+  
+  For SCE_Model_evaluation:
+  \itemize{
+    \item If single predictant: Returns a data.frame with columns "Training", "Validation", and "Testing"
     \item If multiple predictants: Returns a list of data.frames, one for each predictant
   }
   
@@ -141,7 +129,7 @@ SCA_Model_evaluation(
   )
 
   ## Evaluate the SCE model
-  Evaluation <- SCE_Model_evaluation(
+  SCE_Evaluation <- SCE_Model_evaluation(
     Testing_data = Testing_input,
     Training_data = Training_input,
     Simulations = Results,

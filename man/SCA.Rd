@@ -42,18 +42,9 @@ SCA(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
     Controls the granularity of the search for optimal split points.
     Default value is 1000.
   }
-  \item{Test_data}{
-    A data.frame or matrix containing the test data.
-    Must include all predictors used in model training.
-    Must not contain missing values.
-  }
-  \item{model}{
-    A trained SCA model object returned by the SCA function.
-  }
 }
 
 \value{
-  For \code{SCA}:
   A list containing:
   \itemize{
     \item Tree: The SCA tree structure
@@ -65,13 +56,6 @@ SCA(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
     \item leafNodes: Number of leaf nodes
     \item cuttingActions: Number of cutting actions performed
     \item mergingActions: Number of merging actions performed
-  }
-  
-  For \code{SCA_tree_predict}:
-  A list containing:
-  \itemize{
-    \item All components from the input model
-    \item Testing_sim: A data.frame containing predictions for the test data
   }
 }
 
@@ -97,27 +81,6 @@ SCA(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
         \item Recursive partitioning based on Wilks' Lambda
         \item Node splitting and merging
         \item Leaf node creation
-      }
-  }
-  
-  The prediction process:
-  \enumerate{
-    \item Input validation for test data:
-      \itemize{
-        \item Data type and structure checks
-        \item Missing value checks
-        \item Predictor matching with training data
-        \item Numeric data validation
-      }
-    \item Data preparation:
-      \itemize{
-        \item Conversion to matrix format
-        \item Initialization of prediction matrix
-      }
-    \item Tree traversal and prediction:
-      \itemize{
-        \item Processing each test sample through the tree
-        \item Generating predictions using leaf node mappings
       }
   }
 }
@@ -148,15 +111,4 @@ SCA(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
     alpha = 0.05,
     resolution = 1000
   )
-
-  ## Make predictions
-  Predictions <- SCA_tree_predict(
-    Testing_data = Testing_input,
-    model = Model
-  )
-
-  ## Access predictions
-  testing_predictions <- Predictions$Testing_sim
-  print("Predictions:")
-  print(testing_predictions)
 } 

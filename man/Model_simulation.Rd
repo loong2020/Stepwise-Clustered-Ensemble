@@ -1,7 +1,5 @@
 \name{Model_simulation}
 \alias{Model_simulation}
-\alias{SCE_Prediction}
-\alias{OOB_validation}
 
 \title{
   Perform Simulations using a Trained SCE Model
@@ -13,10 +11,6 @@
 
 \usage{
 Model_simulation(Testing_data, Training_data, model)
-
-SCE_Prediction(X_sample, model)
-
-OOB_validation(model)
 }
 
 \arguments{
@@ -34,10 +28,6 @@ OOB_validation(model)
     The trained SCE model object generated through the \code{SCE} function.
     This model contains the necessary information and parameters for conducting simulations.
   }
-  \item{X_sample}{
-    A data.frame or matrix containing the predictor variables for which predictions are to be made.
-    Must contain all the predictors used in the model and must not contain missing values.
-  }
 }
 
 \value{
@@ -47,12 +37,6 @@ OOB_validation(model)
     \item Validation: A data.frame containing out-of-bag (OOB) predictions
     \item Testing: A data.frame containing predictions for the testing dataset
   }
-  
-  For \code{SCE_Prediction}:
-  A matrix containing weighted ensemble predictions for each predictant.
-  
-  For \code{OOB_validation}:
-  A data.frame containing weighted OOB predictions for each predictant.
 }
 
 \details{
