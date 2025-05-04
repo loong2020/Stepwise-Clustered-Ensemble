@@ -59,8 +59,7 @@ importance <- SCA_importance(model)
 print(importance)
 
 # Make predictions
-prediction <- SCA_tree_predict(Test_data = Testing_input
-                             model = model)
+prediction <- SCA_tree_predict(Testing_data = Testing_input, model = model)
 
 # Evaluate performance
 performance <- SCA_Model_evaluation(Testing_data = Testing_input,
