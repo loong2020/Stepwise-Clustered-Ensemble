@@ -8,7 +8,7 @@
 }
 
 \description{
-  This function facilitates the simulation of dependent variables based on the specified independent variables utilizing a previously trained SCE model. It generates predictions for training, out-of-bag validation, and testing datasets. The function includes comprehensive input validation and handles both single and multiple predictants.
+  This function facilitates the simulation of dependent variables based on the specified independent variables utilizing a previously trained SCE model. It generates predictions for training, out-of-bag validation, and testing datasets. The function includes comprehensive input validation for data types, missing values, and predictor matching.
 }
 
 \usage{
@@ -22,11 +22,13 @@ OOB_validation(model)
 \arguments{
   \item{Testing_data}{
     A data.frame or matrix comprising the data that will be used to test the model.
-    Must contain all the predictors used in the model and must not contain missing values.
+    Must contain all the predictors used in the model.
+    Must not contain missing values.
   }
   \item{Training_data}{
     A data.frame or matrix comprising the data used for training the model.
-    Must contain all the predictors used in the model and must not contain missing values.
+    Must contain all the predictors used in the model.
+    Must not contain missing values.
   }
   \item{model}{
     The trained SCE model object generated through the \code{SCE} function.
@@ -39,7 +41,6 @@ OOB_validation(model)
 }
 
 \value{
-  For \code{Model_simulation}:
   A list containing three components:
   \itemize{
     \item Training: A data.frame containing predictions for the training dataset
@@ -57,27 +58,24 @@ OOB_validation(model)
 \details{
   The simulation process involves the following steps:
   \enumerate{
-    \item Input validation for data frames/matrices and model structure
-    \item Checking for required predictors and predictants
-    \item Validation of data types and missing values
-    \item Generation of predictions using weighted ensemble approach
-  }
-  
-  Input validation includes checks for:
-  \enumerate{
-    \item Null values in inputs
-    \item Data frame/matrix structure
-    \item Empty datasets
-    \item Presence of required predictors and predictants
-    \item Missing values in data
-    \item Numeric data types
-  }
-  
-  The prediction process:
-  \enumerate{
-    \item Each tree in the ensemble makes predictions
-    \item Predictions are weighted by the tree's OOB performance
-    \item Weighted predictions are combined to form the ensemble prediction
+    \item Input validation:
+      \itemize{
+        \item Data type and structure checks (data.frame or matrix)
+        \item Missing value checks
+        \item Predictor matching with training data
+        \item Numeric data validation
+      }
+    \item Data preparation:
+      \itemize{
+        \item Conversion to matrix format
+        \item Initialization of prediction matrices
+      }
+    \item Prediction generation:
+      \itemize{
+        \item Training predictions using all trees
+        \item Out-of-bag predictions using trees not trained on each sample
+        \item Testing predictions using all trees
+      }
   }
 }
 
