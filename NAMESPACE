@@ -2,10 +2,12 @@
 
 export(SCA)
 export(SCE)
-export(SCE_Model_evaluation)
 export(SCA_Model_evaluation)
+export(SCE_Model_evaluation)
 export(Model_simulation)
 export(RFE_SCE)
 export(SCA_tree_predict)
 export(Wilks_importance)
 export(SCA_importance)
+export(SCE_Prediction)
+export(OOB_validation)
