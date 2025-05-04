@@ -59,15 +59,13 @@ importance <- SCA_importance(model)
 print(importance)
 
 # Make predictions
-prediction <- SCA_tree_predict(Test_data = Testing_input,
-                             X = Predictors,
+prediction <- SCA_tree_predict(Test_data = Testing_input
                              model = model)
 
 # Evaluate performance
 performance <- SCA_Model_evaluation(Testing_data = Testing_input,
                                   Simulations = prediction,
-                                  Predictant = Predictants,
-                                  digits = 2)
+                                  Predictant = Predictants)
 print(performance)
 ```
 
@@ -125,8 +123,7 @@ Simulations <- Model_simulation(Testing_data = Testing_input,
 Evaluation <- SCE_Model_evaluation(Testing_data = Testing_input,
                                  Training_data = Training_input,
                                  Simulations = Simulations,
-                                 Predictant = Predictants,
-                                 digits = 2)
+                                 Predictant = Predictants)
 print(Evaluation)
 ```
 
@@ -138,11 +135,12 @@ result <- RFE_SCE(
   Testing_data = Testing_input,
   Predictors = Predictors,
   Predictant = Predictants,
-  alpha = 0.05,
   Nmin = 5,
   Ntree = 48,
-  resolution = 100,
-  step = 1
+  mfeature = round(0.5 * length(Predictors)),
+  alpha = 0.05,
+  resolution = 1000,
+  step = 1  # Number of predictors to remove at each iteration
 )
 ```
 
