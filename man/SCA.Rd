@@ -1,6 +1,5 @@
 \name{SCA}
 \alias{SCA}
-\alias{SCA_tree_predict}
 
 \title{
   Stepwise Cluster Analysis (SCA) Model
@@ -12,8 +11,6 @@
 
 \usage{
 SCA(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
-
-SCA_tree_predict(Test_data, X, model)
 }
 
 \arguments{
@@ -154,8 +151,7 @@ SCA_tree_predict(Test_data, X, model)
 
   ## Make predictions
   Predictions <- SCA_tree_predict(
-    Test_data = Testing_input,
-    X = Predictors,
+    Testing_data = Testing_input,
     model = Model
   )
 
