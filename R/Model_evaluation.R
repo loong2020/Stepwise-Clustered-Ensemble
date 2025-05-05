@@ -51,10 +51,6 @@ GOF <- function(obs, sim, digits=4)
 SCA_Model_evaluation <- function(Testing_data, Simulations, Predictant, digits=3)
 {
   # Input validation
-  if (!is.data.frame(Testing_data)) {
-    stop("Testing_data must be a data frame")
-  }
-  
   if (!is.list(Simulations) || !"Testing_sim" %in% names(Simulations)) {
     stop("Simulations must be a list with 'Testing_sim' component")
   }
@@ -100,10 +96,6 @@ SCA_Model_evaluation <- function(Testing_data, Simulations, Predictant, digits=3
 SCE_Model_evaluation <- function(Testing_data, Training_data, Simulations, Predictant, digits=3)
 {
   # Input validation
-  if (!is.data.frame(Testing_data) || !is.data.frame(Training_data)) {
-    stop("Testing_data and Training_data must be data frames")
-  }
-  
   if (!is.list(Simulations) || !all(c("Training", "Validation", "Testing") %in% names(Simulations))) {
     stop("Simulations must be a list with 'Training', 'Validation', and 'Testing' components")
   }

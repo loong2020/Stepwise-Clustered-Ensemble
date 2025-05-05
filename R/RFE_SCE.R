@@ -8,7 +8,6 @@ RFE_SCE <- function(
   Predictant,
   Nmin,
   Ntree,
-  mfeature,
   alpha = 0.05,
   resolution = 1000,
   step = 1  # Number of predictors to remove at each iteration
@@ -52,7 +51,7 @@ RFE_SCE <- function(
       Training_data = Training_data,
       X = current_predictors,
       Y = Predictant,
-      mfeature = mfeature,
+      mfeature = round(length(current_predictors)/2),
       Ntree = Ntree,
       alpha = alpha,
       Nmin = Nmin,
@@ -106,15 +105,3 @@ RFE_SCE <- function(
   # Return results
   return(history)
 }
-
-# Example usage:
-# result <- RFE_SCE(
-#   Training_data = train_data,
-#   Testing_data = test_data,
-#   Predictors = c("x1", "x2", "x3", "x4"),
-#   Predictant = "y",
-#   alpha = 0.05,
-#   Nmin = 5,
-#   resolution = 50,
-#   step = 2  # Remove 2 predictors at a time
-# ) 
