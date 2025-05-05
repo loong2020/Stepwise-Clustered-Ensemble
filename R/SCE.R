@@ -130,21 +130,8 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
     library(parallel)
   })
 
-  # Initialize progress tracking
-  cat("Starting SCE training...\n")
-  
-  # Create a progress file
-  progress_file <- tempfile()
-  writeLines("0", progress_file)
-  
-  # Parallel processing with progress tracking
+  # Parallel processing
   SCE_res <- parallel::parLapply(Clus, Bootst_rep, function(rep) {
-    # Update progress
-    current <- as.numeric(readLines(progress_file))
-    writeLines(as.character(current + 1), progress_file)
-    cat(sprintf("\rTraining tree %d/%d", current + 1, Ntree))
-    flush.console()
-    
     # Get feature names for this tree
     feature_names <- colnames(o_xdata)[rep$mfeature]
     
