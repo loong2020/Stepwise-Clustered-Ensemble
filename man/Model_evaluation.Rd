@@ -98,20 +98,19 @@ SCE_Model_evaluation(Testing_data, Training_data, Simulations, Predictant, digit
   ## Load SCE package and the supporting packages
   library(SCE)
   library(parallel)
-  library(hydroGOF)
 
   ## Training data file
-  data("Training_input")
+  data("Streamflow_training_10var")
   ## Testing data file
-  data("Testing_input")
+  data("Streamflow_testing_10var")
 
   ## Define independent (x) and dependent (y) variables
-  Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2")
-  Predictants <- c("swvl3","swvl4")
+  Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3","swvl4")
+  Predictants <- c("Flow")
 
   ## Build the SCE model
   Model <- SCE(
-    Training_data = Training_input,
+    Training_data = Streamflow_training_10var,
     X = Predictors,
     Y = Predictants,
     mfeature = round(0.5 * length(Predictors)),
@@ -123,24 +122,40 @@ SCE_Model_evaluation(Testing_data, Training_data, Simulations, Predictant, digit
 
   ## Make predictions
   Results <- Model_simulation(
-    Testing_data = Testing_input,
-    Training_data = Training_input,
+    Testing_data = Streamflow_testing_10var,
+    Training_data = Streamflow_training_10var,
     model = Model
   )
 
   ## Evaluate the SCE model
   SCE_Evaluation <- SCE_Model_evaluation(
-    Testing_data = Testing_input,
-    Training_data = Training_input,
+    Testing_data = Streamflow_testing_10var,
+    Training_data = Streamflow_training_10var,
     Simulations = Results,
     Predictant = Predictants,
     digits = 3
   )
 
+  ## Build the SCA model
+  SCA_model <- SCA(
+    Training_data = Streamflow_training_10var,
+    X = Predictors,
+    Y = Predictants,
+    alpha = 0.05,
+    resolution = 1000,
+    Nmin = 5
+  )
+
+  ## Make predictions
+  SCA_Results <- SCA_tree_predict(
+    Testing_data = Streamflow_testing_10var,
+    model = SCA_model
+  ) 
+
   ## Evaluate the SCA model
   SCA_Evaluation <- SCA_Model_evaluation(
-    Testing_data = Testing_input,
-    Simulations = Results,
+    Testing_data = Streamflow_testing_10var,
+    Simulations = SCA_Results,
     Predictant = Predictants,
     digits = 3
   )

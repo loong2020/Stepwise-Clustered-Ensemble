@@ -125,17 +125,17 @@ SCE(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolution = 1000)
 	library(parallel)
 
 	## Training data file
-	data("Training_input")
+	data("Streamflow_training_10var")
 	## Testing data file
-	data("Testing_input")
+	data("Streamflow_testing_10var")
 
 	## Define independent (x) and dependent (y) variables
-	Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2")
-	Predictants <- c("swvl3","swvl4")
+	Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3","swvl4")
+	Predictants <- c("Flow")
 
 	## Build the SCE model
 	Model <- SCE(
-		Training_data = Training_input,
+		Training_data = Streamflow_training_10var,
 		X = Predictors,
 		Y = Predictants,
 		mfeature = round(0.5*length(Predictors)),

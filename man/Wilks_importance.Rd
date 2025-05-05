@@ -88,19 +88,18 @@ Li, Kailong, Guohe Huang, and Brian Baetz. "Development of a Wilks feature impor
 ## Load SCE package and the supporting packages
 library(SCE)
 library(parallel)
-library(hydroGOF)
 
 ## Load the training and testing data files
-data("Training_input")
-data("Testing_input")
+data("Streamflow_training_10var")
+data("Streamflow_testing_10var")
 
 ## Define the independent (x) and dependent (y) variables
-Predictors <- c("Prcp", "SRad", "Tmax", "Tmin", "VP", "smlt", "swvl1", "swvl2")
-Predictants <- c("swvl3", "swvl4")
+Predictors <- c("Prcp", "SRad", "Tmax", "Tmin", "VP", "smlt", "swvl1", "swvl2", "swvl3", "swvl4")
+Predictants <- c("Flow")
 
 ## Build the SCE model
 Model <- SCE(
-	Training_data = Training_input,
+	Training_data = Streamflow_training_10var,
 	X = Predictors,
 	Y = Predictants,
 	mfeature = round(0.5 * length(Predictors)),
@@ -115,19 +114,6 @@ Importance_weighted <- Wilks_importance(Model)
 
 ## Calculate variable importance without OOB weighting
 Importance_unweighted <- Wilks_importance(Model, OOB_weight = FALSE)
-
-## Compare with SCA_importance for the first tree
-First_tree_importance <- SCA_importance(Model$Trees[[1]])
-
-## Print the results
-print("OOB-weighted importance scores:")
-print(Importance_weighted)
-
-print("Unweighted importance scores:")
-print(Importance_unweighted)
-
-print("First tree importance scores:")
-print(First_tree_importance)
 
 ## Visualize the importance scores
 barplot(Importance_weighted$Importance, 

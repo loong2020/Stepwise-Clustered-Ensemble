@@ -71,16 +71,16 @@ library(SCE)
 library(parallel)
 
 ## Load training and testing data
-data("Training_input")
-data("Testing_input")
+data("Streamflow_training_10var")
+data("Streamflow_testing_10var")
 
 ## Define independent (x) and dependent (y) variables
-Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2")
-Predictants <- c("swvl3","swvl4")
+Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3","swvl4")
+Predictants <- c("Flow")
 
 ## Build the SCA model
 Model <- SCA(
-	Training_data = Training_input,
+	Training_data = Streamflow_training_10var,
 	X = Predictors,
 	Y = Predictants,
 	Nmin = 5,
@@ -90,7 +90,7 @@ Model <- SCA(
 
 ## Make predictions
 Predictions <- SCA_tree_predict(
-	Testing_data = Testing_input,
+	Testing_data = Streamflow_testing_10var,
 	model = Model
 )
 

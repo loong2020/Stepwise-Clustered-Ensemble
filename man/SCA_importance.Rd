@@ -75,19 +75,18 @@ Li, Kailong, Guohe Huang, and Brian Baetz. "Development of a Wilks feature impor
 ## Load SCE package and the supporting packages
 library(SCE)
 library(parallel)
-library(hydroGOF)
 
 ## Load the training and testing data files
-data("Training_input")
-data("Testing_input")
+data("Streamflow_training_10var")
+data("Streamflow_testing_10var")
 
 ## Define the independent (x) and dependent (y) variables
-Predictors <- c("Prcp", "SRad", "Tmax", "Tmin", "VP", "smlt", "swvl1", "swvl2")
-Predictants <- c("swvl3", "swvl4")
+Predictors <- c("Prcp", "SRad", "Tmax", "Tmin", "VP", "smlt", "swvl1", "swvl2", "swvl3", "swvl4")
+Predictants <- c("Flow")
 
 ## Build a single SCA tree
 SCA_tree <- SCA(
-	Training_data = Training_input,
+	Training_data = Streamflow_training_10var,
 	X = Predictors,
 	Y = Predictants,
 	Nmin = 5,

@@ -71,19 +71,18 @@ Model_simulation(Testing_data, Training_data, model)
   ## Load SCE package and the supporting packages
   library(SCE)
   library(parallel)
-  library(hydroGOF)
 
   ## Load training and testing data
-  data("Training_input")
-  data("Testing_input")
+  data("Streamflow_training_  10var")
+  data("Streamflow_testing_10var")
 
   ## Define independent (x) and dependent (y) variables
-  Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2")
-  Predictants <- c("swvl3","swvl4")
+  Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3","swvl4")
+  Predictants <- c("Flow")
 
   ## Build the SCE model
   Model <- SCE(
-    Training_data = Training_input,
+    Training_data = Streamflow_training_10var,
     X = Predictors,
     Y = Predictants,
     mfeature = round(0.5 * length(Predictors)),
@@ -95,8 +94,8 @@ Model_simulation(Testing_data, Training_data, model)
 
   ## Conduct simulations using the trained SCE model
   Results <- Model_simulation(
-    Testing_data = Testing_input,
-    Training_data = Training_input,
+    Testing_data = Streamflow_testing_10var,
+    Training_data = Streamflow_training_10var,
     model = Model
   )
 
