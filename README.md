@@ -33,14 +33,14 @@ First, load the required packages and data:
 # Load required packages
 library(SCE)
 library(parallel)
-
-# Load the example datasets
-data(Streamflow_training_10var)
-data(Streamflow_testing_10var)
 ```
 
 ### SCA (Single tree) Analysis
 ```r
+# Load the example datasets
+data(Streamflow_training_10var)
+data(Streamflow_testing_10var)
+
 # Define predictors and predictants
 Predictors <- c("Prcp", "SRad", "Tmax", "Tmin", "VP", "smlt", "swvl1", "swvl2", "swvl3", "swvl4")
 Predictants <- c("Flow")
