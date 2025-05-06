@@ -102,10 +102,13 @@ print("Single tree importance scores:")
 print(Tree_importance)
 
 ## Visualize the importance scores
-barplot(Tree_importance$Importance, 
-        names.arg = Tree_importance$col_index,
-        main = "Variable Importance (Single Tree)",
-        xlab = "Predictors",
-        ylab = "Importance Score",
-        las = 2)
-} 
+Importance_ranking_sorted <- Tree_importance[order(-Tree_importance$Relative_Importance), ]
+barplot(
+  Importance_ranking_sorted$Relative_Importance,
+  names.arg = Importance_ranking_sorted$Predictor,
+  las = 2, # vertical labels
+  col = "skyblue",
+  main = "Variable Importance (SCE)",
+  ylab = "Importance",
+  xlab = "Predictor"
+)

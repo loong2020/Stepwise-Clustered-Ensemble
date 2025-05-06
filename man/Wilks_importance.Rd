@@ -116,11 +116,14 @@ Importance_weighted <- Wilks_importance(Model)
 Importance_unweighted <- Wilks_importance(Model, OOB_weight = FALSE)
 
 ## Visualize the importance scores
-barplot(Importance_weighted$Importance, 
-        names.arg = Importance_weighted$col_index,
-        main = "Variable Importance (OOB-weighted)",
-        xlab = "Predictors",
-        ylab = "Importance Score",
-        las = 2)
-}
+Importance_ranking_sorted <- Importance_weighted[order(-Importance_weighted$Importance), ]
+barplot(
+  Importance_ranking_sorted$Importance,
+  names.arg = Importance_ranking_sorted$col_index,
+  las = 2, # vertical labels
+  col = "skyblue",
+  main = "Variable Importance (SCE)",
+  ylab = "Importance",
+  xlab = "Predictor"
+)
 

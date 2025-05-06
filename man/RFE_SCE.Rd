@@ -118,25 +118,31 @@ RFE_SCE(
   library(SCE)
   library(parallel)
 
-  ## Load training and testing data
-  data("Streamflow_training_10var")
-  data("Streamflow_testing_10var")
+  data(Streamflow_training_22var)
+  data(Streamflow_testing_22var)
 
-  ## Define independent (x) and dependent (y) variables
-  Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3","swvl4")
+  # Define predictors and predictants
+  Predictors <- c(
+    "Precipitation", "Radiation", "Tmax", "Tmin", "VP",
+    "Precipitation_2Mon", "Radiation_2Mon", "Tmax_2Mon", "Tmin_2Mon", "VP_2Mon",
+    "PNA", "Nino3.4", "IPO", "PDO",
+    "PNA_lag1", "Nino3.4_lag1", "IPO_lag1", "PDO_lag1",
+    "PNA_lag2", "Nino3.4_lag2", "IPO_lag2", "PDO_lag2"
+  )
   Predictants <- c("Flow")
 
-  ## Perform RFE
-  RFE_results <- RFE_SCE(
-    Training_data = Streamflow_training_10var,
-    Testing_data = Streamflow_testing_10var,
+  # Perform RFE
+  set.seed(123)
+  result <- RFE_SCE(
+    Training_data = Streamflow_training_22var,
+    Testing_data = Streamflow_testing_22var,
     Predictors = Predictors,
     Predictant = Predictants,
     Nmin = 5,
-    Ntree = 40,
+    Ntree = 48,
     alpha = 0.05,
     resolution = 1000,
-    step = 1
+    step = 3  # Number of predictors to remove at each iteration
   )
 
   ## Access results
