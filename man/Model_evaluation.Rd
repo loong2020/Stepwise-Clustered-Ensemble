@@ -123,7 +123,6 @@ SCE_Model_evaluation(Testing_data, Training_data, Simulations, Predictant, digit
   ## Make predictions
   Results <- Model_simulation(
     Testing_data = Streamflow_testing_10var,
-    Training_data = Streamflow_training_10var,
     model = Model
   )
 

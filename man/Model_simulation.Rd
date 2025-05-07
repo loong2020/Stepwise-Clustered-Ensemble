@@ -19,11 +19,6 @@ Model_simulation(Testing_data, Training_data, model)
     Must contain all the predictors used in the model.
     Must not contain missing values.
   }
-  \item{Training_data}{
-    A data.frame or matrix comprising the data used for training the model.
-    Must contain all the predictors used in the model.
-    Must not contain missing values.
-  }
   \item{model}{
     The trained SCE model object generated through the \code{SCE} function.
     This model contains the necessary information and parameters for conducting simulations.
@@ -95,7 +90,6 @@ Model_simulation(Testing_data, Training_data, model)
   ## Conduct simulations using the trained SCE model
   Results <- Model_simulation(
     Testing_data = Streamflow_testing_10var,
-    Training_data = Streamflow_training_10var,
     model = Model
   )
 
