@@ -61,6 +61,13 @@ Wilks_importance <- function(model,OOB_weight=TRUE)
     #: Re-scale the Importance
     Imp_final$Importance <- Imp_final$Importance/sum(Imp_final$Importance)
     colnames(Imp_final) <- c("Predictor", "Relative_Importance")
+    
+    # Get the original predictor order from the first tree
+    original_order <- model[[1]]$XName
+    
+    # Reorder the results to match the original predictor order
+    Imp_final <- Imp_final[match(original_order, Imp_final$Predictor),]
+    
     return(Imp_final)
   } else {
     Imp_final <- do.call(rbind,Imp)
@@ -70,6 +77,13 @@ Wilks_importance <- function(model,OOB_weight=TRUE)
     #: Re-scale the Importance
     Imp_final$Importance <- Imp_final$Importance/sum(Imp_final$Importance)
     colnames(Imp_final) <- c("Predictor", "Relative_Importance")
+    
+    # Get the original predictor order from the first tree
+    original_order <- model[[1]]$XName
+    
+    # Reorder the results to match the original predictor order
+    Imp_final <- Imp_final[match(original_order, Imp_final$Predictor),]
+    
     return(Imp_final)
   }
 }
