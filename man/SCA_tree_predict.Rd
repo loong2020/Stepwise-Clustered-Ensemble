@@ -29,8 +29,7 @@ SCA_tree_predict(Testing_data, model)
 \value{
 	A list containing:
 	\itemize{
-		\item All components from the input model
-		\item Testing_sim: A data.frame containing predictions for the test data
+		\item A data.frame containing predictions for the test data
 	}
 }
 
@@ -94,8 +93,4 @@ Predictions <- SCA_tree_predict(
 	model = Model
 )
 
-## Access predictions
-testing_predictions <- Predictions$Testing_sim
-print("Predictions:")
-print(testing_predictions)
 } 
