@@ -36,8 +36,8 @@ Wilks_importance(model, OOB_weight = TRUE)
 \value{
 	A data.frame containing:
 	\itemize{
-		\item col_index: Names of the predictors
-		\item Importance: Normalized importance scores (sum to 1)
+		\item Predictor: Names of the predictors
+		\item Relative_Importance: Normalized importance scores (sum to 1)
 	}
 }
 
@@ -126,4 +126,5 @@ barplot(
   ylab = "Importance",
   xlab = "Predictor"
 )
+}
 
