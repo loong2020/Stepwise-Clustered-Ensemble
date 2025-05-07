@@ -200,31 +200,26 @@ validation_r2 <- sapply(result[["performances"]], function(x) x["R2", "Validatio
 testing_r2 <- sapply(result[["performances"]], function(x) x["R2", "Testing"])
 n_predictors <- result[["summary"]][["n_predictors"]]
 
-# Create data frame for plotting
-plot_data <- data.frame(
-  n_predictors = rep(n_predictors, 2),
-  r2 = c(validation_r2, testing_r2),
-  type = rep(c("Validation", "Testing"), each = length(n_predictors))
-)
+# Create base R plot
+plot(n_predictors, validation_r2, 
+     type = "b",  # both points and lines
+     col = "blue",
+     pch = 16,    # filled circle point type
+     xlim = rev(range(n_predictors)),  # reverse x-axis
+     ylim = c(min(c(validation_r2, testing_r2)), max(c(validation_r2, testing_r2))),  # explicit y-axis limits
+     xlab = "Number of Predictors",
+     ylab = "R²",
+     main = "Validation and Testing R² vs Number of Predictors")
 
-# Create line plot with both Validation and Testing R²
-ggplot(plot_data, aes(x = n_predictors, y = r2, color = type, group = type)) +
-  geom_line() +
-  geom_point() +
-  scale_x_reverse(breaks = n_predictors) +  # Reverse x-axis and set breaks
-  scale_color_manual(values = c("Validation" = "blue", "Testing" = "red")) +
-  labs(
-    x = "Number of Predictors",
-    y = "R²",
-    title = "Validation and Testing R² vs Number of Predictors",
-    color = "Dataset"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    panel.grid.minor = element_blank(),
-    legend.position = "bottom"
-  )
+# Add testing data
+lines(n_predictors, testing_r2, type = "b", col = "red", pch = 16)
+
+# Add legend
+legend("bottomleft",
+       legend = c("Validation", "Testing"),
+       col = c("blue", "red"),
+       pch = 16,
+       lty = 1)
 ```
 
 ## Documentation
