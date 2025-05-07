@@ -5,15 +5,11 @@
 # Author: 		Kailong Li
 # Email:		lkl98509509@gmail.com
 # ===============================================================
-Model_simulation <- function(Testing_data, Training_data, model)
+Model_simulation <- function(Testing_data, model)
 {
   # Input validation
   if (is.null(Testing_data)) {
     stop("Testing_data must be a data frame or matrix")
-  }
-  
-  if (is.null(Training_data)) {
-    stop("Training_data must be a data frame or matrix")
   }
   
   if (is.null(model)) {
@@ -24,10 +20,6 @@ Model_simulation <- function(Testing_data, Training_data, model)
     stop("Testing_data must be a data frame or matrix")
   }
   
-  if (!is.data.frame(Training_data) && !is.matrix(Training_data)) {
-    stop("Training_data must be a data frame or matrix")
-  }
-  
   if (!is.list(model)) {
     stop("model must be a list")
   }
@@ -36,47 +28,8 @@ Model_simulation <- function(Testing_data, Training_data, model)
     stop("Testing_data is empty")
   }
   
-  if (nrow(Training_data) == 0) {
-    stop("Training_data is empty")
-  }
-  
-  # Get required predictors from the first tree in the model
-  required_predictors <- model[[1]]$Tree_Info$Features
-  required_predictants <- model[[1]]$YName
-  
-  # Check if all required predictors are present in testing data
-  if (!all(required_predictors %in% colnames(Testing_data))) {
-    missing_vars <- setdiff(required_predictors, colnames(Testing_data))
-    stop(sprintf("The following predictors are not found in Testing_data: %s", 
-                paste(missing_vars, collapse = ", ")))
-  }
-  
-  # Check for missing values in required predictors
-  if (any(is.na(Testing_data[, required_predictors]))) {
-    stop("Testing_data contains missing values")
-  }
-  
-  # Check for missing values in required predictants
-  if (any(is.na(Testing_data[, required_predictants]))) {
-    stop("Testing_data contains missing values")
-  } 
-
-  # Check data types of required predictors
-  if (!all(sapply(Testing_data[, required_predictors], is.numeric))) {
-    stop("The following predictors are not numeric")
-  }
-  
-  # Check data types of required predictants
-  if (!all(sapply(Testing_data[, required_predictants], is.numeric))) {
-    stop("The following predictants are not numeric")
-  }
-  
   # Get training simulations using SCE_Prediction
-  training_sim <- SCE_Prediction(
-    X_sample = Training_data,
-    model = model
-  )
-  training_sim <- as.data.frame(training_sim)
+  training_sim <- Training_Prediction(model)
   
   # Get validation (OOB) simulations
   validation_sim <- OOB_validation(model)
@@ -111,20 +64,6 @@ SCE_Prediction <- function(X_sample, model)
   
   if (nrow(X_sample) == 0) {
     stop("X_sample is empty")
-  }
-  
-  # Get required predictors from the first tree in the model
-  required_predictors <- model[[1]]$Tree_Info$Features
-  
-  # Check for missing values in required predictors
-  if (any(is.na(X_sample[, required_predictors]))) {
-    stop("X_sample contains missing values")
-  }
-  
-  # Check data types of required predictors
-  if (!all(sapply(X_sample[, required_predictors], is.numeric))) {
-    non_numeric <- names(which(!sapply(X_sample[, required_predictors], is.numeric)))
-    stop("The following predictors are not numeric")
   }
   
   # Get model predictions for each tree
@@ -162,6 +101,68 @@ SCE_Prediction <- function(X_sample, model)
   
   colnames(ensemble_predictions) <- predictant_names
   return(ensemble_predictions)
+}
+
+Training_Prediction <- function(model)
+{
+
+  # Get number of predictants and their names
+  num_predictants <- length(model[[1]]$YName)
+  predictant_names <- model[[1]]$YName
+  
+  # Get model predictions for each tree
+  predictions <- lapply(model, function(m) {
+    SCA_tree_predict(
+      Testing_data = m$Training_data,
+      model = m
+    )
+  })
+
+  #assign the ID for each data point
+  predictions <- mapply(
+    function(pred, m) {
+      data.frame(
+        ID = m$Sample,
+        pred = pred,
+        weight = m$weight
+      )
+    },
+    pred = predictions,
+    m = model,
+    SIMPLIFY = FALSE
+  )
+
+    # Combine all OOB predictions
+  combined_predictions <- do.call(rbind, predictions)
+  
+  # Rename the columns
+  colnames(combined_predictions) <- c("ID", predictant_names, "weight")
+  
+  # Get unique IDs
+  id_list <- sort(unique(combined_predictions$ID))
+  
+  # Calculate weighted means for each predictant
+  result <- lapply(predictant_names, function(pred_name) {
+    # Calculate weighted means for current predictant
+    weighted_means <- sapply(id_list, function(id) {
+      # Get subset for this ID
+      subset <- combined_predictions[combined_predictions$ID == id, ]
+      # Calculate weighted mean
+      sum(subset[[pred_name]] * subset$weight) / sum(subset$weight)
+    })
+    
+    # Create ordered results for this predictant
+    data.frame(
+      ID = id_list,
+      Value = weighted_means
+    )[order(id_list), "Value", drop = FALSE]
+  })
+  
+  # Combine results for all predictants
+  result <- do.call(cbind, result)
+  colnames(result) <- predictant_names
+
+  return(result)
 }
 
 OOB_validation <- function(model)
