@@ -106,10 +106,10 @@ Evaluation <- SCE_Model_evaluation(Testing_data = Streamflow_testing_10var,
 importance <- Wilks_importance(Ensemble)
 print(Evaluation)
 
-Importance_ranking_sorted <- importance[order(-importance$Importance), ]
+Importance_ranking_sorted <- importance[order(-importance$Relative_Importance), ]
 barplot(
-  Importance_ranking_sorted$Importance,
-  names.arg = Importance_ranking_sorted$col_index,
+  Importance_ranking_sorted$Relative_Importance,
+  names.arg = Importance_ranking_sorted$Predictor,
   las = 2, # vertical labels
   col = "skyblue",
   main = "Variable Importance (SCE)",
@@ -150,10 +150,10 @@ print(Evaluation)
 importance <- Wilks_importance(Ensemble)
 print(Evaluation)
 
-Importance_ranking_sorted <- importance[order(-importance$Importance), ]
+Importance_ranking_sorted <- importance[order(-importance$Relative_Importance), ]
 barplot(
-  Importance_ranking_sorted$Importance,
-  names.arg = Importance_ranking_sorted$col_index,
+  Importance_ranking_sorted$Relative_Importance,
+  names.arg = Importance_ranking_sorted$Predictor,
   las = 2, # vertical labels
   col = "skyblue",
   main = "Variable Importance (SCE)",
