@@ -68,7 +68,7 @@ Wilks_importance <- function(model,OOB_weight=TRUE)
     
     #: Re-scale the Importance
     Imp_final$Importance <- Imp_final$Importance/sum(Imp_final$Importance)
-    colnames(Imp_final) <- c("col_index", "Importance")
+    colnames(Imp_final) <- c("Predictor", "Relative_Importance")
     return(Imp_final)
   }
 }
@@ -107,11 +107,8 @@ SCA_importance <- function(model) {
     Split_Count = imp_df[-1, "lfMat"] + imp_df[-1, "rtMat"]
   )
   
-  # Sort by importance
-  result <- result[order(-result$Raw_Importance), ]
-  
   # Calculate relative importance
   result$Relative_Importance <- result$Raw_Importance / sum(result$Raw_Importance)
   
-  return(result)
+  return(result[,c("Predictor", "Relative_Importance")])
 }
