@@ -93,9 +93,7 @@ Ensemble <- SCE(Training_data = Streamflow_training_10var,
                resolution = 100)
 
 # Make predictions
-Simulations <- Model_simulation(Testing_data = Streamflow_testing_10var,
-                              Training_data = Streamflow_training_10var,
-                              model = Ensemble)
+Simulations <- Model_simulation(Testing_data = Streamflow_testing_10var, model = Ensemble)
 
 # Evaluate model performance
 Evaluation <- SCE_Model_evaluation(Testing_data = Streamflow_testing_10var,
@@ -141,9 +139,7 @@ Ensemble <- SCE(Training_data = Air_quality_training,
                alpha = 0.05,
                resolution = 100)
 
-Simulations <- Model_simulation(Testing_data = Air_quality_testing,
-                              Training_data = Air_quality_training,
-                              model = Ensemble)
+Simulations <- Model_simulation(Testing_data = Air_quality_testing, model = Ensemble)
 
 Evaluation <- SCE_Model_evaluation(Testing_data = Air_quality_testing,
                                  Training_data = Air_quality_training,
