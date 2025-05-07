@@ -138,7 +138,7 @@ SCE_Prediction <- function(X_sample, model)
   # Combine predictions with their weights
   weighted_predictions <- mapply(
     function(pred, m) {
-      pred$Testing_sim * m$weight
+      pred * m$weight
     },
     pred = predictions,
     m = model,

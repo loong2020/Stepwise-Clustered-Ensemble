@@ -145,7 +145,5 @@ SCA_tree_predict <- function(Testing_data, model) {
   Testing_sim <- data.frame(do.call(cbind, data.frame(Testing_sim)))
   colnames(Testing_sim) <- model$YName
   
-  model$Testing_sim <- Testing_sim
-  
-  return(model)
+  return(Testing_sim)
 }

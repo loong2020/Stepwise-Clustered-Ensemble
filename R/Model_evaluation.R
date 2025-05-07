@@ -51,9 +51,6 @@ GOF <- function(obs, sim, digits=4)
 SCA_Model_evaluation <- function(Testing_data, Simulations, Predictant, digits=3)
 {
   # Input validation
-  if (!is.list(Simulations) || !"Testing_sim" %in% names(Simulations)) {
-    stop("Simulations must be a list with 'Testing_sim' component")
-  }
   
   if (!is.character(Predictant) || length(Predictant) == 0) {
     stop("Predictant must be a non-empty character vector")
@@ -66,22 +63,15 @@ SCA_Model_evaluation <- function(Testing_data, Simulations, Predictant, digits=3
                 paste(missing_predictants, collapse = ", ")))
   }
   
-  # Check if predictants exist in simulations
-  if (!all(Predictant %in% colnames(Simulations$Testing_sim))) {
-    missing_predictants <- Predictant[!Predictant %in% colnames(Simulations$Testing_sim)]
-    stop(sprintf("The following predictants are not found in Testing_sim: %s", 
-                paste(missing_predictants, collapse = ", ")))
-  }
-  
   # Check row count match
-  if (nrow(Testing_data) != nrow(Simulations$Testing_sim)) {
+  if (nrow(Testing_data) != nrow(Simulations)) {
     stop("The number of rows in Testing_data must be equal to the number of rows in Testing_sim")
   }
   
   # For SCA, we only evaluate testing performance
   all_results <- list()
   for(pred in Predictant) {
-    Testing_GOF <- GOF(obs=Testing_data[,pred], sim=Simulations$Testing_sim[,pred], digits=digits)
+    Testing_GOF <- GOF(obs=Testing_data[,pred], sim=Simulations[,pred], digits=digits)
     GOF_res <- data.frame(Testing=Testing_GOF)
     colnames(GOF_res) <- "Testing"
     all_results[[pred]] <- GOF_res

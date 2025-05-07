@@ -179,13 +179,13 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
     # Calculate R-squared for OOB predictions
     if (ncol(oob_ydata) == 1) {
       oob_ydata_numeric <- as.numeric(oob_ydata[[1]])
-      oob_predictions_numeric <- as.numeric(oob_predictions$Testing_sim[[1]])
+      oob_predictions_numeric <- as.numeric(oob_predictions[[1]])
       oob_r2 <- 1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) / 
                 sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
     } else {
       oob_r2 <- mean(sapply(1:ncol(oob_ydata), function(i) {
         oob_ydata_numeric <- as.numeric(oob_ydata[,i])
-        oob_predictions_numeric <- as.numeric(oob_predictions$Testing_sim[,i])
+        oob_predictions_numeric <- as.numeric(oob_predictions[,i])
         1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) / 
             sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
       }))
@@ -193,7 +193,7 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
     
     # Add OOB error to model
     tree_model$OOB_error <- oob_r2
-    tree_model$OOB_sim <- oob_predictions$Testing_sim
+    tree_model$OOB_sim <- oob_predictions
     tree_model$Sample <- rep$sample
     tree_model$Tree_Info <- tree_info
     tree_model$Training_data <- tree_data  # Add training data to output
