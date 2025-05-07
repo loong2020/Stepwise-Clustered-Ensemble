@@ -97,7 +97,7 @@ RFE_SCE <- function(
     history$importance_scores[[length(history$importance_scores) + 1]] <- importance_scores
 
     # Remove step number of least important predictors
-    least_important <- importance_scores$col_index[order(importance_scores$Importance)[1:min(step, length(current_predictors) - length(Predictant))]]
+    least_important <- importance_scores$Predictor[order(importance_scores$Relative_Importance)[1:min(step, length(current_predictors) - length(Predictant))]]
     current_predictors <- setdiff(current_predictors, least_important)
   }
   
