@@ -60,6 +60,7 @@ Wilks_importance <- function(model,OOB_weight=TRUE)
     
     #: Re-scale the Importance
     Imp_final$Importance <- Imp_final$Importance/sum(Imp_final$Importance)
+    colnames(Imp_final) <- c("Predictor", "Relative_Importance")
     return(Imp_final)
   } else {
     Imp_final <- do.call(rbind,Imp)
