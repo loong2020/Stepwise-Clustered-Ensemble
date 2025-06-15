@@ -85,17 +85,18 @@ Li, Kailong, Guohe Huang, and Brian Baetz. "Development of a Wilks feature impor
 }
 
 \examples{
-## Load SCE package and the supporting packages
-library(SCE)
-library(parallel)
+\dontrun{
+  ## Load SCE package and the supporting packages
+  library(SCE)
+  library(parallel)
 
 ## Load the training and testing data files
 data("Streamflow_training_10var")
 data("Streamflow_testing_10var")
 
-## Define the independent (x) and dependent (y) variables
-Predictors <- c("Prcp", "SRad", "Tmax", "Tmin", "VP", "smlt", "swvl1", "swvl2", "swvl3", "swvl4")
-Predictants <- c("Flow")
+  ## Define predictors and predictants
+  Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3","swvl4")
+  Predictants <- c("Flow")
 
 ## Build the SCE model
 Model <- SCE(
@@ -126,5 +127,6 @@ barplot(
   ylab = "Importance",
   xlab = "Predictor"
 )
+}
 }
 

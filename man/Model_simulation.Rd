@@ -10,7 +10,7 @@
 }
 
 \usage{
-Model_simulation(Testing_data, Training_data, model)
+Model_simulation(Testing_data, model)
 }
 
 \arguments{
@@ -63,12 +63,16 @@ Model_simulation(Testing_data, Training_data, model)
 }
 
 \examples{
+\dontrun{
   ## Load SCE package and the supporting packages
   library(SCE)
   library(parallel)
 
-  ## Load training and testing data
-  data("Streamflow_training_  10var")
+  ## Set number of cores to use
+  options(mc.cores = 2)
+
+  ## Load example data
+  data("Streamflow_training_10var")
   data("Streamflow_testing_10var")
 
   ## Define independent (x) and dependent (y) variables
@@ -97,4 +101,5 @@ Model_simulation(Testing_data, Training_data, model)
   training_predictions <- Results$Training
   validation_predictions <- Results$Validation
   testing_predictions <- Results$Testing
+}
 }

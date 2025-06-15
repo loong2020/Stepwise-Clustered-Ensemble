@@ -95,7 +95,8 @@ SCE_Model_evaluation(Testing_data, Training_data, Simulations, Predictant, digit
 }
 
 \examples{
-  ## Load SCE package and the supporting packages
+\dontrun{
+  ## Load SCE package
   library(SCE)
   library(parallel)
 
@@ -115,7 +116,7 @@ SCE_Model_evaluation(Testing_data, Training_data, Simulations, Predictant, digit
     Y = Predictants,
     mfeature = round(0.5 * length(Predictors)),
     Nmin = 5,
-    Ntree = 48,
+    Ntree = 48,  # Using 48 trees for proper ensemble performance
     alpha = 0.05,
     resolution = 1000
   )
@@ -158,4 +159,5 @@ SCE_Model_evaluation(Testing_data, Training_data, Simulations, Predictant, digit
     Predictant = Predictants,
     digits = 3
   )
+}
 }

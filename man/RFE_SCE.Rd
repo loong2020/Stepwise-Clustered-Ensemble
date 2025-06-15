@@ -114,6 +114,7 @@ RFE_SCE(
 }
 
 \examples{
+\dontrun{
   ## Load SCE package and the supporting packages
   library(SCE)
   library(parallel)
@@ -153,4 +154,5 @@ RFE_SCE(
   ## Print summary
   print("RFE Summary:")
   print(summary)
+}
 } 

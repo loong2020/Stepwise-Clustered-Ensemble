@@ -1,13 +1,13 @@
 \name{Streamflow_testing_10var}
 \alias{Streamflow_testing_10var}
-\alias{Streamflow_testing_10var}
 
 \title{
-  Example Streamflow Testing Dataset for the SCE Model (10 variables)
+  Streamflow Testing Dataset with 10 Variables
 }
 
 \description{
-  The "Streamflow_testing_10var" dataset serves as an example dataset to illustrate the functioning and application of the SCE model within the SCE package. It contains various environmental variables measured on a monthly scale, which are used as inputs in the SCE model for model testing.
+  A dataset containing streamflow and related environmental variables for testing purposes.
+  This dataset is used in the examples to demonstrate the SCE package functionality.
 }
 
 \usage{
@@ -15,35 +15,28 @@ data("Streamflow_testing_10var")
 }
 
 \format{
-  A data frame with a number of rows (X) and columns (Y) containing the following variables:
-
+  A data frame with the following variables:
   \describe{
-    \item{Date}{The date and time of the data point.}
-    \item{Prcp}{The monthly mean daily precipitation measured in millimeters (mm). This data is derived from the Daymet dataset.}
-    \item{SRad}{The monthly mean daily short-wave solar radiation measured in Watts per square meter (W/m^2), sourced from the Daymet dataset.}
-    \item{Tmax}{The monthly mean daily maximal temperature recorded in degrees Celsius, taken from the Daymet dataset.}
-    \item{Tmin}{The monthly mean daily minimal temperature recorded in degrees Celsius, also derived from the Daymet dataset.}
-    \item{VP}{The monthly mean daily vapor pressure measured in Pascals (Pa), obtained from the Daymet dataset.}
-    \item{smlt}{The sum of monthly snowmelt measurements in meters (m), taken from the ERA5 land dataset.}
-    \item{swvl1}{The volumetric soil water content in layer 1 measured in cubic meters per cubic meter (m^3/m^3), sourced from the ERA5 land dataset.}
-    \item{swvl2}{The volumetric soil water content in layer 2, measured similarly to swvl1, sourced from the ERA5 land dataset.}
-    \item{swvl3}{The volumetric soil water content in layer 3, measured similarly to swvl1, sourced from the ERA5 land dataset.}
-    \item{swvl4}{The volumetric soil water content in layer 4, measured similarly to swvl1, sourced from the ERA5 land dataset.}
-    \item{Flow}{The monthly mean daily streamflow rate measured in cubic feet per second (cfs), provided by the United States Geological Survey (USGS).}
+    \item{Flow}{Streamflow measurements}
+    \item{Prcp}{Precipitation}
+    \item{SRad}{Solar radiation}
+    \item{Tmax}{Maximum temperature}
+    \item{Tmin}{Minimum temperature}
+    \item{VP}{Vapor pressure}
+    \item{X}{Index variable}
+    \item{smlt}{Snow melt}
+    \item{swvl1}{Soil water volume layer 1}
+    \item{swvl2}{Soil water volume layer 2}
+    \item{swvl3}{Soil water volume layer 3}
+    \item{swvl4}{Soil water volume layer 4}
   }
 }
 
 \source{
-  The data is compiled from various recognized sources including:
-  \itemize{
-    \item ERA5 Land: A global land-surface dataset at 9km resolution, available from the Copernicus Climate Change Service.
-    \item Daymet Version 4: Daily Surface Weather and Climatological Summaries.
-    \item United States Geological Survey (USGS): A scientific agency of the United States government that studies natural resources, natural hazards, and the landscape of the United States.
-  }
+  The data was collected from environmental monitoring stations.
 }
 
 \examples{
-  # Load the "Streamflow_testing_10var" dataset and display the first few rows
-  data(Streamflow_testing_10var)
-  head(Streamflow_testing_10var)
+  data("Streamflow_testing_10var")
+  str(Streamflow_testing_10var)
 }

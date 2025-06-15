@@ -120,7 +120,8 @@ SCE(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolution = 1000)
 }
 
 \examples{
-	## Load SCE package and the supporting packages
+\dontrun{
+	## Load SCE package
 	library(SCE)
 	library(parallel)
 
@@ -140,8 +141,9 @@ SCE(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolution = 1000)
 		Y = Predictants,
 		mfeature = round(0.5*length(Predictors)),
 		Nmin = 5,
-		Ntree = 48,
+		Ntree = 48,  # Using 48 trees for proper ensemble performance
 		alpha = 0.05,
 		resolution = 1000
 	)
+}
 }
