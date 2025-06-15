@@ -14,10 +14,10 @@ RoxygenNote: 7.2.3
 Depends: 
     R (>= 3.5.0)
 Imports: 
-    stats,
-    utils
+    stats (>= 3.5.0),
+    utils (>= 3.5.0)
 Suggests: 
     testthat (>= 3.0.0),
     knitr,
     rmarkdown
-VignetteBuilder: knitr 
+VignetteBuilder: knitr
