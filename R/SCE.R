@@ -19,7 +19,7 @@
 # ---------------------------------------------------------------
 # Function definitions
 # ---------------------------------------------------------------
-SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolution = 1000) {
+SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolution = 1000, verbose = FALSE) {
   # Input validation
   if (!is.numeric(alpha) || alpha <= 0 || alpha >= 1) {
     stop("alpha must be a number between 0 and 1")
@@ -97,12 +97,10 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
   n_samples <- nrow(o_xdata)
   
   # Generate random features for all trees at once
-  set.seed(10)
   Random_col_matrix <- replicate(Ntree, sort(sample(seq_len(n_predictors), mfeature)))
   Random_col <- split(Random_col_matrix, col(Random_col_matrix))
   
   # Generate bootstrap samples for all trees at once
-  set.seed(10)
   tree_list <- replicate(Ntree, sample(seq_len(n_samples), replace = TRUE), simplify = FALSE)
   
   # Create bootstrap list
@@ -113,92 +111,178 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
   ), x = seq_len(Ntree))
   
   # Setup parallel processing
-  numcores <- min(parallel::detectCores(), Ntree)
-  Clus <- parallel::makeCluster(numcores)
-
-  # Export required functions and objects to workers
-  parallel::clusterExport(Clus, 
-    c("o_xdata", "o_ydata", "Nmin", "alpha", "resolution", "find_best_split_iterative", "find_best_split",
-      "SCA", "f_processnode", "f_min_wilks", "f_wilks_statistic",
-      "f_cal_chk_f", "f_checkif_leaf", "f_init", "f_main", "do_cluster",
-      "SCA_tree_predict", "f_main_p", "f_predict_one", "f_predict", "Inference"),
-    envir = environment()
-  )
+  # Be conservative for CRAN checks and limited environments
+  available_cores <- parallel::detectCores()
+  if (available_cores == 1 || available_cores > 20) {
+    # Use sequential processing for single core or very high core counts (likely CRAN environment)
+    max_cores <- 1
+  } else {
+    # Use limited parallel processing for normal environments
+    max_cores <- min(available_cores, Ntree)  
+  }
   
-  # Load required packages in workers
-  parallel::clusterEvalQ(Clus, {
-    library(parallel)
-  })
+  if (max_cores > 1) {
+    Clus <- parallel::makeCluster(max_cores)
+    
+    # Export required functions and objects to workers
+    parallel::clusterExport(Clus, 
+      c("o_xdata", "o_ydata", "Nmin", "alpha", "resolution", "verbose", "find_best_split_iterative", "find_best_split",
+        "SCA", "f_processnode", "f_min_wilks", "f_wilks_statistic",
+        "f_cal_chk_f", "f_checkif_leaf", "f_init", "f_main", "do_cluster",
+        "SCA_tree_predict", "f_main_p", "f_predict_one", "f_predict", "Inference"),
+      envir = environment()
+    )
+    
+    # Load required packages in workers
+    parallel::clusterEvalQ(Clus, {
+      library(parallel)
+    })
 
-  # Parallel processing
-  SCE_res <- parallel::parLapply(Clus, Bootst_rep, function(rep) {
-    # Get feature names for this tree
-    feature_names <- colnames(o_xdata)[rep$mfeature]
+    # Parallel processing
+    SCE_res <- parallel::parLapply(Clus, Bootst_rep, function(rep) {
+      # Get feature names for this tree
+      feature_names <- colnames(o_xdata)[rep$mfeature]
+      
+      # Prepare data for this tree
+      tree_data <- cbind(
+        o_xdata[rep$sample, rep$mfeature, drop = FALSE],
+        o_ydata[rep$sample, , drop = FALSE]
+      )
+      colnames(tree_data) <- c(feature_names, Y)
+      
+      # Store the tree data
+      tree_info <- list(
+        Tree = rep$Tree,
+        Features = feature_names,
+        Sample_Indices = rep$sample
+      )
+      
+      # Run SCA
+      tree_model <- SCA(alpha = alpha, Nmin = Nmin, resolution = resolution, 
+                       Training_data = tree_data,
+                       X = feature_names,
+                       Y = Y,
+                       verbose = verbose)
+      
+      # Calculate OOB error
+      all_samples <- seq_len(n_samples)
+      sample_counts <- table(factor(rep$sample, levels = all_samples))
+      oob_indices <- which(sample_counts == 0)
+      
+      # Prepare OOB data
+      oob_xdata <- o_xdata[oob_indices, rep$mfeature, drop = FALSE]
+      colnames(oob_xdata) <- feature_names
+      oob_ydata <- o_ydata[oob_indices, , drop = FALSE]
+      
+      # Store OOB data
+      tree_info$OOB_Indices <- oob_indices
+      tree_info$OOB_XData <- oob_xdata
+      tree_info$OOB_YData <- oob_ydata
+      
+      # Make predictions on OOB data
+      oob_predictions <- SCA_tree_predict(
+        Testing_data = oob_xdata,
+        model = tree_model
+      )
+      
+      # Calculate R-squared for OOB predictions
+      if (ncol(oob_ydata) == 1) {
+        oob_ydata_numeric <- as.numeric(oob_ydata[[1]])
+        oob_predictions_numeric <- as.numeric(oob_predictions[[1]])
+        oob_r2 <- 1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) / 
+                  sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
+      } else {
+        oob_r2 <- mean(sapply(1:ncol(oob_ydata), function(i) {
+          oob_ydata_numeric <- as.numeric(oob_ydata[,i])
+          oob_predictions_numeric <- as.numeric(oob_predictions[,i])
+          1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) / 
+              sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
+        }))
+      }
+      
+      # Add OOB error to model
+      tree_model$OOB_error <- oob_r2
+      tree_model$OOB_sim <- oob_predictions
+      tree_model$Sample <- rep$sample
+      tree_model$Tree_Info <- tree_info
+      tree_model$Training_data <- tree_data  # Add training data to output
+      return(tree_model)
+    })
     
-    # Prepare data for this tree
-    tree_data <- cbind(
-      o_xdata[rep$sample, rep$mfeature, drop = FALSE],
-      o_ydata[rep$sample, , drop = FALSE]
-    )
-    colnames(tree_data) <- c(feature_names, Y)
-    
-    # Store the tree data
-    tree_info <- list(
-      Tree = rep$Tree,
-      Features = feature_names,
-      Sample_Indices = rep$sample
-    )
-    
-    # Run SCA
-    tree_model <- SCA(alpha = alpha, Nmin = Nmin, resolution = resolution, 
-                     Training_data = tree_data,
-                     X = feature_names,
-                     Y = Y)
-    
-    # Calculate OOB error
-    all_samples <- seq_len(n_samples)
-    sample_counts <- table(factor(rep$sample, levels = all_samples))
-    oob_indices <- which(sample_counts == 0)
-    
-    # Prepare OOB data
-    oob_xdata <- o_xdata[oob_indices, rep$mfeature, drop = FALSE]
-    colnames(oob_xdata) <- feature_names
-    oob_ydata <- o_ydata[oob_indices, , drop = FALSE]
-    
-    # Store OOB data
-    tree_info$OOB_Indices <- oob_indices
-    tree_info$OOB_XData <- oob_xdata
-    tree_info$OOB_YData <- oob_ydata
-    
-    # Make predictions on OOB data
-    oob_predictions <- SCA_tree_predict(
-      Testing_data = oob_xdata,
-      model = tree_model
-    )
-    
-    # Calculate R-squared for OOB predictions
-    if (ncol(oob_ydata) == 1) {
-      oob_ydata_numeric <- as.numeric(oob_ydata[[1]])
-      oob_predictions_numeric <- as.numeric(oob_predictions[[1]])
-      oob_r2 <- 1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) / 
-                sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
-    } else {
-      oob_r2 <- mean(sapply(1:ncol(oob_ydata), function(i) {
-        oob_ydata_numeric <- as.numeric(oob_ydata[,i])
-        oob_predictions_numeric <- as.numeric(oob_predictions[,i])
-        1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) / 
-            sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
-      }))
-    }
-    
-    # Add OOB error to model
-    tree_model$OOB_error <- oob_r2
-    tree_model$OOB_sim <- oob_predictions
-    tree_model$Sample <- rep$sample
-    tree_model$Tree_Info <- tree_info
-    tree_model$Training_data <- tree_data  # Add training data to output
-    return(tree_model)
-  })
+    # Clean up
+    parallel::stopCluster(Clus)
+  } else {
+    # Sequential processing for single core or CRAN environment
+    SCE_res <- lapply(Bootst_rep, function(rep) {
+      # Get feature names for this tree
+      feature_names <- colnames(o_xdata)[rep$mfeature]
+      
+      # Prepare data for this tree
+      tree_data <- cbind(
+        o_xdata[rep$sample, rep$mfeature, drop = FALSE],
+        o_ydata[rep$sample, , drop = FALSE]
+      )
+      colnames(tree_data) <- c(feature_names, Y)
+      
+      # Store the tree data
+      tree_info <- list(
+        Tree = rep$Tree,
+        Features = feature_names,
+        Sample_Indices = rep$sample
+      )
+      
+      # Run SCA
+      tree_model <- SCA(alpha = alpha, Nmin = Nmin, resolution = resolution, 
+                       Training_data = tree_data,
+                       X = feature_names,
+                       Y = Y,
+                       verbose = verbose)
+      
+      # Calculate OOB error
+      all_samples <- seq_len(n_samples)
+      sample_counts <- table(factor(rep$sample, levels = all_samples))
+      oob_indices <- which(sample_counts == 0)
+      
+      # Prepare OOB data
+      oob_xdata <- o_xdata[oob_indices, rep$mfeature, drop = FALSE]
+      colnames(oob_xdata) <- feature_names
+      oob_ydata <- o_ydata[oob_indices, , drop = FALSE]
+      
+      # Store OOB data
+      tree_info$OOB_Indices <- oob_indices
+      tree_info$OOB_XData <- oob_xdata
+      tree_info$OOB_YData <- oob_ydata
+      
+      # Make predictions on OOB data
+      oob_predictions <- SCA_tree_predict(
+        Testing_data = oob_xdata,
+        model = tree_model
+      )
+      
+      # Calculate R-squared for OOB predictions
+      if (ncol(oob_ydata) == 1) {
+        oob_ydata_numeric <- as.numeric(oob_ydata[[1]])
+        oob_predictions_numeric <- as.numeric(oob_predictions[[1]])
+        oob_r2 <- 1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) / 
+                  sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
+      } else {
+        oob_r2 <- mean(sapply(1:ncol(oob_ydata), function(i) {
+          oob_ydata_numeric <- as.numeric(oob_ydata[,i])
+          oob_predictions_numeric <- as.numeric(oob_predictions[,i])
+          1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) / 
+              sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
+        }))
+      }
+      
+      # Add OOB error to model
+      tree_model$OOB_error <- oob_r2
+      tree_model$OOB_sim <- oob_predictions
+      tree_model$Sample <- rep$sample
+      tree_model$Tree_Info <- tree_info
+      tree_model$Training_data <- tree_data  # Add training data to output
+      return(tree_model)
+    })
+  }
   
   # Calculate weights based on OOB_RSQ
   OOB_RSQ <- sapply(SCE_res, function(x) {
@@ -253,9 +337,6 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
   }
   
   SCE_res <- Map(function(x, w) c(x, list(weight = w)), x = SCE_res, w = weight_OOB)
-  
-  # Clean up
-  parallel::stopCluster(Clus)
   
   return(SCE_res)
 }

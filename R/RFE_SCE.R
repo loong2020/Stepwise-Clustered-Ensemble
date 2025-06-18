@@ -10,7 +10,8 @@ RFE_SCE <- function(
   Ntree,
   alpha = 0.05,
   resolution = 1000,
-  step = 1  # Number of predictors to remove at each iteration
+  step = 1,  # Number of predictors to remove at each iteration
+  verbose = FALSE  # Control output verbosity
 ) {
   # Input validation
   if (!is.data.frame(Training_data) || !is.data.frame(Testing_data)) {
@@ -43,8 +44,10 @@ RFE_SCE <- function(
   
   # Main RFE loop
   while (length(current_predictors) > (length(Predictant)+2) ) {
-    cat("\nEvaluating model with", length(current_predictors), "predictors:", 
-        paste(current_predictors, collapse = ", "), "\n")
+    if (verbose) {
+      message("Evaluating model with ", length(current_predictors), " predictors: ", 
+              paste(current_predictors, collapse = ", "))
+    }
     
     # Train SCE model
     model <- SCE(
@@ -55,7 +58,8 @@ RFE_SCE <- function(
       Ntree = Ntree,
       alpha = alpha,
       Nmin = Nmin,
-      resolution = resolution
+      resolution = resolution,
+      verbose = verbose
     )
     
     # Get predictions

@@ -397,7 +397,7 @@ f_checkif_leaf <- function(data, n_nodeid)
 }
 
 #: process node
-f_processnode <- function(data, node_id, Max_merge_iter, resolution)
+f_processnode <- function(data, node_id, Max_merge_iter, resolution, verbose = FALSE)
 {
   #: if a leaf, just exit this function
   leaf_check <- f_checkif_leaf(data, node_id)
@@ -448,9 +448,11 @@ f_processnode <- function(data, node_id, Max_merge_iter, resolution)
       #: check if this node can be cut
       n_cut_flag = f_cal_chk_f(data, min_wilks_list)
       
-      # Comment out cutting information print
-      cat(sprintf("Cutting Node %d: Wilks' lambda = %.4f, Cut Flag = %d\n", 
+      # Print cutting information only if verbose is enabled
+      if (verbose) {
+        message(sprintf("Cutting Node %d: Wilks' lambda = %.4f, Cut Flag = %d", 
                   n_nodeid_cut_temp, min_wilks_list$min_wilks_value, n_cut_flag))
+      }
       
       if ((n_cut_flag == 1) && (data$Merge_iter <= Max_merge_iter))
       {
@@ -597,8 +599,11 @@ f_processnode <- function(data, node_id, Max_merge_iter, resolution)
               #: 1> do merge
               n_cursor_tree = length(data$o_output_tree) + 1
 
-              cat(sprintf("\nMerging nodes %d and %d into new node %d\n", 
+              # Print merging information only if verbose is enabled
+              if (verbose) {
+                message(sprintf("Merging nodes %d and %d into new node %d", 
                          n_nodeid_merge_a, n_nodeid_merge_b, n_cursor_tree))
+              }
               
               #: set the cursor for output tree
               o_temp_list = list(id=n_cursor_tree, col_index=0, value=0, left=0, right=0, 
@@ -665,7 +670,7 @@ f_processnode <- function(data, node_id, Max_merge_iter, resolution)
 # ---------------------------------------------------------------
 # Interface function
 # ---------------------------------------------------------------
-do_cluster <- function(data, Nmin, resolution)
+do_cluster <- function(data, Nmin, resolution, verbose = FALSE)
 {
   #: store the start time
   time_stat <- proc.time()
@@ -674,7 +679,7 @@ do_cluster <- function(data, Nmin, resolution)
   result <- f_init(data)
 
   #: do main function
-  result <- f_main(result, Max_merge_iter=10, Nmin=Nmin, resolution = resolution)
+  result <- f_main(result, Max_merge_iter=10, Nmin=Nmin, resolution = resolution, verbose = verbose)
 
   # : calculate the total time used
   time_end <- (proc.time() - time_stat)[[3]]
@@ -682,8 +687,11 @@ do_cluster <- function(data, Nmin, resolution)
   Minutes <- (time_end %% 3600) %/% 60
   Seconds <- time_end %% 60
   time_used <- paste(Hours, " h ", Minutes, " m ", Seconds, " s.", sep="")
-  #: print info to screen
-  cat("Time Used:\t\t", time_used, "\r\n", sep = "")
+  
+  # Print time information only if verbose is enabled
+  if (verbose) {
+    message("Time Used: ", time_used)
+  }
   
   return(result)
 }
@@ -750,10 +758,10 @@ f_init <- function(data)
 # ---------------------------------------------------------------
 # Main functions
 # ---------------------------------------------------------------
-f_main <- function(data, Max_merge_iter, Nmin, resolution)
+f_main <- function(data, Max_merge_iter, Nmin, resolution, verbose = FALSE)
 {
   #: cut from the root node
-  data <- f_processnode(data, 1, Max_merge_iter, resolution)
+  data <- f_processnode(data, 1, Max_merge_iter, resolution, verbose)
 
   #: results matrix structure -> matrix(id, col_id, x_value, left_id, right_id, left_mat, right_mat, wilk_min)
   o_results_matrix = matrix(0, length(data$o_output_tree), 8)

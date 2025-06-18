@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------
 # Interface function
 # ---------------------------------------------------------------
-SCA <- function(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
+SCA <- function(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000, verbose = FALSE)
 {
   #: store the start time
   time_stat <- proc.time()
@@ -82,7 +82,7 @@ SCA <- function(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
   data$Nmin <- Nmin
   
   #: do clustering
-  result <- do_cluster(data = data, Nmin = Nmin, resolution = resolution)
+  result <- do_cluster(data = data, Nmin = Nmin, resolution = resolution, verbose = verbose)
 
   #: return the model
   model <- list(
