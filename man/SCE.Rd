@@ -14,7 +14,7 @@
 
 \usage{
 SCE(Training_data, X, Y, mfeature, Nmin, Ntree, 
-    alpha = 0.05, resolution = 1000, verbose = FALSE)
+    alpha = 0.05, resolution = 1000, verbose = FALSE, parallel = TRUE)
 }
 
 \arguments{
@@ -57,6 +57,11 @@ SCE(Training_data, X, Y, mfeature, Nmin, Ntree,
 	\item{verbose}{
 		A logical value indicating whether to print progress information during model building.
 		Default value is FALSE.
+	}
+	\item{parallel}{
+		A logical value indicating whether to use parallel processing for tree construction.
+		When TRUE, uses multiple CPU cores for faster computation. When FALSE, processes trees sequentially.
+		Default value is TRUE.
 	}
 }
 
@@ -168,7 +173,8 @@ SCE(Training_data, X, Y, mfeature, Nmin, Ntree,
 		Nmin = 5,
 		Ntree = 48,
 		alpha = 0.05,
-		resolution = 1000
+		resolution = 1000,
+		parallel = FALSE
 	)
 
 	## Generate predictions for test data

@@ -20,7 +20,8 @@ RFE_SCE(
   alpha = 0.05,
   resolution = 1000,
   step = 1,
-  verbose = FALSE
+  verbose = TRUE,
+  parallel = TRUE
 )
 }
 
@@ -60,7 +61,12 @@ RFE_SCE(
   }
   \item{verbose}{
     A logical value indicating whether to print progress information during RFE iterations.
-    Default value is FALSE.
+    Default value is TRUE.
+  }
+  \item{parallel}{
+    A logical value indicating whether to use parallel processing for SCE model construction.
+    When TRUE, uses multiple CPU cores for faster computation. When FALSE, processes trees sequentially.
+    Default value is TRUE.
   }
 }
 
@@ -119,46 +125,47 @@ RFE_SCE(
 }
 
 \examples{
-\dontrun{
-  # This example is computationally intensive and may take a long time to run.
-  # It is recommended to run this example on a machine with a high-performance CPU.
-  # Don't run this example.
-
-  ## Load SCE package and the supporting packages
-  library(SCE)
-  library(parallel)
-
-  data(Streamflow_training_22var)
-  data(Streamflow_testing_22var)
-
-  # Define predictors and predictants
-  Predictors <- c(
-    "Precipitation", "Radiation", "Tmax", "Tmin", "VP",
-    "Precipitation_2Mon", "Radiation_2Mon", "Tmax_2Mon", "Tmin_2Mon", "VP_2Mon",
-    "PNA", "Nino3.4", "IPO", "PDO",
-    "PNA_lag1", "Nino3.4_lag1", "IPO_lag1", "PDO_lag1",
-    "PNA_lag2", "Nino3.4_lag2", "IPO_lag2", "PDO_lag2"
-  )
-  Predictants <- c("Flow")
-
-  # Perform RFE
-  set.seed(123)
-  result <- RFE_SCE(
-    Training_data = Streamflow_training_22var,
-    Testing_data = Streamflow_testing_22var,
-    Predictors = Predictors,
-    Predictant = Predictants,
-    Nmin = 5,
-    Ntree = 48,
-    alpha = 0.05,
-    resolution = 1000,
-    step = 3  # Number of predictors to remove at each iteration
-  )
-
-  ## Access results
-  summary <- RFE_results$summary
-  performances <- RFE_results$performances
-  importance_scores <- RFE_results$importance_scores
-
-}
+\donttest{
+#   # This example is computationally intensive and may take a long time to run.
+#   # It is recommended to run this example on a machine with a high-performance CPU.
+# 
+#   ## Load SCE package and the supporting packages
+#   library(SCE)
+#   library(parallel)
+# 
+#   data(Streamflow_training_22var)
+#   data(Streamflow_testing_22var)
+# 
+#   # Define predictors and predictants
+#   Predictors <- c(
+#     "Precipitation", "Radiation", "Tmax", "Tmin", "VP",
+#     "Precipitation_2Mon", "Radiation_2Mon", "Tmax_2Mon", "Tmin_2Mon", "VP_2Mon",
+#     "PNA", "Nino3.4", "IPO", "PDO",
+#     "PNA_lag1", "Nino3.4_lag1", "IPO_lag1", "PDO_lag1",
+#     "PNA_lag2", "Nino3.4_lag2", "IPO_lag2", "PDO_lag2"
+#   )
+#   Predictants <- c("Flow")
+# 
+#   # Perform RFE
+#   set.seed(123)
+#   result <- RFE_SCE(
+#     Training_data = Streamflow_training_22var,
+#     Testing_data = Streamflow_testing_22var,
+#     Predictors = Predictors,
+#     Predictant = Predictants,
+#     Nmin = 5,
+#     Ntree = 48,
+#     alpha = 0.05,
+#     resolution = 1000,
+#     step = 3,  # Number of predictors to remove at each iteration
+#     verbose = TRUE,
+#     parallel = TRUE
+#   )
+# 
+#   ## Access results
+#   summary <- RFE_results$summary
+#   performances <- RFE_results$performances
+#   importance_scores <- RFE_results$importance_scores
+# 
+# }
 } 

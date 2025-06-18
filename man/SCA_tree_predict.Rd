@@ -67,7 +67,6 @@ Li, Kailong, Guohe Huang, and Brian Baetz. "Development of a Wilks feature impor
 \examples{
 ## Load SCE package
 library(SCE)
-library(parallel)
 
 ## Load training and testing data
 data("Streamflow_training_10var")
