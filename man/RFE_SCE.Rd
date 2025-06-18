@@ -19,7 +19,8 @@ RFE_SCE(
   Ntree,
   alpha = 0.05,
   resolution = 1000,
-  step = 1
+  step = 1,
+  verbose = FALSE
 )
 }
 
@@ -56,6 +57,10 @@ RFE_SCE(
     Integer specifying the number of predictors to remove at each iteration.
     Must be between 1 and (number of predictors - number of predictants).
     Default value is 1.
+  }
+  \item{verbose}{
+    A logical value indicating whether to print progress information during RFE iterations.
+    Default value is FALSE.
   }
 }
 
@@ -115,6 +120,10 @@ RFE_SCE(
 
 \examples{
 \dontrun{
+  # This example is computationally intensive and may take a long time to run.
+  # It is recommended to run this example on a machine with a high-performance CPU.
+  # Don't run this example.
+
   ## Load SCE package and the supporting packages
   library(SCE)
   library(parallel)
@@ -151,8 +160,5 @@ RFE_SCE(
   performances <- RFE_results$performances
   importance_scores <- RFE_results$importance_scores
 
-  ## Print summary
-  print("RFE Summary:")
-  print(summary)
 }
 } 

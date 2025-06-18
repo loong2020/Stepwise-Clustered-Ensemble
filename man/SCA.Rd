@@ -10,7 +10,7 @@
 }
 
 \usage{
-SCA(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
+SCA(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000, verbose = FALSE)
 }
 
 \arguments{
@@ -41,6 +41,10 @@ SCA(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000)
     Numeric value specifying the resolution for splitting.
     Controls the granularity of the search for optimal split points.
     Default value is 1000.
+  }
+  \item{verbose}{
+    A logical value indicating whether to print progress information during model building.
+    Default value is FALSE.
   }
 }
 

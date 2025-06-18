@@ -1,6 +1,5 @@
 \name{Air_quality_testing}
 \alias{Air_quality_testing}
-\alias{Air_quality_testing}
 
 \title{
   Example Air Quality Testing Dataset for the SCE Model
@@ -15,29 +14,28 @@ data("Air_quality_testing")
 }
 
 \format{
-  A matrix containing the following variables:
-
-  \describe{
-    \item{PM2.5}{Particulate matter with diameter less than 2.5 micrometers (μg/m³).}
-    \item{PM10}{Particulate matter with diameter less than 10 micrometers (μg/m³).}
-    \item{SO2}{Sulfur dioxide concentration (μg/m³).}
-    \item{NO2}{Nitrogen dioxide concentration (μg/m³).}
-    \item{CO}{Carbon monoxide concentration (μg/m³).}
-    \item{O3}{Ozone concentration (μg/m³).}
-    \item{TEMP}{Temperature (°C).}
-    \item{PRES}{Atmospheric pressure (hPa).}
-    \item{DEWP}{Dew point temperature (°C).}
-    \item{RAIN}{Precipitation amount (mm).}
-    \item{WSPM}{Wind speed (m/s).}
-  }
+	A data frame with 8760 rows and 7 variables:
+	\describe{
+		\item{Date}{Date and time of measurement (POSIXct format)}
+		\item{PM2.5}{Particulate matter with diameter less than 2.5 micrometers (\\mu g/m^3).}
+		\item{PM10}{Particulate matter with diameter less than 10 micrometers (\\mu g/m^3).}
+		\item{SO2}{Sulfur dioxide concentration (\\mu g/m^3).}
+		\item{NO2}{Nitrogen dioxide concentration (\\mu g/m^3).}
+		\item{CO}{Carbon monoxide concentration (\\mu g/m^3).}
+		\item{O3}{Ozone concentration (\\mu g/m^3).}
+		\item{TEMP}{Temperature (\\textdegree C).}
+		\item{PRES}{Atmospheric pressure (hPa).}
+		\item{DEWP}{Dew point temperature (\\textdegree C).}
+		\item{RAIN}{Precipitation amount (mm).}
+		\item{WSPM}{Wind speed (m/s).}
+	}
 }
 
 \source{
-  The data is compiled from air quality monitoring station and meteorological station at Changping District, Beijing, providing comprehensive measurements of various air pollutants and weather conditions.
+	Air quality monitoring stations
 }
 
 \examples{
-  # Load the "Air_quality_testing" dataset and display the first few rows
-  data(Air_quality_testing)
-  head(Air_quality_testing)
-} 
+data(Air_quality_testing)
+head(Air_quality_testing)
+}

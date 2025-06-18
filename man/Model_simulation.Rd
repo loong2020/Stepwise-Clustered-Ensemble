@@ -62,44 +62,6 @@ Model_simulation(Testing_data, model)
   Kailong Li <lkl98509509@gmail.com>
 }
 
-\examples{
-\dontrun{
-  ## Load SCE package and the supporting packages
-  library(SCE)
-  library(parallel)
-
-  ## Set number of cores to use
-  options(mc.cores = 2)
-
-  ## Load example data
-  data("Streamflow_training_10var")
-  data("Streamflow_testing_10var")
-
-  ## Define independent (x) and dependent (y) variables
-  Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3","swvl4")
-  Predictants <- c("Flow")
-
-  ## Build the SCE model
-  Model <- SCE(
-    Training_data = Streamflow_training_10var,
-    X = Predictors,
-    Y = Predictants,
-    mfeature = round(0.5 * length(Predictors)),
-    Nmin = 5,
-    Ntree = 48,
-    alpha = 0.05,
-    resolution = 1000
-  )
-
-  ## Conduct simulations using the trained SCE model
-  Results <- Model_simulation(
-    Testing_data = Streamflow_testing_10var,
-    model = Model
-  )
-
-  ## Access the different prediction components
-  training_predictions <- Results$Training
-  validation_predictions <- Results$Validation
-  testing_predictions <- Results$Testing
-}
+\seealso{
+  \code{\link{SCE}}
 }

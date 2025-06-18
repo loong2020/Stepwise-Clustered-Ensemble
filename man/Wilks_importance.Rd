@@ -84,49 +84,7 @@ Kailong Li <lkl98509509@gmail.com>
 Li, Kailong, Guohe Huang, and Brian Baetz. "Development of a Wilks feature importance method with improved variable rankings for supporting hydrological inference and modelling." Hydrology and Earth System Sciences 25.9 (2021): 4947-4966.
 }
 
-\examples{
-\dontrun{
-  ## Load SCE package and the supporting packages
-  library(SCE)
-  library(parallel)
-
-## Load the training and testing data files
-data("Streamflow_training_10var")
-data("Streamflow_testing_10var")
-
-  ## Define predictors and predictants
-  Predictors <- c("Prcp","SRad","Tmax","Tmin","VP","smlt","swvl1","swvl2","swvl3","swvl4")
-  Predictants <- c("Flow")
-
-## Build the SCE model
-Model <- SCE(
-	Training_data = Streamflow_training_10var,
-	X = Predictors,
-	Y = Predictants,
-	mfeature = round(0.5 * length(Predictors)),
-	Nmin = 5,
-	Ntree = 48,
-	alpha = 0.05,
-	resolution = 1000
-)
-
-## Calculate variable importance with OOB weighting (default)
-Importance_weighted <- Wilks_importance(Model)
-
-## Calculate variable importance without OOB weighting
-Importance_unweighted <- Wilks_importance(Model, OOB_weight = FALSE)
-
-## Visualize the importance scores
-Importance_ranking_sorted <- Importance_weighted[order(-Importance_weighted$Relative_Importance), ]
-barplot(
-  Importance_ranking_sorted$Relative_Importance,
-  names.arg = Importance_ranking_sorted$Predictor,
-  las = 2, # vertical labels
-  col = "skyblue",
-  main = "Variable Importance (SCE)",
-  ylab = "Importance",
-  xlab = "Predictor"
-)
-}
+\seealso{
+  \code{\link{SCE}}
 }
 
