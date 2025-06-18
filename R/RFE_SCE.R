@@ -11,7 +11,8 @@ RFE_SCE <- function(
   alpha = 0.05,
   resolution = 1000,
   step = 1,  # Number of predictors to remove at each iteration
-  verbose = TRUE  # Control output verbosity
+  verbose = TRUE,  # Control output verbosity
+  parallel = TRUE  # Control parallel processing
 ) {
   # Input validation
   if (!is.data.frame(Training_data) || !is.data.frame(Testing_data)) {
@@ -59,7 +60,8 @@ RFE_SCE <- function(
       alpha = alpha,
       Nmin = Nmin,
       resolution = resolution,
-      verbose = verbose
+      verbose = verbose,
+      parallel = parallel
     )
     
     # Get predictions
