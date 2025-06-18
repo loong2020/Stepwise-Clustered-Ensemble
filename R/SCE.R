@@ -111,13 +111,10 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
   ), x = seq_len(Ntree))
   
   # Setup parallel processing
-  # Be conservative for CRAN checks and limited environments
   available_cores <- parallel::detectCores()
-  if (available_cores == 1 || available_cores > 20) {
-    # Use sequential processing for single core or very high core counts (likely CRAN environment)
+  if (available_cores == 1) {
     max_cores <- 1
   } else {
-    # Use limited parallel processing for normal environments
     max_cores <- min(available_cores, Ntree)  
   }
   

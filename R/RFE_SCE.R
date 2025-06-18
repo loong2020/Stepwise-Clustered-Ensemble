@@ -11,7 +11,7 @@ RFE_SCE <- function(
   alpha = 0.05,
   resolution = 1000,
   step = 1,  # Number of predictors to remove at each iteration
-  verbose = FALSE  # Control output verbosity
+  verbose = TRUE  # Control output verbosity
 ) {
   # Input validation
   if (!is.data.frame(Training_data) || !is.data.frame(Testing_data)) {
