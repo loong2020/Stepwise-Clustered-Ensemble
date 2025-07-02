@@ -48,8 +48,8 @@ Model_simulation <- function(model, Testing_data)
   
   # Get testing simulations
   testing_sim <- SCE_Prediction(
-    X_sample = Testing_data,
-    model = model_list
+    model = model_list,
+    X_sample = Testing_data
   )
   testing_sim <- as.data.frame(testing_sim)
   
@@ -63,7 +63,7 @@ Model_simulation <- function(model, Testing_data)
   return(output)
 }
 
-SCE_Prediction <- function(X_sample, model)
+SCE_Prediction <- function(model, X_sample)
 {
   # Input validation
   if (is.null(X_sample)) {
