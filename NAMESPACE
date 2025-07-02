@@ -2,6 +2,7 @@
 
 importFrom(stats, aggregate, cor, lm, median, na.omit, qf, sd, setNames, predict)
 importFrom(utils, head, str)
+importFrom(graphics, legend, lines)
 
 export(SCA)
 export(SCE)
