@@ -66,7 +66,7 @@ sca_model <- SCA(Training_data = data, X = predictors, Y = predictants, ...)
 print(sce_model)           # Display model info
 summary(sce_model)         # Detailed summary
 predictions <- predict(sce_model, newdata)  # Make predictions
-importance <- importance(sce_model)  # Calculate variable importance
+imp_ranking <- importance(sce_model)  # Calculate variable importance
 evaluation <- evaluate(sce_model, Testing_data, Training_data, Predictant)  # Evaluate model
 
 # Check available methods
