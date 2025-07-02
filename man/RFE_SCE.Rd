@@ -9,7 +9,7 @@
 \description{
   This function implements Recursive Feature Elimination (RFE) to identify the most important predictors for SCE models. It iteratively removes the least important predictors based on Wilks' feature importance scores and evaluates model performance. The function supports both single and multiple predictants, with comprehensive input validation and performance tracking across iterations.
   
-  The package also provides a \code{Plot_RFE} function for visualizing RFE results, showing validation and testing R² values as a function of the number of predictors.
+  The package also provides a \code{Plot_RFE} function for visualizing RFE results, showing validation and testing R2 values as a function of the number of predictors.
 }
 
 \usage{
@@ -29,7 +29,7 @@ RFE_SCE(
 
 Plot_RFE(
   rfe_result,
-  main = "Validation and Testing R² vs Number of Predictors",
+  main = "Validation and Testing R2 vs Number of Predictors",
   col_validation = "blue",
   col_testing = "red",
   pch = 16,
@@ -89,7 +89,7 @@ Plot_RFE(
     The result object from RFE_SCE function containing summary and performances components.
   }
   \item{main}{
-    Title for the plot. Default is "Validation and Testing R² vs Number of Predictors".
+    Title for the plot. Default is "Validation and Testing R2 vs Number of Predictors".
   }
   \item{col_validation}{
     Color for validation line. Default is "blue".
@@ -133,8 +133,8 @@ Plot_RFE(
   \strong{Plot_RFE:} Invisibly returns a list containing:
   \itemize{
     \item n_predictors: Vector of predictor counts
-    \item validation_r2: Vector of validation R² values
-    \item testing_r2: Vector of testing R² values
+    \item validation_r2: Vector of validation R2 values
+    \item testing_r2: Vector of testing R2 values
   }
 }
 
@@ -172,9 +172,9 @@ Plot_RFE(
   }
   
   \strong{Plot_RFE Function:}
-  Creates a base R plot showing validation and testing R² values as a function of the number of predictors during the RFE process. The function:
+  Creates a base R plot showing validation and testing R2 values as a function of the number of predictors during the RFE process. The function:
   \itemize{
-    \item Extracts R² values from RFE results
+    \item Extracts R2 values from RFE results
     \item Converts formatted strings to numeric values
     \item Creates a line plot with points and lines
     \item Includes a legend distinguishing validation and testing performance
