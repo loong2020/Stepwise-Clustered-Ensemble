@@ -267,7 +267,7 @@ Predictors <- c(
 Predictants <- c("Flow")
 
 # Perform RFE
-set.seed(123)
+set.seed(1)
 result <- RFE_SCE(
   Training_data = Streamflow_training_22var,
   Testing_data = Streamflow_testing_22var,
