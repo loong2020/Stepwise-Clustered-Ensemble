@@ -66,8 +66,8 @@ RFE_SCE <- function(
     
     # Get predictions
     predictions <- Model_simulation(
-      Testing_data = Testing_data,
-      model = model
+      model = model,
+      Testing_data = Testing_data
     )
     
     # Evaluate model

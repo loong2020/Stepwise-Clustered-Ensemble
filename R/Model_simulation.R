@@ -5,39 +5,51 @@
 # Author: 		Kailong Li
 # Email:		lkl98509509@gmail.com
 # ===============================================================
-Model_simulation <- function(Testing_data, model)
+Model_simulation <- function(model, Testing_data)
 {
   # Input validation
+  if (is.null(model)) {
+    stop("model must be an SCE object or list")
+  }
+  
   if (is.null(Testing_data)) {
     stop("Testing_data must be a data frame or matrix")
   }
   
-  if (is.null(model)) {
-    stop("model must be a list")
+  if (!inherits(model, "SCE") && !is.list(model)) {
+    stop("model must be an SCE object or list")
   }
   
   if (!is.data.frame(Testing_data) && !is.matrix(Testing_data)) {
     stop("Testing_data must be a data frame or matrix")
   }
   
-  if (!is.list(model)) {
-    stop("model must be a list")
-  }
-  
   if (nrow(Testing_data) == 0) {
     stop("Testing_data is empty")
   }
   
+  # Handle S3 class objects
+  if (inherits(model, "SCE")) {
+    # Convert SCE object to list format for compatibility
+    model_list <- list()
+    for (i in seq_along(model$trees)) {
+      model_list[[i]] <- model$trees[[i]]
+    }
+  } else {
+    # Legacy list format
+    model_list <- model
+  }
+  
   # Get training simulations using SCE_Prediction
-  training_sim <- Training_Prediction(model)
+  training_sim <- Training_Prediction(model_list)
   
   # Get validation (OOB) simulations
-  validation_sim <- OOB_validation(model)
+  validation_sim <- OOB_validation(model_list)
   
   # Get testing simulations
   testing_sim <- SCE_Prediction(
     X_sample = Testing_data,
-    model = model
+    model = model_list
   )
   testing_sim <- as.data.frame(testing_sim)
   
@@ -69,8 +81,8 @@ SCE_Prediction <- function(X_sample, model)
   # Get model predictions for each tree
   predictions <- lapply(model, function(m) {
     SCA_tree_predict(
-      Testing_data = X_sample,
-      model = m
+      model = m,
+      Testing_data = X_sample
     )
   })
   
@@ -113,8 +125,8 @@ Training_Prediction <- function(model)
   # Get model predictions for each tree
   predictions <- lapply(model, function(m) {
     SCA_tree_predict(
-      Testing_data = m$Training_data,
-      model = m
+      model = m,
+      Testing_data = m$Training_data
     )
   })
 

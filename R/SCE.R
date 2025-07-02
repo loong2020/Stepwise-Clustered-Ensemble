@@ -8,6 +8,7 @@
 # History: 	2019/05/17		created by Kailong Li
 #			      2019/09/18		added Wilks feature importance (WFI), by Kailong Li
 #	     	    2023/03/10   	enabled weighted and non-weighted options for calculating WFI, by Kailong Li
+#           2024/12/19    added S3 class support, by Kailong Li
 ##################################################################
 
 # reference:
@@ -19,7 +20,25 @@
 # ---------------------------------------------------------------
 # Function definitions
 # ---------------------------------------------------------------
+
+# S3 class constructor for SCE objects
+SCE_object <- function(trees, predictors, predictants, parameters, call) {
+  structure(
+    list(
+      trees = trees,
+      predictors = predictors,
+      predictants = predictants,
+      parameters = parameters,
+      call = call
+    ),
+    class = "SCE"
+  )
+}
+
 SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolution = 1000, verbose = FALSE, parallel = TRUE) {
+  # Store the function call
+  call <- match.call()
+  
   # Input validation
   if (!is.numeric(alpha) || alpha <= 0 || alpha >= 1) {
     stop("alpha must be a number between 0 and 1")
@@ -78,8 +97,8 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
     stop(sprintf("The following predictants are not numeric: %s", 
                 paste(non_numeric, collapse = ", ")))
   }
-  
-  # Prepare data
+
+  # Prepare data (following original structure)
   o_xdata <- as.data.frame(Training_data[, X, drop = FALSE])
   o_ydata <- as.data.frame(Training_data[, Y, drop = FALSE])
   
@@ -92,7 +111,7 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
   colnames(o_xdata) <- X
   colnames(o_ydata) <- Y
 
-  # Setup bootstrap and random features
+  # Setup bootstrap and random features (following original approach)
   n_predictors <- ncol(o_xdata)
   n_samples <- nrow(o_xdata)
   
@@ -125,7 +144,7 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
       # Export required functions and objects to workers
       parallel::clusterExport(Clus, 
         c("o_xdata", "o_ydata", "Nmin", "alpha", "resolution", "verbose", "find_best_split_iterative", "find_best_split",
-          "SCA", "f_processnode", "f_min_wilks", "f_wilks_statistic",
+          "SCA", "SCA_object", "f_processnode", "f_min_wilks", "f_wilks_statistic",
           "f_cal_chk_f", "f_checkif_leaf", "f_init", "f_main", "do_cluster",
           "SCA_tree_predict", "f_main_p", "f_predict_one", "f_predict", "Inference"),
         envir = environment()
@@ -179,8 +198,8 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
         
         # Make predictions on OOB data
         oob_predictions <- SCA_tree_predict(
-          Testing_data = oob_xdata,
-          model = tree_model
+          model = tree_model,
+          Testing_data = oob_xdata
         )
         
         # Calculate R-squared for OOB predictions
@@ -254,8 +273,8 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
       
       # Make predictions on OOB data
       oob_predictions <- SCA_tree_predict(
-        Testing_data = oob_xdata,
-        model = tree_model
+        model = tree_model,
+        Testing_data = oob_xdata
       )
       
       # Calculate R-squared for OOB predictions
@@ -337,6 +356,173 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
   
   SCE_res <- Map(function(x, w) c(x, list(weight = w)), x = SCE_res, w = weight_OOB)
   
-  return(SCE_res)
+  # Create parameters list
+  parameters <- list(
+    n_trees = Ntree,
+    mfeature = mfeature,
+    Nmin = Nmin,
+    alpha = alpha,
+    resolution = resolution,
+    n_samples = n_samples,
+    n_predictors = length(X),
+    n_predictants = length(Y)
+  )
+  
+  # Return S3 class object
+  return(SCE_object(
+    trees = SCE_res,
+    predictors = X,
+    predictants = Y,
+    parameters = parameters,
+    call = call
+  ))
+}
+
+# S3 Methods for SCE class
+
+#' Generic importance function for S3 method dispatch
+#' @param object The object to calculate importance for
+#' @param ... Additional arguments passed to methods
+#' @export
+importance <- function(object, ...) {
+  UseMethod("importance")
+}
+
+#' Generic evaluate function for S3 method dispatch
+#' @param object The object to evaluate
+#' @param ... Additional arguments passed to methods
+#' @export
+evaluate <- function(object, ...) {
+  UseMethod("evaluate")
+}
+
+
+
+#' @export
+print.SCE <- function(x, ...) {
+  cat("Stepwise Clustered Ensemble (SCE) Model\n")
+  cat("=======================================\n\n")
+  
+  cat("Call:\n")
+  print(x$call)
+  cat("\n")
+  
+  cat("Model Parameters:\n")
+  cat("  Number of trees:", x$parameters$n_trees, "\n")
+  cat("  Features per tree:", x$parameters$mfeature, "\n")
+  cat("  Minimum samples per node:", x$parameters$Nmin, "\n")
+  cat("  Alpha (significance level):", x$parameters$alpha, "\n")
+  cat("  Resolution:", x$parameters$resolution, "\n")
+  cat("  Training samples:", x$parameters$n_samples, "\n")
+  cat("  Predictors:", x$parameters$n_predictors, "\n")
+  cat("  Predictants:", x$parameters$n_predictants, "\n\n")
+  
+  cat("Predictors:", paste(x$predictors, collapse = ", "), "\n")
+  cat("Predictants:", paste(x$predictants, collapse = ", "), "\n\n")
+  
+  # Calculate average OOB R-squared
+  oob_r2 <- sapply(x$trees, function(tree) {
+    if (is.null(tree$OOB_error)) return(0)
+    if (is.na(tree$OOB_error)) return(0)
+    tree$OOB_error
+  })
+  
+  cat("Model Performance:\n")
+  cat("  Average OOB R-squared:", round(mean(oob_r2), 4), "\n")
+  cat("  Min OOB R-squared:", round(min(oob_r2), 4), "\n")
+  cat("  Max OOB R-squared:", round(max(oob_r2), 4), "\n")
+  
+  invisible(x)
+}
+
+#' @export
+summary.SCE <- function(object, ...) {
+  cat("Stepwise Clustered Ensemble (SCE) Model Summary\n")
+  cat("==============================================\n\n")
+  
+  # Basic model info
+  cat("Model Information:\n")
+  cat("  Number of trees:", object$parameters$n_trees, "\n")
+  cat("  Features per tree:", object$parameters$mfeature, "\n")
+  cat("  Training samples:", object$parameters$n_samples, "\n")
+  cat("  Predictors:", object$parameters$n_predictors, "\n")
+  cat("  Predictants:", object$parameters$n_predictants, "\n\n")
+  
+  # OOB performance statistics
+  oob_r2 <- sapply(object$trees, function(tree) {
+    if (is.null(tree$OOB_error)) return(0)
+    if (is.na(tree$OOB_error)) return(0)
+    tree$OOB_error
+  })
+  
+  cat("Out-of-Bag Performance:\n")
+  cat("  Mean R-squared:", round(mean(oob_r2), 4), "\n")
+  cat("  Median R-squared:", round(median(oob_r2), 4), "\n")
+  cat("  Standard deviation:", round(sd(oob_r2), 4), "\n")
+  cat("  Min R-squared:", round(min(oob_r2), 4), "\n")
+  cat("  Max R-squared:", round(max(oob_r2), 4), "\n")
+  cat("  Trees with R-squared > 0.5:", sum(oob_r2 > 0.5), "\n")
+  cat("  Trees with R-squared > 0.7:", sum(oob_r2 > 0.7), "\n\n")
+  
+  # Tree structure statistics
+  total_nodes <- sapply(object$trees, function(tree) tree$totalNodes)
+  leaf_nodes <- sapply(object$trees, function(tree) tree$leafNodes)
+  
+  cat("Tree Structure:\n")
+  cat("  Average total nodes per tree:", round(mean(total_nodes), 1), "\n")
+  cat("  Average leaf nodes per tree:", round(mean(leaf_nodes), 1), "\n")
+  cat("  Average tree depth:", round(mean(log2(total_nodes)), 1), "\n\n")
+  
+  # Weight distribution
+  weights <- sapply(object$trees, function(tree) tree$weight)
+  cat("Tree Weights:\n")
+  cat("  Mean weight:", round(mean(weights), 4), "\n")
+  cat("  Weight range:", round(range(weights), 4), "\n")
+  cat("  Weight standard deviation:", round(sd(weights), 4), "\n")
+  
+  invisible(object)
+}
+
+#' @export
+predict.SCE <- function(object, newdata, ...) {
+  # This is a wrapper for Model_simulation
+  if (missing(newdata)) {
+    stop("newdata is required for prediction")
+  }
+  
+  # Call Model_simulation which returns Training, Validation, and Testing predictions
+  return(Model_simulation(model = object, Testing_data = newdata))
+}
+
+#' @export
+importance.SCE <- function(object, OOB_weight = TRUE, ...) {
+  # This is a wrapper for Wilks_importance
+  return(Wilks_importance(model = object, OOB_weight = OOB_weight))
+}
+
+#' @export
+evaluate.SCE <- function(object, Testing_data, Training_data, Predictant, digits = 3, ...) {
+  # This is a wrapper for SCE_Model_evaluation
+  if (missing(Testing_data)) {
+    stop("Testing_data is required for evaluation")
+  }
+  if (missing(Training_data)) {
+    stop("Training_data is required for evaluation")
+  }
+  if (missing(Predictant)) {
+    stop("Predictant is required for evaluation")
+  }
+  
+  # Get simulations using Model_simulation
+  Simulations <- Model_simulation(model = object, Testing_data = Testing_data)
+  
+  # Call SCE_Model_evaluation
+  return(SCE_Model_evaluation(
+    Testing_data = Testing_data,
+    Training_data = Training_data,
+    Simulations = Simulations,
+    Predictant = Predictant,
+    digits = digits
+  ))
 }
 

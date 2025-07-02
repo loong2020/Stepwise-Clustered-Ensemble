@@ -1,8 +1,30 @@
+# S3 class constructor for SCA objects
+SCA_object <- function(tree, map, predictors, predictants, type, total_nodes, leaf_nodes, cutting_actions, merging_actions, call) {
+  structure(
+    list(
+      Tree = tree,
+      Map = map,
+      XName = predictors,
+      YName = predictants,
+      type = type,
+      totalNodes = total_nodes,
+      leafNodes = leaf_nodes,
+      cuttingActions = cutting_actions,
+      mergingActions = merging_actions,
+      call = call
+    ),
+    class = "SCA"
+  )
+}
+
 # ---------------------------------------------------------------
 # Interface function
 # ---------------------------------------------------------------
 SCA <- function(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000, verbose = FALSE)
 {
+  # Store the function call
+  call <- match.call()
+  
   #: store the start time
   time_stat <- proc.time()
 
@@ -84,24 +106,31 @@ SCA <- function(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000, verb
   #: do clustering
   result <- do_cluster(data = data, Nmin = Nmin, resolution = resolution, verbose = verbose)
 
-  #: return the model
-  model <- list(
-    Tree = result$Tree,
-    Map = result$Map,
-    XName = X,
-    YName = Y,
+  #: return the S3 class object
+  return(SCA_object(
+    tree = result$Tree,
+    map = result$Map,
+    predictors = X,
+    predictants = Y,
     type = data$n_mapvalue,
-    totalNodes = result$totalNodes,
-    leafNodes = result$leafNodes,
-    cuttingActions = result$cuttingActions,
-    mergingActions = result$mergingActions
-  )
-  
-  return(model)
+    total_nodes = result$totalNodes,
+    leaf_nodes = result$leafNodes,
+    cutting_actions = result$cuttingActions,
+    merging_actions = result$mergingActions,
+    call = call
+  ))
 }
 
-SCA_tree_predict <- function(Testing_data, model) {
+SCA_tree_predict <- function(model, Testing_data) {
   # Input validation
+  if (is.null(model)) {
+    stop("model must be an SCA object or list")
+  }
+  
+  if (is.null(Testing_data)) {
+    stop("Testing_data must be a data frame or matrix")
+  }
+  
   if (!is.data.frame(Testing_data) && !is.matrix(Testing_data)) {
     stop("Testing_data must be a data frame or matrix")
   }
@@ -146,4 +175,97 @@ SCA_tree_predict <- function(Testing_data, model) {
   colnames(Testing_sim) <- model$YName
   
   return(Testing_sim)
+}
+
+# S3 Methods for SCA class
+
+#' @export
+print.SCA <- function(x, ...) {
+  cat("Stepwise Cluster Analysis (SCA) Model\n")
+  cat("=====================================\n\n")
+  
+  cat("Call:\n")
+  print(x$call)
+  cat("\n")
+  
+  cat("Model Structure:\n")
+  cat("  Total nodes:", x$totalNodes, "\n")
+  cat("  Leaf nodes:", x$leafNodes, "\n")
+  cat("  Cutting actions:", x$cuttingActions, "\n")
+  cat("  Merging actions:", x$mergingActions, "\n")
+  cat("  Mapping type:", x$type, "\n\n")
+  
+  cat("Variables:\n")
+  cat("  Predictors:", paste(x$XName, collapse = ", "), "\n")
+  cat("  Predictants:", paste(x$YName, collapse = ", "), "\n")
+  
+  invisible(x)
+}
+
+#' @export
+summary.SCA <- function(object, ...) {
+  cat("Stepwise Cluster Analysis (SCA) Model Summary\n")
+  cat("============================================\n\n")
+  
+  cat("Model Information:\n")
+  cat("  Total nodes:", object$totalNodes, "\n")
+  cat("  Leaf nodes:", object$leafNodes, "\n")
+  cat("  Internal nodes:", object$totalNodes - object$leafNodes, "\n")
+  cat("  Cutting actions:", object$cuttingActions, "\n")
+  cat("  Merging actions:", object$mergingActions, "\n")
+  cat("  Mapping type:", object$type, "\n\n")
+  
+  cat("Variables:\n")
+  cat("  Number of predictors:", length(object$XName), "\n")
+  cat("  Number of predictants:", length(object$YName), "\n")
+  cat("  Predictors:", paste(object$XName, collapse = ", "), "\n")
+  cat("  Predictants:", paste(object$YName, collapse = ", "), "\n\n")
+  
+  # Tree depth calculation
+  if (object$totalNodes > 0) {
+    estimated_depth <- ceiling(log2(object$totalNodes))
+    cat("Tree Characteristics:\n")
+    cat("  Estimated maximum depth:", estimated_depth, "\n")
+    cat("  Average branching factor:", round(object$totalNodes / max(1, object$totalNodes - object$leafNodes), 2), "\n")
+  }
+  
+  invisible(object)
+}
+
+#' @export
+predict.SCA <- function(object, newdata, ...) {
+  # This is a wrapper for SCA_tree_predict
+  if (missing(newdata)) {
+    stop("newdata is required for prediction")
+  }
+  
+  return(SCA_tree_predict(model = object, Testing_data = newdata))
+}
+
+#' @export
+importance.SCA <- function(object, ...) {
+  # This is a wrapper for SCA_importance
+  return(SCA_importance(model = object))
+}
+
+#' @export
+evaluate.SCA <- function(object, Testing_data, Predictant, digits = 3, ...) {
+  # This is a wrapper for SCA_Model_evaluation
+  if (missing(Testing_data)) {
+    stop("Testing_data is required for evaluation")
+  }
+  if (missing(Predictant)) {
+    stop("Predictant is required for evaluation")
+  }
+  
+  # Get predictions using SCA_tree_predict
+  predictions <- SCA_tree_predict(model = object, Testing_data = Testing_data)
+  
+  # Call SCA_Model_evaluation
+  return(SCA_Model_evaluation(
+    Testing_data = Testing_data,
+    Simulations = predictions,
+    Predictant = Predictant,
+    digits = digits
+  ))
 }
