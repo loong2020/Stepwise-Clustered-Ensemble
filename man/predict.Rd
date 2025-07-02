@@ -23,7 +23,7 @@ Model_simulation(model, Testing_data)
 
 SCA_tree_predict(model, Testing_data)
 
-SCE_Prediction(X_sample, model)
+SCE_Prediction(model, X_sample)
 
 OOB_validation(model)
 }
