@@ -113,11 +113,11 @@ RFE_SCE <- function(
 
 #' Plot RFE Results
 #' 
-#' Creates a plot showing validation and testing R² values as a function of the number of predictors
+#' Creates a plot showing validation and testing R2 values as a function of the number of predictors
 #' during recursive feature elimination.
 #' 
 #' @param rfe_result The result object from RFE_SCE function
-#' @param main Title for the plot (default: "Validation and Testing R² vs Number of Predictors")
+#' @param main Title for the plot (default: "Validation and Testing R2 vs Number of Predictors")
 #' @param col_validation Color for validation line (default: "blue")
 #' @param col_testing Color for testing line (default: "red")
 #' @param pch Point character for markers (default: 16)
@@ -130,7 +130,7 @@ RFE_SCE <- function(
 #' @export
 Plot_RFE <- function(
   rfe_result,
-  main = "Validation and Testing R² vs Number of Predictors",
+  main = "Validation and Testing R2 vs Number of Predictors",
   col_validation = "blue",
   col_testing = "red",
   pch = 16,
@@ -147,7 +147,7 @@ Plot_RFE <- function(
   # Extract data
   n_predictors <- rfe_result[["summary"]][["n_predictors"]]
   
-  # Extract R² values from performances
+  # Extract R2 values from performances
   validation_r2 <- sapply(rfe_result[["performances"]], function(x) {
     if (is.data.frame(x) && "Validation" %in% colnames(x) && "R2" %in% rownames(x)) {
       return(x["R2", "Validation"])
@@ -170,7 +170,7 @@ Plot_RFE <- function(
   
   # Check for valid data
   if (all(is.na(validation_r2)) && all(is.na(testing_r2))) {
-    stop("No valid R² values found in the RFE results")
+    stop("No valid R2 values found in the RFE results")
   }
   
   # Calculate y-axis limits
@@ -188,7 +188,7 @@ Plot_RFE <- function(
        xlim = rev(range(n_predictors)),  # reverse x-axis
        ylim = ylim,
        xlab = "Number of Predictors",
-       ylab = "R²",
+       ylab = "R2",
        main = main,
        ...)
   
