@@ -537,14 +537,11 @@ evaluate.SCE <- function(object, Testing_data, Training_data, Predictant, digits
   # Get simulations using Model_simulation
   Simulations <- Model_simulation(model = object, Testing_data = Testing_data)
   
-  # Extract validation simulations (which should match Training_data rows)
-  Validation_simulations <- Simulations$Validation
-  
   # Call SCE_Model_evaluation with validation simulations
   return(SCE_Model_evaluation(
     Testing_data = Testing_data,
     Training_data = Training_data,
-    Simulations = Validation_simulations,
+    Simulations = Simulations,
     Predictant = Predictant,
     digits = digits
   ))
