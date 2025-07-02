@@ -280,38 +280,8 @@ result <- RFE_SCE(
   step = 3  # Number of predictors to remove at each iteration
 )
 
-# Plot Testing R² results
-library(ggplot2)
-
-# Extract Validation and Testing R² values
-validation_r2 <- sapply(result[["performances"]], function(x) x["R2", "Validation"])
-testing_r2 <- sapply(result[["performances"]], function(x) x["R2", "Testing"])
-n_predictors <- result[["summary"]][["n_predictors"]]
-
-# Convert to numeric (remove any formatting/spaces)
-validation_r2 <- as.numeric(validation_r2)
-testing_r2 <- as.numeric(testing_r2)
-
-# Create base R plot
-plot(n_predictors, validation_r2, 
-     type = "b",  # both points and lines
-     col = "blue",
-     pch = 16,    # filled circle point type
-     xlim = rev(range(n_predictors)),  # reverse x-axis
-     ylim = c(min(c(validation_r2, testing_r2)), max(c(validation_r2, testing_r2))),  # explicit y-axis limits
-     xlab = "Number of Predictors",
-     ylab = "R²",
-     main = "Validation and Testing R² vs Number of Predictors")
-
-# Add testing data
-lines(n_predictors, testing_r2, type = "b", col = "red", pch = 16)
-
-# Add legend
-legend("bottomleft",
-       legend = c("Validation", "Testing"),
-       col = c("blue", "red"),
-       pch = 16,
-       lty = 1)
+# Plot RFE results
+Plot_RFE(result)
 ```
 
 ## Documentation
@@ -341,6 +311,7 @@ Full documentation is available through the R help system:
 ?SCA_Model_evaluation
 ?SCE_Model_evaluation
 ?RFE_SCE
+?Plot_RFE
 ?Wilks_importance
 ?SCA_importance
 ```
