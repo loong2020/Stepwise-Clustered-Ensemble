@@ -17,7 +17,7 @@ SCA_importance(model)
 
 \arguments{
 	\item{model}{
-		A single SCA tree object containing:
+		A single SCA tree object (S3 class "SCA") containing:
 		\itemize{
 			\item Tree: Tree structure with Wilks' Lambda values and split information
 			\item XName: Names of predictors used
@@ -93,8 +93,15 @@ SCA_tree <- SCA(
 	resolution = 1000
 )
 
-## Calculate variable importance for the single tree
-Tree_importance <- SCA_importance(SCA_tree)
+## Use S3 methods for model inspection
+print(SCA_tree)
+summary(SCA_tree)
+
+## Calculate variable importance using S3 method
+Tree_importance <- importance(SCA_tree)
+
+## Or use direct function call
+Tree_importance_direct <- SCA_importance(SCA_tree)
 
 ## Print the results
 print("Single tree importance scores:")
@@ -111,4 +118,9 @@ barplot(
   ylab = "Importance",
   xlab = "Predictor"
 )
+}
+
+\seealso{
+  \code{\link{SCA}}
+  See the generic function \code{importance} for SCA objects.
 }

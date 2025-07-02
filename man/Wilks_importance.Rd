@@ -17,7 +17,7 @@ Wilks_importance(model, OOB_weight = TRUE)
 
 \arguments{
 	\item{model}{
-		A trained SCE model object containing a list of SCA trees. Each tree should contain:
+		A trained SCE model object (S3 class "SCE") containing a list of SCA trees. Each tree should contain:
 		\itemize{
 			\item Tree: Tree structure with Wilks' Lambda values and split information
 			\item XName: Names of predictors used
@@ -86,5 +86,6 @@ Li, Kailong, Guohe Huang, and Brian Baetz. "Development of a Wilks feature impor
 
 \seealso{
   \code{\link{SCE}}
+  See the generic function \code{importance} for SCE objects.
 }
 

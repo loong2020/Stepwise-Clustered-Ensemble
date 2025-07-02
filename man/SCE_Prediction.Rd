@@ -21,7 +21,7 @@ SCE_Prediction(X_sample, model)
     predictions are to be made. Must contain all predictors used in model training.
   }
   \item{model}{
-    A trained SCE model object generated through the \code{SCE} function.
+    A trained SCE model object (S3 class "SCE") generated through the \code{SCE} function.
     The model must contain the trained trees and their weights.
   }
 }
@@ -49,5 +49,6 @@ SCE_Prediction(X_sample, model)
 }
 
 \seealso{
-  \code{\link{SCE}}
+  \code{\link{SCE}}, \code{\link{Model_simulation}}
+  See the generic function \code{predict} for SCE objects.
 }

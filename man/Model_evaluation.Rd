@@ -95,5 +95,5 @@ SCE_Model_evaluation(Testing_data, Training_data, Simulations, Predictant, digit
 }
 
 \seealso{
-  \code{\link{SCE}}
+  \code{\link{SCE}}, \code{\link{SCA}}
 }

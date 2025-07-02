@@ -12,17 +12,17 @@
 }
 
 \usage{
-SCA_tree_predict(Testing_data, model)
+SCA_tree_predict(model, Testing_data)
 }
 
 \arguments{
+	\item{model}{
+		A trained SCA model object (S3 class "SCA") returned by the SCA function.
+	}
 	\item{Testing_data}{
 		A data.frame or matrix containing the test data.
 		Must include all predictors used in model training.
 		Must not contain missing values.
-	}
-	\item{model}{
-		A trained SCA model object returned by the SCA function.
 	}
 }
 
@@ -86,10 +86,20 @@ Model <- SCA(
 	resolution = 1000
 )
 
-## Make predictions
-Predictions <- SCA_tree_predict(
-	Testing_data = Streamflow_testing_10var,
-	model = Model
-)
+## Use S3 methods for model inspection
+print(Model)
+summary(Model)
 
+## Make predictions using S3 method
+Predictions_s3 <- predict(Model, Streamflow_testing_10var)
+
+## Or use direct function call
+Predictions_direct <- SCA_tree_predict(
+	model = Model,
+	Testing_data = Streamflow_testing_10var
+)
+}
+
+\seealso{
+  See the generic function \code{predict} for SCA objects.
 } 

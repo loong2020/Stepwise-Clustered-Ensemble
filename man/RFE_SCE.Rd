@@ -161,11 +161,18 @@ RFE_SCE(
 #     verbose = TRUE,
 #     parallel = TRUE
 #   )
-# 
+#
 #   ## Access results
-#   summary <- RFE_results$summary
-#   performances <- RFE_results$performances
-#   importance_scores <- RFE_results$importance_scores
+#   summary <- result$summary
+#   performances <- result$performances
+#   importance_scores <- result$importance_scores
+#
+#   ## Note: The RFE_SCE function internally uses S3 methods for SCE models
+#   ## including importance() and evaluate() for model analysis
 # 
 # }
+} 
+
+\seealso{
+  See the generic functions \code{importance} and \code{evaluate} for SCE objects.
 } 

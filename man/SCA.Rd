@@ -49,7 +49,7 @@ SCA(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000, verbose = FALSE)
 }
 
 \value{
-  A list containing:
+  An S3 object of class "SCA" containing:
   \itemize{
     \item Tree: The SCA tree structure
     \item Map: Mapping information for predictions
@@ -60,7 +60,11 @@ SCA(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000, verbose = FALSE)
     \item leafNodes: Number of leaf nodes
     \item cuttingActions: Number of cutting actions performed
     \item mergingActions: Number of merging actions performed
+    \item call: Function call
   }
+  
+  	The object supports S3 methods: \code{print()}, \code{summary()}, 
+	\code{predict()}, \code{importance()}, and \code{evaluate()}.
 }
 
 \details{
@@ -115,4 +119,25 @@ SCA(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000, verbose = FALSE)
     alpha = 0.05,
     resolution = 1000
   )
+  
+  ## Use S3 methods for model inspection
+  print(Model)
+  summary(Model)
+  
+  ## Make predictions using S3 method
+  predictions <- predict(Model, Streamflow_testing_10var)
+  
+  ## Calculate variable importance using S3 method
+  importance_scores <- importance(Model)
+  
+  ## Evaluate model performance using S3 method
+  evaluation <- evaluate(
+    object = Model,
+    Testing_data = Streamflow_testing_10var,
+    Predictant = Predictants
+  )
+}
+
+\seealso{
+	See the generic functions \code{predict}, \code{importance}, and \code{evaluate} for SCA objects.
 } 

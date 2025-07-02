@@ -17,7 +17,7 @@ OOB_validation(model)
 
 \arguments{
   \item{model}{
-    A trained SCE model object generated through the \code{SCE} function.
+    A trained SCE model object (S3 class "SCE") generated through the \code{SCE} function.
     The model must contain OOB information in its Tree_Info component.
   }
 }
@@ -45,5 +45,5 @@ OOB_validation(model)
 }
 
 \seealso{
-  \code{\link{SCE}}
+  \code{\link{SCE}}, \code{\link{Model_simulation}}
 } 

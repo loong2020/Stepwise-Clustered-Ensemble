@@ -10,18 +10,18 @@
 }
 
 \usage{
-Model_simulation(Testing_data, model)
+Model_simulation(model, Testing_data)
 }
 
 \arguments{
+  \item{model}{
+    The trained SCE model object (S3 class "SCE") generated through the \code{SCE} function.
+    This model contains the necessary information and parameters for conducting simulations.
+  }
   \item{Testing_data}{
     A data.frame or matrix comprising the data that will be used to test the model.
     Must contain all the predictors used in the model.
     Must not contain missing values.
-  }
-  \item{model}{
-    The trained SCE model object generated through the \code{SCE} function.
-    This model contains the necessary information and parameters for conducting simulations.
   }
 }
 
@@ -64,4 +64,5 @@ Model_simulation(Testing_data, model)
 
 \seealso{
   \code{\link{SCE}}
+  See the generic function \code{predict} for SCE objects.
 }

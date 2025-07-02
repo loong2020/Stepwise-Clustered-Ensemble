@@ -66,9 +66,9 @@ SCE(Training_data, X, Y, mfeature, Nmin, Ntree,
 }
 
 \value{
-	A list containing the ensemble model with the following components:
+	An S3 object of class "SCE" containing the ensemble model with the following components:
 	\itemize{
-		\item \code{Trees}: A list of SCA tree models, each containing:
+		\item \code{trees}: A list of SCA tree models, each containing:
 			\itemize{
 				\item \code{Tree}: The SCA tree structure
 				\item \code{Map}: Mapping information
@@ -86,7 +86,14 @@ SCE(Training_data, X, Y, mfeature, Nmin, Ntree,
 				\item \code{Training_data}: Training data used for the tree
 				\item \code{weight}: Tree weight based on OOB performance
 			}
+		\item \code{predictors}: Names of predictor variables
+		\item \code{predictants}: Names of predictant variables
+		\item \code{parameters}: Model parameters
+		\item \code{call}: Function call
 	}
+	
+	The object supports S3 methods: \code{print()}, \code{summary()}, 
+	\code{predict()}, \code{importance()}, and \code{evaluate()}.
 }
 
 \details{
@@ -144,10 +151,10 @@ SCE(Training_data, X, Y, mfeature, Nmin, Ntree,
 
 \seealso{
 	\code{\link{SCA}} for single tree construction,
-	\code{\link{SCE_Prediction}} for making predictions,
 	\code{\link{Model_simulation}} for comprehensive model evaluation,
 	\code{\link{Wilks_importance}} for variable importance analysis,
 	\code{\link{RFE_SCE}} for recursive feature elimination
+	See the generic functions \code{predict}, \code{importance}, and \code{evaluate} for SCE objects.
 }
 
 \examples{
@@ -177,28 +184,23 @@ SCE(Training_data, X, Y, mfeature, Nmin, Ntree,
 		parallel = FALSE
 	)
 
-	## Generate predictions for test data
-	predictions <- SCE_Prediction(
-		X_sample = Streamflow_testing_10var,
-		model = Model
-	)
+	## Use S3 methods for model inspection
+	print(Model)
+	summary(Model)
 
-	## Conduct comprehensive model evaluation
-	Results <- Model_simulation(
-		Testing_data = Streamflow_testing_10var,
-		model = Model
-	)
+	## Generate predictions using S3 method
+	predictions <- predict(Model, Streamflow_testing_10var)
 
 	## Access different prediction components
-	training_predictions <- Results$Training
-	validation_predictions <- Results$Validation
-	testing_predictions <- Results$Testing
+	training_predictions <- predictions$Training
+	validation_predictions <- predictions$Validation
+	testing_predictions <- predictions$Testing
 
-	## Calculate variable importance with OOB weighting (default)
-	Importance_weighted <- Wilks_importance(Model)
+	## Calculate variable importance using S3 method
+	Importance_weighted <- importance(Model)
 
 	## Calculate variable importance without OOB weighting
-	Importance_unweighted <- Wilks_importance(Model, OOB_weight = FALSE)
+	Importance_unweighted <- importance(Model, OOB_weight = FALSE)
 
 	## Visualize the importance scores
 	Importance_ranking_sorted <- Importance_weighted[
