@@ -398,6 +398,9 @@ evaluate <- function(object, ...) {
 
 
 
+#' Print method for SCE objects
+#' @param x An SCE object
+#' @param ... Additional arguments (not used)
 #' @export
 print.SCE <- function(x, ...) {
   cat("Stepwise Clustered Ensemble (SCE) Model\n")
@@ -435,6 +438,9 @@ print.SCE <- function(x, ...) {
   invisible(x)
 }
 
+#' Summary method for SCE objects
+#' @param object An SCE object
+#' @param ... Additional arguments (not used)
 #' @export
 summary.SCE <- function(object, ...) {
   cat("Stepwise Clustered Ensemble (SCE) Model Summary\n")
@@ -483,6 +489,10 @@ summary.SCE <- function(object, ...) {
   invisible(object)
 }
 
+#' Predict method for SCE objects
+#' @param object An SCE object
+#' @param newdata New data for prediction
+#' @param ... Additional arguments (not used)
 #' @export
 predict.SCE <- function(object, newdata, ...) {
   # This is a wrapper for Model_simulation
@@ -494,12 +504,23 @@ predict.SCE <- function(object, newdata, ...) {
   return(Model_simulation(model = object, Testing_data = newdata))
 }
 
+#' Importance method for SCE objects
+#' @param object An SCE object
+#' @param OOB_weight Whether to use OOB weights
+#' @param ... Additional arguments (not used)
 #' @export
 importance.SCE <- function(object, OOB_weight = TRUE, ...) {
   # This is a wrapper for Wilks_importance
   return(Wilks_importance(model = object, OOB_weight = OOB_weight))
 }
 
+#' Evaluate method for SCE objects
+#' @param object An SCE object
+#' @param Testing_data Testing dataset
+#' @param Training_data Training dataset
+#' @param Predictant Name of predictant variable
+#' @param digits Number of digits for output
+#' @param ... Additional arguments (not used)
 #' @export
 evaluate.SCE <- function(object, Testing_data, Training_data, Predictant, digits = 3, ...) {
   # This is a wrapper for SCE_Model_evaluation
@@ -516,11 +537,14 @@ evaluate.SCE <- function(object, Testing_data, Training_data, Predictant, digits
   # Get simulations using Model_simulation
   Simulations <- Model_simulation(model = object, Testing_data = Testing_data)
   
-  # Call SCE_Model_evaluation
+  # Extract validation simulations (which should match Training_data rows)
+  Validation_simulations <- Simulations$Validation
+  
+  # Call SCE_Model_evaluation with validation simulations
   return(SCE_Model_evaluation(
     Testing_data = Testing_data,
     Training_data = Training_data,
-    Simulations = Simulations,
+    Simulations = Validation_simulations,
     Predictant = Predictant,
     digits = digits
   ))

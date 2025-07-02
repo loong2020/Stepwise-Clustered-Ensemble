@@ -179,6 +179,9 @@ SCA_tree_predict <- function(model, Testing_data) {
 
 # S3 Methods for SCA class
 
+#' Print method for SCA objects
+#' @param x An SCA object
+#' @param ... Additional arguments (not used)
 #' @export
 print.SCA <- function(x, ...) {
   cat("Stepwise Cluster Analysis (SCA) Model\n")
@@ -202,6 +205,9 @@ print.SCA <- function(x, ...) {
   invisible(x)
 }
 
+#' Summary method for SCA objects
+#' @param object An SCA object
+#' @param ... Additional arguments (not used)
 #' @export
 summary.SCA <- function(object, ...) {
   cat("Stepwise Cluster Analysis (SCA) Model Summary\n")
@@ -232,6 +238,10 @@ summary.SCA <- function(object, ...) {
   invisible(object)
 }
 
+#' Predict method for SCA objects
+#' @param object An SCA object
+#' @param newdata New data for prediction
+#' @param ... Additional arguments (not used)
 #' @export
 predict.SCA <- function(object, newdata, ...) {
   # This is a wrapper for SCA_tree_predict
@@ -242,12 +252,21 @@ predict.SCA <- function(object, newdata, ...) {
   return(SCA_tree_predict(model = object, Testing_data = newdata))
 }
 
+#' Importance method for SCA objects
+#' @param object An SCA object
+#' @param ... Additional arguments (not used)
 #' @export
 importance.SCA <- function(object, ...) {
   # This is a wrapper for SCA_importance
   return(SCA_importance(model = object))
 }
 
+#' Evaluate method for SCA objects
+#' @param object An SCA object
+#' @param Testing_data Testing dataset
+#' @param Predictant Name of predictant variable
+#' @param digits Number of digits for output
+#' @param ... Additional arguments (not used)
 #' @export
 evaluate.SCA <- function(object, Testing_data, Predictant, digits = 3, ...) {
   # This is a wrapper for SCA_Model_evaluation
