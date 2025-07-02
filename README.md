@@ -4,26 +4,92 @@
 
 The SCE (Stepwise Clustered Ensemble) package provides implementation of Stepwise Clustered Ensemble (SCE) and Stepwise Cluster Analysis (SCA) methods for multivariate data analysis. These methods are particularly useful for handling complex, high-dimensional datasets and building robust predictive models.
 
+The package supports proper S3 object-oriented programming, providing dedicated output classes with associated methods for `print`, `summary`, `predict`, `importance`, and `evaluate`.
+
 ## Installation
 
-You can install the development version of SCE from GitHub:
+Install SCE from CRAN:
+
+```r
+install.packages("SCE")
+```
+
+Or install the development version from GitHub:
 
 ```r
 # install.packages("devtools")
 devtools::install_github("loong2020/Stepwise-Clustered-Ensemble")
 ```
 
-## Main Functions
+## Core Functions
 
-- `SCE`: Main function for building a Stepwise Clustered Ensemble model
-- `SCA`: Stepwise Cluster Analysis (ensemble member of SCE)
-- `Model_simulation`: Perform SCE model prediction
-- `SCA_tree_predict`: Perform SCA model prediction
-- `SCA_Model_evaluation`: Evaluate model performance for SCA 
-- `SCE_Model_evaluation`: Evaluate model performance for SCE
-- `RFE_SCE`: Recursive Feature Elimination for SCE
-- `Wilks_importance`: Calculate variable importance for SCE using Wilks' lambda
-- `SCA_importance`: Calculate variable importance for a single SCA tree
+### Main Modeling Functions
+- `SCE()`: Build a Stepwise Clustered Ensemble model
+- `SCA()`: Build a Stepwise Cluster Analysis model (single tree)
+
+### Prediction and Evaluation
+- `Model_simulation()`: Perform SCE model prediction
+- `SCA_tree_predict()`: Perform SCA model prediction
+- `SCE_Model_evaluation()`: Evaluate SCE model performance
+- `SCA_Model_evaluation()`: Evaluate SCA model performance
+
+### Feature Selection and Importance
+- `RFE_SCE()`: Recursive Feature Elimination for SCE
+- `Wilks_importance()`: Calculate variable importance for SCE using Wilks' lambda
+- `SCA_importance()`: Calculate variable importance for a single SCA tree
+
+## S3 Classes and Methods
+
+The package provides S3 classes for both SCE and SCA models with convenient methods:
+
+### SCE Class Methods
+- `print()`: Display model information and performance metrics
+- `summary()`: Detailed model summary with statistics
+- `predict()`: Make predictions on new data (returns Training, Validation, and Testing predictions)
+- `importance()`: Calculate variable importance using Wilks' lambda
+- `evaluate()`: Evaluate model performance (training, validation, and testing)
+
+### SCA Class Methods
+- `print()`: Display tree structure and variable information
+- `summary()`: Detailed tree summary with statistics
+- `predict()`: Make predictions on new data
+- `importance()`: Calculate variable importance
+- `evaluate()`: Evaluate model performance (testing only)
+
+### Quick Start with S3 Methods
+```r
+# Build models
+sce_model <- SCE(Training_data = data, X = predictors, Y = predictants, ...)
+sca_model <- SCA(Training_data = data, X = predictors, Y = predictants, ...)
+
+# Use S3 methods
+print(sce_model)           # Display model info
+summary(sce_model)         # Detailed summary
+predictions <- predict(sce_model, newdata)  # Make predictions
+importance <- importance(sce_model)  # Calculate variable importance
+evaluation <- evaluate(sce_model, Testing_data, Training_data, Predictant)  # Evaluate model
+
+# Check available methods
+methods(class = "SCE")
+methods(class = "SCA")
+```
+
+## Available Datasets
+
+The package includes several datasets for demonstration and testing:
+
+### Streamflow Datasets
+- **Basic datasets (10 variables)**: `Streamflow_training_10var`, `Streamflow_testing_10var`
+  - Contains hydrological and meteorological variables
+  - Suitable for introductory examples and basic modeling
+- **Extended datasets (22 variables)**: `Streamflow_training_22var`, `Streamflow_testing_22var`
+  - Includes climate indices (IPO, Nino3.4, PDO, PNA) with lagged versions
+  - Suitable for advanced modeling and research applications
+
+### Air Quality Datasets
+- `Air_quality_training`, `Air_quality_testing`
+  - Contains air quality monitoring data
+  - Useful for environmental modeling examples
 
 ## Usage Examples
 
@@ -54,26 +120,32 @@ model <- SCA(alpha = 0.05,
             Nmin = 5, 
             resolution = 100)
 
+# Use S3 methods
+print(model)
+summary(model)
+
 # Calculate variable importance
-importance <- SCA_importance(model)
-print(importance)
+Imp_ranking <- importance(model)
+print(Imp_ranking)
 
 # Make predictions
-prediction <- SCA_tree_predict(Testing_data = Streamflow_testing_10var, model = model)
+prediction <- predict(model, Streamflow_testing_10var)
 
 # Evaluate performance
-performance <- SCA_Model_evaluation(Testing_data = Streamflow_testing_10var,
-                                  Simulations = prediction,
-                                  Predictant = Predictants)
+performance <- evaluate(
+  object = model,
+  Testing_data = Streamflow_testing_10var,
+  Predictant = Predictants
+)
 print(performance)
 
-Importance_ranking_sorted <- importance[order(-importance$Relative_Importance), ]
+Importance_ranking_sorted <- Imp_ranking[order(-Imp_ranking$Relative_Importance), ]
 barplot(
   Importance_ranking_sorted$Relative_Importance,
   names.arg = Importance_ranking_sorted$Predictor,
   las = 2, # vertical labels
   col = "skyblue",
-  main = "Variable Importance (SCE)",
+  main = "Variable Importance (SCA)",
   ylab = "Importance",
   xlab = "Predictor"
 )
@@ -92,21 +164,29 @@ Ensemble <- SCE(Training_data = Streamflow_training_10var,
                alpha = 0.05,
                resolution = 100)
 
-# Make predictions
-Simulations <- Model_simulation(Testing_data = Streamflow_testing_10var, model = Ensemble)
+# Use S3 methods
+print(Ensemble)
+summary(Ensemble)
 
-# Evaluate model performance
-Evaluation <- SCE_Model_evaluation(Testing_data = Streamflow_testing_10var,
-                                 Training_data = Streamflow_training_10var,
-                                 Simulations = Simulations,
-                                 Predictant = Predictants,
-                                 digits = 2)
+# Make predictions
+predictions <- predict(Ensemble, Streamflow_testing_10var)
+cat("Prediction components:", names(predictions), "\n")
+cat("Testing predictions dimensions:", dim(predictions$Testing), "\n")
 
 # Calculate variable importance
-importance <- Wilks_importance(Ensemble)
-print(Evaluation)
+Imp_ranking <- importance(Ensemble)
 
-Importance_ranking_sorted <- importance[order(-importance$Relative_Importance), ]
+# Evaluate model performance
+evaluation <- evaluate(
+  object = Ensemble,
+  Testing_data = Streamflow_testing_10var,
+  Training_data = Streamflow_training_10var,
+  Predictant = Predictants,
+  digits = 3
+)
+print(evaluation)
+
+Importance_ranking_sorted <- Imp_ranking[order(-Imp_ranking$Relative_Importance), ]
 barplot(
   Importance_ranking_sorted$Relative_Importance,
   names.arg = Importance_ranking_sorted$Predictor,
@@ -139,18 +219,26 @@ Ensemble <- SCE(Training_data = Air_quality_training,
                alpha = 0.05,
                resolution = 100)
 
-Simulations <- Model_simulation(Testing_data = Air_quality_testing, model = Ensemble)
+# Use S3 methods
+print(Ensemble)
+summary(Ensemble)
 
-Evaluation <- SCE_Model_evaluation(Testing_data = Air_quality_testing,
-                                 Training_data = Air_quality_training,
-                                 Simulations = Simulations,
-                                 Predictant = Predictants)
-print(Evaluation)
+# Make predictions
+predictions <- predict(Ensemble, Air_quality_testing)
 
-importance <- Wilks_importance(Ensemble)
-print(Evaluation)
+# Calculate variable importance
+Imp_ranking <- importance(Ensemble)
 
-Importance_ranking_sorted <- importance[order(-importance$Relative_Importance), ]
+# Evaluate model performance
+evaluation <- evaluate(
+  object = Ensemble,
+  Testing_data = Air_quality_testing,
+  Training_data = Air_quality_training,
+  Predictant = Predictants
+)
+print(evaluation)
+
+Importance_ranking_sorted <- Imp_ranking[order(-Imp_ranking$Relative_Importance), ]
 barplot(
   Importance_ranking_sorted$Relative_Importance,
   names.arg = Importance_ranking_sorted$Predictor,
@@ -230,14 +318,24 @@ Full documentation is available through the R help system:
 # Core functions
 ?SCE
 ?SCA
+
+# S3 methods
+?predict.SCE
+?predict.SCA
+?importance.SCE
+?importance.SCA
+?evaluate.SCE
+?evaluate.SCA
+?print.SCE
+?print.SCA
+?summary.SCE
+?summary.SCA
+
+# Traditional functions (for advanced users)
 ?Model_simulation
 ?SCA_tree_predict
-
-# Evaluation functions
 ?SCA_Model_evaluation
 ?SCE_Model_evaluation
-
-# Feature selection and importance
 ?RFE_SCE
 ?Wilks_importance
 ?SCA_importance
