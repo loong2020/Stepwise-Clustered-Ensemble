@@ -110,3 +110,103 @@ RFE_SCE <- function(
   # Return results
   return(history)
 }
+
+#' Plot RFE Results
+#' 
+#' Creates a plot showing validation and testing R² values as a function of the number of predictors
+#' during recursive feature elimination.
+#' 
+#' @param rfe_result The result object from RFE_SCE function
+#' @param main Title for the plot (default: "Validation and Testing R² vs Number of Predictors")
+#' @param col_validation Color for validation line (default: "blue")
+#' @param col_testing Color for testing line (default: "red")
+#' @param pch Point character for markers (default: 16)
+#' @param lwd Line width (default: 2)
+#' @param cex Point size (default: 1.2)
+#' @param legend_pos Position of legend (default: "bottomleft")
+#' @param ... Additional arguments passed to plot function
+#' 
+#' @return Invisibly returns the plot data
+#' @export
+Plot_RFE <- function(
+  rfe_result,
+  main = "Validation and Testing R² vs Number of Predictors",
+  col_validation = "blue",
+  col_testing = "red",
+  pch = 16,
+  lwd = 2,
+  cex = 1.2,
+  legend_pos = "bottomleft",
+  ...
+) {
+  # Input validation
+  if (!is.list(rfe_result) || !all(c("summary", "performances") %in% names(rfe_result))) {
+    stop("rfe_result must be a list with 'summary' and 'performances' components from RFE_SCE function")
+  }
+  
+  # Extract data
+  n_predictors <- rfe_result[["summary"]][["n_predictors"]]
+  
+  # Extract R² values from performances
+  validation_r2 <- sapply(rfe_result[["performances"]], function(x) {
+    if (is.data.frame(x) && "Validation" %in% colnames(x) && "R2" %in% rownames(x)) {
+      return(x["R2", "Validation"])
+    } else {
+      return(NA)
+    }
+  })
+  
+  testing_r2 <- sapply(rfe_result[["performances"]], function(x) {
+    if (is.data.frame(x) && "Testing" %in% colnames(x) && "R2" %in% rownames(x)) {
+      return(x["R2", "Testing"])
+    } else {
+      return(NA)
+    }
+  })
+  
+  # Convert to numeric (remove any formatting/spaces)
+  validation_r2 <- as.numeric(validation_r2)
+  testing_r2 <- as.numeric(testing_r2)
+  
+  # Check for valid data
+  if (all(is.na(validation_r2)) && all(is.na(testing_r2))) {
+    stop("No valid R² values found in the RFE results")
+  }
+  
+  # Calculate y-axis limits
+  y_values <- c(validation_r2, testing_r2)
+  y_values <- y_values[!is.na(y_values)]
+  ylim <- c(min(y_values), max(y_values))
+  
+  # Create the plot
+  plot(n_predictors, validation_r2, 
+       type = "b",  # both points and lines
+       col = col_validation,
+       pch = pch,
+       lwd = lwd,
+       cex = cex,
+       xlim = rev(range(n_predictors)),  # reverse x-axis
+       ylim = ylim,
+       xlab = "Number of Predictors",
+       ylab = "R²",
+       main = main,
+       ...)
+  
+  # Add testing data
+  lines(n_predictors, testing_r2, type = "b", col = col_testing, pch = pch, lwd = lwd, cex = cex)
+  
+  # Add legend
+  legend(legend_pos,
+         legend = c("Validation", "Testing"),
+         col = c(col_validation, col_testing),
+         pch = pch,
+         lty = 1,
+         lwd = lwd)
+  
+  # Return plot data invisibly
+  invisible(list(
+    n_predictors = n_predictors,
+    validation_r2 = validation_r2,
+    testing_r2 = testing_r2
+  ))
+}
