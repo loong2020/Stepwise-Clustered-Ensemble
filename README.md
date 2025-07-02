@@ -288,6 +288,10 @@ validation_r2 <- sapply(result[["performances"]], function(x) x["R2", "Validatio
 testing_r2 <- sapply(result[["performances"]], function(x) x["R2", "Testing"])
 n_predictors <- result[["summary"]][["n_predictors"]]
 
+# Convert to numeric (remove any formatting/spaces)
+validation_r2 <- as.numeric(validation_r2)
+testing_r2 <- as.numeric(testing_r2)
+
 # Create base R plot
 plot(n_predictors, validation_r2, 
      type = "b",  # both points and lines
