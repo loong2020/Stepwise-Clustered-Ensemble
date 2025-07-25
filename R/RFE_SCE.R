@@ -37,6 +37,8 @@ RFE_SCE <- function(
     summary = data.frame(
       n_predictors = integer(),
       predictors = character(),
+      validation_r2 = numeric(),
+      testing_r2 = numeric(),
       stringsAsFactors = FALSE
     ),
     performances = list(),
@@ -79,10 +81,25 @@ RFE_SCE <- function(
       digits = 3
     )
     
+    # Extract R2 values from evaluation
+    validation_r2 <- if (is.data.frame(evaluation) && "Validation" %in% colnames(evaluation) && "R2" %in% rownames(evaluation)) {
+      as.numeric(evaluation["R2", "Validation"])
+    } else {
+      NA
+    }
+    
+    testing_r2 <- if (is.data.frame(evaluation) && "Testing" %in% colnames(evaluation) && "R2" %in% rownames(evaluation)) {
+      as.numeric(evaluation["R2", "Testing"])
+    } else {
+      NA
+    }
+    
     # Store summary and performance
     history$summary <- rbind(history$summary, data.frame(
       n_predictors = length(current_predictors),
       predictors = paste(current_predictors, collapse = ","),
+      validation_r2 = validation_r2,
+      testing_r2 = testing_r2,
       stringsAsFactors = FALSE
     ))
     
@@ -111,26 +128,13 @@ RFE_SCE <- function(
   return(history)
 }
 
-#' Plot RFE Results
-#' 
-#' Creates a plot showing validation and testing R2 values as a function of the number of predictors
-#' during recursive feature elimination.
-#' 
-#' @param rfe_result The result object from RFE_SCE function
-#' @param main Title for the plot (default: "Validation and Testing R2 vs Number of Predictors")
-#' @param col_validation Color for validation line (default: "blue")
-#' @param col_testing Color for testing line (default: "red")
-#' @param pch Point character for markers (default: 16)
-#' @param lwd Line width (default: 2)
-#' @param cex Point size (default: 1.2)
-#' @param legend_pos Position of legend (default: "bottomleft")
-#' @param ... Additional arguments passed to plot function
-#' 
-#' @return Invisibly returns the plot data
-#' @export
+# Plot RFE Results
+# 
+# Creates a plot showing validation and testing R2 values as a function of the number of predictors
+# during recursive feature elimination. Uses the R2 values stored directly in the summary dataframe.
 Plot_RFE <- function(
   rfe_result,
-  main = "Validation and Testing R2 vs Number of Predictors",
+  main = "OOB Validation and Testing R2 vs Number of Predictors",
   col_validation = "blue",
   col_testing = "red",
   pch = 16,
@@ -140,33 +144,19 @@ Plot_RFE <- function(
   ...
 ) {
   # Input validation
-  if (!is.list(rfe_result) || !all(c("summary", "performances") %in% names(rfe_result))) {
-    stop("rfe_result must be a list with 'summary' and 'performances' components from RFE_SCE function")
+  if (!is.list(rfe_result) || !all(c("summary") %in% names(rfe_result))) {
+    stop("rfe_result must be a list with 'summary' component from RFE_SCE function")
   }
   
-  # Extract data
-  n_predictors <- rfe_result[["summary"]][["n_predictors"]]
+  # Check if summary has the required columns
+  if (!all(c("n_predictors", "validation_r2", "testing_r2") %in% colnames(rfe_result$summary))) {
+    stop("rfe_result$summary must contain 'n_predictors', 'validation_r2', and 'testing_r2' columns")
+  }
   
-  # Extract R2 values from performances
-  validation_r2 <- sapply(rfe_result[["performances"]], function(x) {
-    if (is.data.frame(x) && "Validation" %in% colnames(x) && "R2" %in% rownames(x)) {
-      return(x["R2", "Validation"])
-    } else {
-      return(NA)
-    }
-  })
-  
-  testing_r2 <- sapply(rfe_result[["performances"]], function(x) {
-    if (is.data.frame(x) && "Testing" %in% colnames(x) && "R2" %in% rownames(x)) {
-      return(x["R2", "Testing"])
-    } else {
-      return(NA)
-    }
-  })
-  
-  # Convert to numeric (remove any formatting/spaces)
-  validation_r2 <- as.numeric(validation_r2)
-  testing_r2 <- as.numeric(testing_r2)
+  # Extract data directly from summary
+  n_predictors <- rfe_result$summary$n_predictors
+  validation_r2 <- as.numeric(rfe_result$summary$validation_r2)
+  testing_r2 <- as.numeric(rfe_result$summary$testing_r2)
   
   # Check for valid data
   if (all(is.na(validation_r2)) && all(is.na(testing_r2))) {
@@ -197,7 +187,7 @@ Plot_RFE <- function(
   
   # Add legend
   legend(legend_pos,
-         legend = c("Validation", "Testing"),
+         legend = c("OOB Validation", "Testing"),
          col = c(col_validation, col_testing),
          pch = pch,
          lty = 1,

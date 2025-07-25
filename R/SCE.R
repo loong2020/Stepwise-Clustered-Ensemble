@@ -380,28 +380,19 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
 
 # S3 Methods for SCE class
 
-#' Generic importance function for S3 method dispatch
-#' @param object The object to calculate importance for
-#' @param ... Additional arguments passed to methods
-#' @export
+# Generic importance function for S3 method dispatch
 importance <- function(object, ...) {
   UseMethod("importance")
 }
 
-#' Generic evaluate function for S3 method dispatch
-#' @param object The object to evaluate
-#' @param ... Additional arguments passed to methods
-#' @export
+# Generic evaluate function for S3 method dispatch
 evaluate <- function(object, ...) {
   UseMethod("evaluate")
 }
 
 
 
-#' Print method for SCE objects
-#' @param x An SCE object
-#' @param ... Additional arguments (not used)
-#' @export
+# Print method for SCE objects
 print.SCE <- function(x, ...) {
   cat("Stepwise Clustered Ensemble (SCE) Model\n")
   cat("=======================================\n\n")
@@ -438,10 +429,7 @@ print.SCE <- function(x, ...) {
   invisible(x)
 }
 
-#' Summary method for SCE objects
-#' @param object An SCE object
-#' @param ... Additional arguments (not used)
-#' @export
+# Summary method for SCE objects
 summary.SCE <- function(object, ...) {
   cat("Stepwise Clustered Ensemble (SCE) Model Summary\n")
   cat("==============================================\n\n")
@@ -489,11 +477,7 @@ summary.SCE <- function(object, ...) {
   invisible(object)
 }
 
-#' Predict method for SCE objects
-#' @param object An SCE object
-#' @param newdata New data for prediction
-#' @param ... Additional arguments (not used)
-#' @export
+# Predict method for SCE objects
 predict.SCE <- function(object, newdata, ...) {
   # This is a wrapper for Model_simulation
   if (missing(newdata)) {
@@ -504,25 +488,14 @@ predict.SCE <- function(object, newdata, ...) {
   return(Model_simulation(model = object, Testing_data = newdata))
 }
 
-#' Importance method for SCE objects
-#' @param object An SCE object
-#' @param OOB_weight Whether to use OOB weights
-#' @param ... Additional arguments (not used)
-#' @export
+# Importance method for SCE objects
 importance.SCE <- function(object, OOB_weight = TRUE, ...) {
   # This is a wrapper for Wilks_importance
   return(Wilks_importance(model = object, OOB_weight = OOB_weight))
 }
 
-#' Evaluate method for SCE objects
-#' @param object An SCE object
-#' @param Testing_data Testing dataset
-#' @param Training_data Training dataset
-#' @param Predictant Name of predictant variable
-#' @param digits Number of digits for output
-#' @param ... Additional arguments (not used)
-#' @export
-evaluate.SCE <- function(object, Testing_data, Training_data, Predictant, digits = 3, ...) {
+# Evaluate method for SCE objects
+evaluate.SCE <- function(object, Testing_data, Training_data, digits = 3, ...) {
   # This is a wrapper for SCE_Model_evaluation
   if (missing(Testing_data)) {
     stop("Testing_data is required for evaluation")
@@ -530,8 +503,15 @@ evaluate.SCE <- function(object, Testing_data, Training_data, Predictant, digits
   if (missing(Training_data)) {
     stop("Training_data is required for evaluation")
   }
-  if (missing(Predictant)) {
-    stop("Predictant is required for evaluation")
+  
+  # Get predictants from the object
+  Predictant <- object$predictants
+  
+  # Check for any extra parameters that might be passed
+  args <- list(...)
+  if (length(args) > 0) {
+    warning("Extra parameters were provided but are not used for SCE evaluation: ", 
+            paste(names(args), collapse = ", "))
   }
   
   # Get simulations using Model_simulation

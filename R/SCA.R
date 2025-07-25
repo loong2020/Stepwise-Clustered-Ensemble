@@ -179,10 +179,7 @@ SCA_tree_predict <- function(model, Testing_data) {
 
 # S3 Methods for SCA class
 
-#' Print method for SCA objects
-#' @param x An SCA object
-#' @param ... Additional arguments (not used)
-#' @export
+# Print method for SCA objects
 print.SCA <- function(x, ...) {
   cat("Stepwise Cluster Analysis (SCA) Model\n")
   cat("=====================================\n\n")
@@ -205,10 +202,7 @@ print.SCA <- function(x, ...) {
   invisible(x)
 }
 
-#' Summary method for SCA objects
-#' @param object An SCA object
-#' @param ... Additional arguments (not used)
-#' @export
+# Summary method for SCA objects
 summary.SCA <- function(object, ...) {
   cat("Stepwise Cluster Analysis (SCA) Model Summary\n")
   cat("============================================\n\n")
@@ -238,11 +232,7 @@ summary.SCA <- function(object, ...) {
   invisible(object)
 }
 
-#' Predict method for SCA objects
-#' @param object An SCA object
-#' @param newdata New data for prediction
-#' @param ... Additional arguments (not used)
-#' @export
+# Predict method for SCA objects
 predict.SCA <- function(object, newdata, ...) {
   # This is a wrapper for SCA_tree_predict
   if (missing(newdata)) {
@@ -252,39 +242,59 @@ predict.SCA <- function(object, newdata, ...) {
   return(SCA_tree_predict(model = object, Testing_data = newdata))
 }
 
-#' Importance method for SCA objects
-#' @param object An SCA object
-#' @param ... Additional arguments (not used)
-#' @export
+# Importance method for SCA objects
 importance.SCA <- function(object, ...) {
   # This is a wrapper for SCA_importance
   return(SCA_importance(model = object))
 }
 
-#' Evaluate method for SCA objects
-#' @param object An SCA object
-#' @param Testing_data Testing dataset
-#' @param Predictant Name of predictant variable
-#' @param digits Number of digits for output
-#' @param ... Additional arguments (not used)
-#' @export
-evaluate.SCA <- function(object, Testing_data, Predictant, digits = 3, ...) {
+# Evaluate method for SCA objects
+evaluate.SCA <- function(object, Testing_data, Training_data, digits = 3, ...) {
   # This is a wrapper for SCA_Model_evaluation
   if (missing(Testing_data)) {
     stop("Testing_data is required for evaluation")
   }
-  if (missing(Predictant)) {
-    stop("Predictant is required for evaluation")
+  if (missing(Training_data)) {
+    stop("Training_data is required for evaluation")
+  }
+  
+  # Get predictants from the object
+  Predictant <- object$YName
+  
+  # Check for extra parameters that are not needed for SCA
+  args <- list(...)
+  if (length(args) > 0) {
+    # Check for any extra parameters
+    warning("Extra parameters were provided but are not used for SCA evaluation: ", 
+            paste(names(args), collapse = ", "))
   }
   
   # Get predictions using SCA_tree_predict
-  predictions <- SCA_tree_predict(model = object, Testing_data = Testing_data)
+  predictions_testing <- SCA_tree_predict(model = object, Testing_data = Testing_data)
+  predictions_training <- SCA_tree_predict(model = object, Testing_data = Training_data)
   
-  # Call SCA_Model_evaluation
-  return(SCA_Model_evaluation(
+  Testing_GOF <- SCA_Model_evaluation(
     Testing_data = Testing_data,
-    Simulations = predictions,
+    Simulations = predictions_testing,
     Predictant = Predictant,
     digits = digits
-  ))
+  )
+  
+  Training_GOF <- SCA_Model_evaluation(
+    Testing_data = Training_data,
+    Simulations = predictions_training,
+    Predictant = Predictant,
+    digits = digits
+  )
+
+  # Create result dataframe with proper rownames
+  result_df <- data.frame(
+    Training = Training_GOF$Testing,
+    Testing = Testing_GOF$Testing
+  )
+  
+  # Preserve the rownames from the evaluation results
+  rownames(result_df) <- rownames(Training_GOF)
+  
+  return(result_df)
 }

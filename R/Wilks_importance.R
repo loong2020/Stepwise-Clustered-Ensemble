@@ -88,11 +88,7 @@ Wilks_importance <- function(model, OOB_weight = TRUE)
   }
 }
 
-#' Calculate importance scores for a single SCA tree model
-#'
-#' @param model A single SCA tree model
-#' @return A data frame containing importance scores for each predictor
-#' @export
+# Calculate importance scores for a single SCA tree model
 SCA_importance <- function(model) {
   # Handle S3 class objects
   if (inherits(model, "SCA")) {
