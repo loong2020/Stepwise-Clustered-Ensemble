@@ -54,7 +54,7 @@ The package provides S3 classes for both SCE and SCA models with convenient meth
 - `summary()`: Detailed tree summary with statistics
 - `predict()`: Make predictions on new data
 - `importance()`: Calculate variable importance
-- `evaluate()`: Evaluate model performance (testing only)
+- `evaluate()`: Evaluate model performance (training and testing)
 
 ### Quick Start with S3 Methods
 ```r
@@ -67,7 +67,7 @@ print(sce_model)           # Display model info
 summary(sce_model)         # Detailed summary
 predictions <- predict(sce_model, newdata)  # Make predictions
 imp_ranking <- importance(sce_model)  # Calculate variable importance
-evaluation <- evaluate(sce_model, Testing_data, Training_data, Predictant)  # Evaluate model
+evaluation <- evaluate(sce_model, Testing_data, Training_data)  # Evaluate model
 
 # Check available methods
 methods(class = "SCE")
@@ -135,7 +135,7 @@ prediction <- predict(model, Streamflow_testing_10var)
 performance <- evaluate(
   object = model,
   Testing_data = Streamflow_testing_10var,
-  Predictant = Predictants
+  Training_data = Streamflow_training_10var
 )
 print(performance)
 
@@ -181,7 +181,6 @@ evaluation <- evaluate(
   object = Ensemble,
   Testing_data = Streamflow_testing_10var,
   Training_data = Streamflow_training_10var,
-  Predictant = Predictants,
   digits = 3
 )
 print(evaluation)
@@ -233,8 +232,7 @@ Imp_ranking <- importance(Ensemble)
 evaluation <- evaluate(
   object = Ensemble,
   Testing_data = Air_quality_testing,
-  Training_data = Air_quality_training,
-  Predictant = Predictants
+  Training_data = Air_quality_training
 )
 print(evaluation)
 

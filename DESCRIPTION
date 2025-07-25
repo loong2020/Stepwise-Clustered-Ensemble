@@ -1,6 +1,6 @@
 Package: SCE
 Title: Stepwise Clustered Ensemble
-Version: 1.0.0
+Version: 1.1.1
 Authors@R: 
     person(given = "Kailong",
            family = "Li",
