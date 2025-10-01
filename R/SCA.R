@@ -243,9 +243,9 @@ predict.SCA <- function(object, newdata, ...) {
 }
 
 # Importance method for SCA objects
-importance.SCA <- function(object, ...) {
+importance.SCA <- function(object, digits = 2, ...) {
   # This is a wrapper for SCA_importance
-  return(SCA_importance(model = object))
+  return(SCA_importance(model = object, digits = digits))
 }
 
 # Evaluate method for SCA objects

@@ -5,7 +5,7 @@
 # Author: 		Kailong Li
 # Email:		lkl98509509@gmail.com
 # ===============================================================
-Wilks_importance <- function(model, OOB_weight = TRUE)
+Wilks_importance <- function(model, OOB_weight = TRUE, digits = 2)
 {
   # Handle S3 class objects
   if (inherits(model, "SCE")) {
@@ -75,6 +75,7 @@ Wilks_importance <- function(model, OOB_weight = TRUE)
     #: Re-scale the Importance
     Imp_final$Importance <- Imp_final$Importance / sum(Imp_final$Importance)
     colnames(Imp_final) <- c("Predictor", "Relative_Importance")
+    Imp_final$Relative_Importance <- round(Imp_final$Relative_Importance, digits)
     return(Imp_final)
   } else {
     Imp_final <- do.call(rbind, Imp)
@@ -84,12 +85,13 @@ Wilks_importance <- function(model, OOB_weight = TRUE)
     #: Re-scale the Importance
     Imp_final$Importance <- Imp_final$Importance / sum(Imp_final$Importance)
     colnames(Imp_final) <- c("Predictor", "Relative_Importance")
+    Imp_final$Relative_Importance <- round(Imp_final$Relative_Importance, digits)
     return(Imp_final)
   }
 }
 
 # Calculate importance scores for a single SCA tree model
-SCA_importance <- function(model) {
+SCA_importance <- function(model, digits = 2) {
   # Handle S3 class objects
   if (inherits(model, "SCA")) {
     # Use SCA object directly
@@ -126,6 +128,7 @@ SCA_importance <- function(model) {
   
   # Calculate relative importance
   result$Relative_Importance <- result$Raw_Importance / sum(result$Raw_Importance)
+  result$Relative_Importance <- round(result$Relative_Importance, digits)
   
   return(result[,c("Predictor", "Relative_Importance")])
 }

@@ -489,9 +489,9 @@ predict.SCE <- function(object, newdata, ...) {
 }
 
 # Importance method for SCE objects
-importance.SCE <- function(object, OOB_weight = TRUE, ...) {
+importance.SCE <- function(object, OOB_weight = TRUE, digits = 2, ...) {
   # This is a wrapper for Wilks_importance
-  return(Wilks_importance(model = object, OOB_weight = OOB_weight))
+  return(Wilks_importance(model = object, OOB_weight = OOB_weight, digits = digits))
 }
 
 # Evaluate method for SCE objects
