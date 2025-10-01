@@ -125,7 +125,7 @@ print(model)
 summary(model)
 
 # Calculate variable importance
-Imp_ranking <- importance(model)
+Imp_ranking <- importance(model, digits = 2)
 print(Imp_ranking)
 
 # Make predictions
@@ -174,7 +174,7 @@ cat("Prediction components:", names(predictions), "\n")
 cat("Testing predictions dimensions:", dim(predictions$Testing), "\n")
 
 # Calculate variable importance
-Imp_ranking <- importance(Ensemble)
+Imp_ranking <- importance(Ensemble, digits = 2)
 
 # Evaluate model performance
 evaluation <- evaluate(
@@ -226,7 +226,7 @@ summary(Ensemble)
 predictions <- predict(Ensemble, Air_quality_testing)
 
 # Calculate variable importance
-Imp_ranking <- importance(Ensemble)
+Imp_ranking <- importance(Ensemble, digits = 2)
 
 # Evaluate model performance
 evaluation <- evaluate(
