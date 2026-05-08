@@ -24,19 +24,19 @@ devtools::install_github("loong2020/Stepwise-Clustered-Ensemble")
 ## Core Functions
 
 ### Main Modeling Functions
-- `SCE()`: Build a Stepwise Clustered Ensemble model
-- `SCA()`: Build a Stepwise Cluster Analysis model (single tree)
+- `sce()`: Build a Stepwise Clustered Ensemble model
+- `sca()`: Build a Stepwise Cluster Analysis model (single tree)
 
 ### Prediction and Evaluation
-- `Model_simulation()`: Perform SCE model prediction
-- `SCA_tree_predict()`: Perform SCA model prediction
-- `SCE_Model_evaluation()`: Evaluate SCE model performance
-- `SCA_Model_evaluation()`: Evaluate SCA model performance
+- `model_simulation()`: Perform SCE model prediction (also invoked via `predict()` on `sce` objects)
+- `sca_tree_predict()`: Perform SCA model prediction (also invoked via `predict()` on `sca` objects)
+- `sce_model_evaluation()`: Evaluate SCE model performance
+- `sca_model_evaluation()`: Evaluate SCA model performance
 
 ### Feature Selection and Importance
-- `RFE_SCE()`: Recursive Feature Elimination for SCE
-- `Wilks_importance()`: Calculate variable importance for SCE using Wilks' lambda
-- `SCA_importance()`: Calculate variable importance for a single SCA tree
+- `rfe_sce()`: Recursive Feature Elimination for SCE
+- `wilks_importance()`: Calculate variable importance for SCE using Wilks' lambda
+- `sca_importance()`: Calculate variable importance for a single SCA tree
 
 ## S3 Classes and Methods
 
@@ -59,8 +59,8 @@ The package provides S3 classes for both SCE and SCA models with convenient meth
 ### Quick Start with S3 Methods
 ```r
 # Build models
-sce_model <- SCE(Training_data = data, X = predictors, Y = predictants, ...)
-sca_model <- SCA(Training_data = data, X = predictors, Y = predictants, ...)
+sce_model <- sce(Training_data = data, X = predictors, Y = predictants, ...)
+sca_model <- sca(Training_data = data, X = predictors, Y = predictants, ...)
 
 # Use S3 methods
 print(sce_model)           # Display model info
@@ -70,8 +70,8 @@ imp_ranking <- importance(sce_model)  # Calculate variable importance
 evaluation <- evaluate(sce_model, Testing_data, Training_data)  # Evaluate model
 
 # Check available methods
-methods(class = "SCE")
-methods(class = "SCA")
+methods(class = "sce")
+methods(class = "sca")
 ```
 
 ## Available Datasets
@@ -79,15 +79,15 @@ methods(class = "SCA")
 The package includes several datasets for demonstration and testing:
 
 ### Streamflow Datasets
-- **Basic datasets (10 variables)**: `Streamflow_training_10var`, `Streamflow_testing_10var`
+- **Basic datasets (10 variables)**: `streamflow_training_10var`, `streamflow_testing_10var`
   - Contains hydrological and meteorological variables
   - Suitable for introductory examples and basic modeling
-- **Extended datasets (22 variables)**: `Streamflow_training_22var`, `Streamflow_testing_22var`
+- **Extended datasets (22 variables)**: `streamflow_training_22var`, `streamflow_testing_22var`
   - Includes climate indices (IPO, Nino3.4, PDO, PNA) with lagged versions
   - Suitable for advanced modeling and research applications
 
 ### Air Quality Datasets
-- `Air_quality_training`, `Air_quality_testing`
+- `air_quality_training`, `air_quality_testing`
   - Contains air quality monitoring data
   - Useful for environmental modeling examples
 
@@ -104,8 +104,8 @@ library(parallel)
 ### SCA (Single tree) Analysis
 ```r
 # Load the example datasets
-data(Streamflow_training_10var)
-data(Streamflow_testing_10var)
+data(streamflow_training_10var)
+data(streamflow_testing_10var)
 
 # Define predictors and predictants
 Predictors <- c("Prcp", "SRad", "Tmax", "Tmin", "VP", "smlt", "swvl1", "swvl2", "swvl3", "swvl4")
@@ -113,8 +113,8 @@ Predictants <- c("Flow")
 
 # Perform SCA
 set.seed(123)
-model <- SCA(alpha = 0.05, 
-            Training_data = Streamflow_training_10var, 
+model <- sca(alpha = 0.05, 
+            Training_data = streamflow_training_10var, 
             X = Predictors, 
             Y = Predictants, 
             Nmin = 5, 
@@ -129,13 +129,13 @@ Imp_ranking <- importance(model, digits = 2)
 print(Imp_ranking)
 
 # Make predictions
-prediction <- predict(model, Streamflow_testing_10var)
+prediction <- predict(model, streamflow_testing_10var)
 
 # Evaluate performance
 performance <- evaluate(
   object = model,
-  Testing_data = Streamflow_testing_10var,
-  Training_data = Streamflow_training_10var
+  Testing_data = streamflow_testing_10var,
+  Training_data = streamflow_training_10var
 )
 print(performance)
 
@@ -155,7 +155,7 @@ barplot(
 ```r
 # Build SCE model
 set.seed(123)
-Ensemble <- SCE(Training_data = Streamflow_training_10var,
+Ensemble <- sce(Training_data = streamflow_training_10var,
                X = Predictors,
                Y = Predictants,
                mfeature = round(0.5 * length(Predictors)),
@@ -169,7 +169,7 @@ print(Ensemble)
 summary(Ensemble)
 
 # Make predictions
-predictions <- predict(Ensemble, Streamflow_testing_10var)
+predictions <- predict(Ensemble, streamflow_testing_10var)
 cat("Prediction components:", names(predictions), "\n")
 cat("Testing predictions dimensions:", dim(predictions$Testing), "\n")
 
@@ -179,8 +179,8 @@ Imp_ranking <- importance(Ensemble, digits = 2)
 # Evaluate model performance
 evaluation <- evaluate(
   object = Ensemble,
-  Testing_data = Streamflow_testing_10var,
-  Training_data = Streamflow_training_10var,
+  Testing_data = streamflow_testing_10var,
+  Training_data = streamflow_training_10var,
   digits = 3
 )
 print(evaluation)
@@ -201,15 +201,15 @@ barplot(
 ```r
 # Define predictors and multiple predictants
 # Load the example datasets
-data(Air_quality_training)
-data(Air_quality_testing)
+data(air_quality_training)
+data(air_quality_testing)
 
 Predictors <- c("SO2", "NO2", "CO", "O3", "TEMP", "PRES", "DEWP", "RAIN", "WSPM")
 Predictants <- c("PM2.5", "PM10")
 
 # Build and evaluate model
 set.seed(123)
-Ensemble <- SCE(Training_data = Air_quality_training,
+Ensemble <- sce(Training_data = air_quality_training,
                X = Predictors,
                Y = Predictants,
                mfeature = round(0.5 * length(Predictors)),
@@ -223,7 +223,7 @@ print(Ensemble)
 summary(Ensemble)
 
 # Make predictions
-predictions <- predict(Ensemble, Air_quality_testing)
+predictions <- predict(Ensemble, air_quality_testing)
 
 # Calculate variable importance
 Imp_ranking <- importance(Ensemble, digits = 2)
@@ -231,8 +231,8 @@ Imp_ranking <- importance(Ensemble, digits = 2)
 # Evaluate model performance
 evaluation <- evaluate(
   object = Ensemble,
-  Testing_data = Air_quality_testing,
-  Training_data = Air_quality_training
+  Testing_data = air_quality_testing,
+  Training_data = air_quality_training
 )
 print(evaluation)
 
@@ -251,8 +251,8 @@ barplot(
 ### Recursive Feature Elimination
 ```r
 # Load the example datasets
-data(Streamflow_training_22var)
-data(Streamflow_testing_22var)
+data(streamflow_training_22var)
+data(streamflow_testing_22var)
 
 # Define predictors and predictants
 Predictors <- c(
@@ -266,9 +266,9 @@ Predictants <- c("Flow")
 
 # Perform RFE
 set.seed(1)
-result <- RFE_SCE(
-  Training_data = Streamflow_training_22var,
-  Testing_data = Streamflow_testing_22var,
+result <- rfe_sce(
+  Training_data = streamflow_training_22var,
+  Testing_data = streamflow_testing_22var,
   Predictors = Predictors,
   Predictant = Predictants,
   Nmin = 5,
@@ -279,7 +279,7 @@ result <- RFE_SCE(
 )
 
 # Plot RFE results
-Plot_RFE(result)
+plot_rfe(result)
 ```
 
 ## Documentation
@@ -288,30 +288,22 @@ Full documentation is available through the R help system:
 
 ```r
 # Core functions
-?SCE
-?SCA
+?sce
+?sca
+?rfe_sce
+?plot_rfe
 
-# S3 methods
-?predict.SCE
-?predict.SCA
-?importance.SCE
-?importance.SCA
-?evaluate.SCE
-?evaluate.SCA
-?print.SCE
-?print.SCA
-?summary.SCE
-?summary.SCA
-
-# Traditional functions (for advanced users)
-?Model_simulation
-?SCA_tree_predict
-?SCA_Model_evaluation
-?SCE_Model_evaluation
-?RFE_SCE
-?Plot_RFE
-?Wilks_importance
-?SCA_importance
+# S3 methods (see also ?predict, ?importance, ?evaluate, ?print, ?summary)
+?predict.sce
+?predict.sca
+?importance.sce
+?importance.sca
+?evaluate.sce
+?evaluate.sca
+?print.sce
+?print.sca
+?summary.sce
+?summary.sca
 ```
 
 ## License
