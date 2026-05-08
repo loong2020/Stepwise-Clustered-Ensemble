@@ -1,5 +1,5 @@
 # S3 class constructor for SCA objects
-SCA_object <- function(tree, map, predictors, predictants, type, total_nodes, leaf_nodes, cutting_actions, merging_actions, call) {
+sca_object <- function(tree, map, predictors, predictants, type, total_nodes, leaf_nodes, cutting_actions, merging_actions, call) {
   structure(
     list(
       Tree = tree,
@@ -13,14 +13,14 @@ SCA_object <- function(tree, map, predictors, predictants, type, total_nodes, le
       mergingActions = merging_actions,
       call = call
     ),
-    class = "SCA"
+    class = "sca"
   )
 }
 
 # ---------------------------------------------------------------
 # Interface function
 # ---------------------------------------------------------------
-SCA <- function(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000, verbose = FALSE)
+sca <- function(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000, verbose = FALSE)
 {
   # Store the function call
   call <- match.call()
@@ -107,7 +107,7 @@ SCA <- function(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000, verb
   result <- do_cluster(data = data, Nmin = Nmin, resolution = resolution, verbose = verbose)
 
   #: return the S3 class object
-  return(SCA_object(
+  return(sca_object(
     tree = result$Tree,
     map = result$Map,
     predictors = X,
@@ -121,10 +121,10 @@ SCA <- function(Training_data, X, Y, Nmin, alpha = 0.05, resolution = 1000, verb
   ))
 }
 
-SCA_tree_predict <- function(model, Testing_data) {
+sca_tree_predict <- function(model, Testing_data) {
   # Input validation
   if (is.null(model)) {
-    stop("model must be an SCA object or list")
+    stop("model must be an sca object or list")
   }
   
   if (is.null(Testing_data)) {
@@ -180,7 +180,7 @@ SCA_tree_predict <- function(model, Testing_data) {
 # S3 Methods for SCA class
 
 # Print method for SCA objects
-print.SCA <- function(x, ...) {
+print.sca <- function(x, ...) {
   cat("Stepwise Cluster Analysis (SCA) Model\n")
   cat("=====================================\n\n")
   
@@ -203,7 +203,7 @@ print.SCA <- function(x, ...) {
 }
 
 # Summary method for SCA objects
-summary.SCA <- function(object, ...) {
+summary.sca <- function(object, ...) {
   cat("Stepwise Cluster Analysis (SCA) Model Summary\n")
   cat("============================================\n\n")
   
@@ -233,24 +233,24 @@ summary.SCA <- function(object, ...) {
 }
 
 # Predict method for SCA objects
-predict.SCA <- function(object, newdata, ...) {
-  # This is a wrapper for SCA_tree_predict
+predict.sca <- function(object, newdata, ...) {
+  # This is a wrapper for sca_tree_predict
   if (missing(newdata)) {
     stop("newdata is required for prediction")
   }
   
-  return(SCA_tree_predict(model = object, Testing_data = newdata))
+  return(sca_tree_predict(model = object, Testing_data = newdata))
 }
 
 # Importance method for SCA objects
-importance.SCA <- function(object, digits = 2, ...) {
-  # This is a wrapper for SCA_importance
-  return(SCA_importance(model = object, digits = digits))
+importance.sca <- function(object, digits = 2, ...) {
+  # This is a wrapper for sca_importance
+  return(sca_importance(model = object, digits = digits))
 }
 
 # Evaluate method for SCA objects
-evaluate.SCA <- function(object, Testing_data, Training_data, digits = 3, ...) {
-  # This is a wrapper for SCA_Model_evaluation
+evaluate.sca <- function(object, Testing_data, Training_data, digits = 3, ...) {
+  # This is a wrapper for sca_model_evaluation
   if (missing(Testing_data)) {
     stop("Testing_data is required for evaluation")
   }
@@ -269,18 +269,18 @@ evaluate.SCA <- function(object, Testing_data, Training_data, digits = 3, ...) {
             paste(names(args), collapse = ", "))
   }
   
-  # Get predictions using SCA_tree_predict
-  predictions_testing <- SCA_tree_predict(model = object, Testing_data = Testing_data)
-  predictions_training <- SCA_tree_predict(model = object, Testing_data = Training_data)
+  # Get predictions using sca_tree_predict
+  predictions_testing <- sca_tree_predict(model = object, Testing_data = Testing_data)
+  predictions_training <- sca_tree_predict(model = object, Testing_data = Training_data)
   
-  Testing_GOF <- SCA_Model_evaluation(
+  Testing_GOF <- sca_model_evaluation(
     Testing_data = Testing_data,
     Simulations = predictions_testing,
     Predictant = Predictant,
     digits = digits
   )
   
-  Training_GOF <- SCA_Model_evaluation(
+  Training_GOF <- sca_model_evaluation(
     Testing_data = Training_data,
     Simulations = predictions_training,
     Predictant = Predictant,

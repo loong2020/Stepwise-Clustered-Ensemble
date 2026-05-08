@@ -1,7 +1,7 @@
 # Recursive Feature Elimination for SCE
 # This script implements RFE to identify the most important predictors for SCE models
 
-RFE_SCE <- function(
+rfe_sce <- function(
   Training_data,
   Testing_data,
   Predictors,
@@ -53,7 +53,7 @@ RFE_SCE <- function(
     }
     
     # Train SCE model
-    model <- SCE(
+    model <- sce(
       Training_data = Training_data,
       X = current_predictors,
       Y = Predictant,
@@ -67,13 +67,13 @@ RFE_SCE <- function(
     )
     
     # Get predictions
-    predictions <- Model_simulation(
+    predictions <- model_simulation(
       model = model,
       Testing_data = Testing_data
     )
     
     # Evaluate model
-    evaluation <- SCE_Model_evaluation(
+    evaluation <- sce_model_evaluation(
       Testing_data = Testing_data,
       Training_data = Training_data,
       Simulations = predictions,
@@ -114,7 +114,7 @@ RFE_SCE <- function(
     }
     
     # Calculate importance scores
-    importance_scores <- Wilks_importance(
+    importance_scores <- wilks_importance(
       model = model
     )
     history$importance_scores[[length(history$importance_scores) + 1]] <- importance_scores
@@ -132,7 +132,7 @@ RFE_SCE <- function(
 # 
 # Creates a plot showing validation and testing R2 values as a function of the number of predictors
 # during recursive feature elimination. Uses the R2 values stored directly in the summary dataframe.
-Plot_RFE <- function(
+plot_rfe <- function(
   rfe_result,
   main = "OOB Validation and Testing R2 vs Number of Predictors",
   col_validation = "blue",
@@ -145,7 +145,7 @@ Plot_RFE <- function(
 ) {
   # Input validation
   if (!is.list(rfe_result) || !all(c("summary") %in% names(rfe_result))) {
-    stop("rfe_result must be a list with 'summary' component from RFE_SCE function")
+    stop("rfe_result must be a list with 'summary' component from rfe_sce function")
   }
   
   # Check if summary has the required columns

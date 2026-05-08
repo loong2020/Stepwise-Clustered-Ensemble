@@ -124,7 +124,7 @@ f_main_p <- function(data) {
 # ---------------------------------------------------------------
 # Interface function
 # ---------------------------------------------------------------
-Inference <- function(x, Weak_L) {
+inference <- function(x, Weak_L) {
   # Initialize data structure
   data <- list()
   

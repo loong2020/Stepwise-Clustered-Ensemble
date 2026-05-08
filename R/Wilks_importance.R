@@ -5,10 +5,10 @@
 # Author: 		Kailong Li
 # Email:		lkl98509509@gmail.com
 # ===============================================================
-Wilks_importance <- function(model, OOB_weight = TRUE, digits = 2)
+wilks_importance <- function(model, OOB_weight = TRUE, digits = 2)
 {
   # Handle S3 class objects
-  if (inherits(model, "SCE")) {
+  if (inherits(model, "sce")) {
     # Convert SCE object to list format for compatibility
     model_list <- list()
     for (i in seq_along(model$trees)) {
@@ -91,9 +91,9 @@ Wilks_importance <- function(model, OOB_weight = TRUE, digits = 2)
 }
 
 # Calculate importance scores for a single SCA tree model
-SCA_importance <- function(model, digits = 2) {
+sca_importance <- function(model, digits = 2) {
   # Handle S3 class objects
-  if (inherits(model, "SCA")) {
+  if (inherits(model, "sca")) {
     # Use SCA object directly
     model_obj <- model
   } else if (is.list(model)) {

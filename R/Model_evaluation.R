@@ -7,8 +7,8 @@
 # ===============================================================
 #: load the function
 rsq <- function(x, y) summary(lm(y~x))$r.squared #R squared function
-NSE_equation <- function(x, y) {1-(sum((x - y)^2)/ sum((x - mean(x))^2))} #obs = x, sim = y
-KGE_equation <- function(x,y) {
+nse_equation <- function(x, y) {1-(sum((x - y)^2)/ sum((x - mean(x))^2))} #obs = x, sim = y
+kge_equation <- function(x,y) {
   # x = observed, y = simulated
   r <- cor(x, y)  # correlation coefficient
   alpha <- sd(y)/sd(x)  # ratio of standard deviations
@@ -17,7 +17,7 @@ KGE_equation <- function(x,y) {
   return(KGE)
 } #obs = x, sim = y
 
-GOF <- function(obs, sim, digits=4)
+gof <- function(obs, sim, digits=4)
 {
   # Remove NaN values from both obs and sim
   valid_idx <- !is.nan(sim) & !is.nan(obs)
@@ -31,24 +31,24 @@ GOF <- function(obs, sim, digits=4)
   # Calculate metrics
   mae <- mean(abs(obs-sim))
   rmse <- sqrt(mean((obs-sim)^2))
-  nse <- NSE_equation(x=obs,y=sim)
-  log_nse <- NSE_equation(x=log(obs),y=log(sim))
+  nse <- nse_equation(x=obs,y=sim)
+  log_nse <- nse_equation(x=log(obs),y=log(sim))
   R2 <- rsq(obs,sim)
-  kge <- KGE_equation(x=obs,y=sim)
+  kge <- kge_equation(x=obs,y=sim)
   
   # Name the metrics
   names(log_nse) <- "Log.NSE"
   
   # Combine results
-  GOF <- rbind(mae,rmse,nse,log_nse,R2,kge)
-  GOF <- format(GOF, scientific = FALSE, digits = digits)
-  GOF <- as.matrix(GOF)
-  colnames(GOF) <- "GOF"
+  gof_mat <- rbind(mae,rmse,nse,log_nse,R2,kge)
+  gof_mat <- format(gof_mat, scientific = FALSE, digits = digits)
+  gof_mat <- as.matrix(gof_mat)
+  colnames(gof_mat) <- "GOF"
   
-  return(GOF)
+  return(gof_mat)
 }
 
-SCA_Model_evaluation <- function(Testing_data, Simulations, Predictant, digits=3)
+sca_model_evaluation <- function(Testing_data, Simulations, Predictant, digits=3)
 {
   # Input validation
   
@@ -71,7 +71,7 @@ SCA_Model_evaluation <- function(Testing_data, Simulations, Predictant, digits=3
   # For SCA, we only evaluate testing performance
   all_results <- list()
   for(pred in Predictant) {
-    Testing_GOF <- GOF(obs=Testing_data[,pred], sim=Simulations[,pred], digits=digits)
+    Testing_GOF <- gof(obs=Testing_data[,pred], sim=Simulations[,pred], digits=digits)
     GOF_res <- data.frame(Testing=Testing_GOF)
     colnames(GOF_res) <- "Testing"
     all_results[[pred]] <- GOF_res
@@ -83,7 +83,7 @@ SCA_Model_evaluation <- function(Testing_data, Simulations, Predictant, digits=3
   return(all_results)
 }
 
-SCE_Model_evaluation <- function(Testing_data, Training_data, Simulations, Predictant, digits=3)
+sce_model_evaluation <- function(Testing_data, Training_data, Simulations, Predictant, digits=3)
 {
   # Input validation
   if (!is.list(Simulations) || !all(c("Training", "Validation", "Testing") %in% names(Simulations))) {
@@ -131,9 +131,9 @@ SCE_Model_evaluation <- function(Testing_data, Training_data, Simulations, Predi
   # Loop through each predictant
   for(pred in Predictant) {
     # Calculate GOF for each predictant
-    Training_GOF <- GOF(obs=Training_data[,pred],sim=Simulations[["Training"]][,pred],digits=digits)
-    Validation_GOF <- GOF(obs=Training_data[,pred],sim=Simulations[["Validation"]][,pred],digits=digits)
-    Testing_GOF <- GOF(obs=Testing_data[,pred],sim=Simulations[["Testing"]][,pred],digits=digits)
+    Training_GOF <- gof(obs=Training_data[,pred],sim=Simulations[["Training"]][,pred],digits=digits)
+    Validation_GOF <- gof(obs=Training_data[,pred],sim=Simulations[["Validation"]][,pred],digits=digits)
+    Testing_GOF <- gof(obs=Testing_data[,pred],sim=Simulations[["Testing"]][,pred],digits=digits)
     
     # Combine results for this predictant
     GOF_res <- data.frame(Training_GOF,Validation_GOF,Testing_GOF)

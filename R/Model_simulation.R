@@ -5,7 +5,7 @@
 # Author: 		Kailong Li
 # Email:		lkl98509509@gmail.com
 # ===============================================================
-Model_simulation <- function(model, Testing_data)
+model_simulation <- function(model, Testing_data)
 {
   # Input validation
   if (is.null(model)) {
@@ -16,7 +16,7 @@ Model_simulation <- function(model, Testing_data)
     stop("Testing_data must be a data frame or matrix")
   }
   
-  if (!inherits(model, "SCE") && !is.list(model)) {
+  if (!inherits(model, "sce") && !is.list(model)) {
     stop("model must be an SCE object or list")
   }
   
@@ -29,7 +29,7 @@ Model_simulation <- function(model, Testing_data)
   }
   
   # Handle S3 class objects
-  if (inherits(model, "SCE")) {
+  if (inherits(model, "sce")) {
     # Convert SCE object to list format for compatibility
     model_list <- list()
     for (i in seq_along(model$trees)) {
@@ -40,14 +40,14 @@ Model_simulation <- function(model, Testing_data)
     model_list <- model
   }
   
-  # Get training simulations using SCE_Prediction
-  training_sim <- Training_Prediction(model_list)
+  # Get training simulations using sce_prediction
+  training_sim <- training_prediction(model_list)
   
   # Get validation (OOB) simulations
-  validation_sim <- OOB_validation(model_list)
+  validation_sim <- oob_validation(model_list)
   
   # Get testing simulations
-  testing_sim <- SCE_Prediction(
+  testing_sim <- sce_prediction(
     model = model_list,
     X_sample = Testing_data
   )
@@ -63,7 +63,7 @@ Model_simulation <- function(model, Testing_data)
   return(output)
 }
 
-SCE_Prediction <- function(model, X_sample)
+sce_prediction <- function(model, X_sample)
 {
   # Input validation
   if (is.null(X_sample)) {
@@ -80,7 +80,7 @@ SCE_Prediction <- function(model, X_sample)
   
   # Get model predictions for each tree
   predictions <- lapply(model, function(m) {
-    SCA_tree_predict(
+    sca_tree_predict(
       model = m,
       Testing_data = X_sample
     )
@@ -115,7 +115,7 @@ SCE_Prediction <- function(model, X_sample)
   return(ensemble_predictions)
 }
 
-Training_Prediction <- function(model)
+training_prediction <- function(model)
 {
 
   # Get number of predictants and their names
@@ -124,7 +124,7 @@ Training_Prediction <- function(model)
   
   # Get model predictions for each tree
   predictions <- lapply(model, function(m) {
-    SCA_tree_predict(
+    sca_tree_predict(
       model = m,
       Testing_data = m$Training_data
     )
@@ -177,7 +177,7 @@ Training_Prediction <- function(model)
   return(result)
 }
 
-OOB_validation <- function(model)
+oob_validation <- function(model)
 {
   # Input validation
   if (is.null(model)) {

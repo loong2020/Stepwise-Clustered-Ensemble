@@ -22,7 +22,7 @@
 # ---------------------------------------------------------------
 
 # S3 class constructor for SCE objects
-SCE_object <- function(trees, predictors, predictants, parameters, call) {
+sce_object <- function(trees, predictors, predictants, parameters, call) {
   structure(
     list(
       trees = trees,
@@ -31,11 +31,11 @@ SCE_object <- function(trees, predictors, predictants, parameters, call) {
       parameters = parameters,
       call = call
     ),
-    class = "SCE"
+    class = "sce"
   )
 }
 
-SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolution = 1000, verbose = FALSE, parallel = TRUE) {
+sce <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolution = 1000, verbose = FALSE, parallel = TRUE) {
   # Store the function call
   call <- match.call()
   
@@ -129,181 +129,124 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
     sample = tree_list[[x]]
   ), x = seq_len(Ntree))
   
-  # Setup parallel processing
-  if (parallel) {
-    available_cores <- parallel::detectCores()
-    if (available_cores == 1) {
-      max_cores <- 1
-    } else {
-      max_cores <- min(available_cores, Ntree)  
-    }
-    
-    if (max_cores > 1) {
-      Clus <- parallel::makeCluster(max_cores)
-      
-      # Export required functions and objects to workers
-      parallel::clusterExport(Clus, 
-        c("o_xdata", "o_ydata", "Nmin", "alpha", "resolution", "verbose", "find_best_split_iterative", "find_best_split",
-          "SCA", "SCA_object", "f_processnode", "f_min_wilks", "f_wilks_statistic",
-          "f_cal_chk_f", "f_checkif_leaf", "f_init", "f_main", "do_cluster",
-          "SCA_tree_predict", "f_main_p", "f_predict_one", "f_predict", "Inference"),
-        envir = environment()
-      )
-      
-      # Load required packages in workers
-      parallel::clusterEvalQ(Clus, {
-        library(parallel)
-      })
+  # Build a single per-tree worker so the parallel and sequential
+  # branches share the same logic (and so the parallel branch can
+  # transparently fall back to sequential execution on single-core
+  # machines without leaving sce_res undefined).
+  process_tree <- function(rep) {
+    # Get feature names for this tree
+    feature_names <- colnames(o_xdata)[rep$mfeature]
 
-      # Parallel processing
-      SCE_res <- parallel::parLapply(Clus, Bootst_rep, function(rep) {
-        # Get feature names for this tree
-        feature_names <- colnames(o_xdata)[rep$mfeature]
-        
-        # Prepare data for this tree
-        tree_data <- cbind(
-          o_xdata[rep$sample, rep$mfeature, drop = FALSE],
-          o_ydata[rep$sample, , drop = FALSE]
-        )
-        colnames(tree_data) <- c(feature_names, Y)
-        
-        # Store the tree data
-        tree_info <- list(
-          Tree = rep$Tree,
-          Features = feature_names,
-          Sample_Indices = rep$sample
-        )
-        
-        # Run SCA
-        tree_model <- SCA(alpha = alpha, Nmin = Nmin, resolution = resolution, 
-                         Training_data = tree_data,
-                         X = feature_names,
-                         Y = Y,
-                         verbose = verbose)
-        
-        # Calculate OOB error
-        all_samples <- seq_len(n_samples)
-        sample_counts <- table(factor(rep$sample, levels = all_samples))
-        oob_indices <- which(sample_counts == 0)
-        
-        # Prepare OOB data
-        oob_xdata <- o_xdata[oob_indices, rep$mfeature, drop = FALSE]
-        colnames(oob_xdata) <- feature_names
-        oob_ydata <- o_ydata[oob_indices, , drop = FALSE]
-        
-        # Store OOB data
-        tree_info$OOB_Indices <- oob_indices
-        tree_info$OOB_XData <- oob_xdata
-        tree_info$OOB_YData <- oob_ydata
-        
-        # Make predictions on OOB data
-        oob_predictions <- SCA_tree_predict(
-          model = tree_model,
-          Testing_data = oob_xdata
-        )
-        
-        # Calculate R-squared for OOB predictions
-        if (ncol(oob_ydata) == 1) {
-          oob_ydata_numeric <- as.numeric(oob_ydata[[1]])
-          oob_predictions_numeric <- as.numeric(oob_predictions[[1]])
-          oob_r2 <- 1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) / 
-                    sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
-        } else {
-          oob_r2 <- mean(sapply(1:ncol(oob_ydata), function(i) {
-            oob_ydata_numeric <- as.numeric(oob_ydata[,i])
-            oob_predictions_numeric <- as.numeric(oob_predictions[,i])
-            1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) / 
-                sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
-          }))
-        }
-        
-        # Add OOB error to model
-        tree_model$OOB_error <- oob_r2
-        tree_model$OOB_sim <- oob_predictions
-        tree_model$Sample <- rep$sample
-        tree_model$Tree_Info <- tree_info
-        tree_model$Training_data <- tree_data  # Add training data to output
-        return(tree_model)
-      })
-      
-      # Clean up
-      parallel::stopCluster(Clus)
-    }
-  } else {
-    # Sequential processing when parallel = FALSE
-    SCE_res <- lapply(Bootst_rep, function(rep) {
-      # Get feature names for this tree
-      feature_names <- colnames(o_xdata)[rep$mfeature]
-      
-      # Prepare data for this tree
-      tree_data <- cbind(
-        o_xdata[rep$sample, rep$mfeature, drop = FALSE],
-        o_ydata[rep$sample, , drop = FALSE]
-      )
-      colnames(tree_data) <- c(feature_names, Y)
-      
-      # Store the tree data
-      tree_info <- list(
-        Tree = rep$Tree,
-        Features = feature_names,
-        Sample_Indices = rep$sample
-      )
-      
-      # Run SCA
-      tree_model <- SCA(alpha = alpha, Nmin = Nmin, resolution = resolution, 
-                       Training_data = tree_data,
-                       X = feature_names,
-                       Y = Y,
-                       verbose = verbose)
-      
-      # Calculate OOB error
-      all_samples <- seq_len(n_samples)
-      sample_counts <- table(factor(rep$sample, levels = all_samples))
-      oob_indices <- which(sample_counts == 0)
-      
-      # Prepare OOB data
-      oob_xdata <- o_xdata[oob_indices, rep$mfeature, drop = FALSE]
-      colnames(oob_xdata) <- feature_names
-      oob_ydata <- o_ydata[oob_indices, , drop = FALSE]
-      
-      # Store OOB data
-      tree_info$OOB_Indices <- oob_indices
-      tree_info$OOB_XData <- oob_xdata
-      tree_info$OOB_YData <- oob_ydata
-      
-      # Make predictions on OOB data
-      oob_predictions <- SCA_tree_predict(
-        model = tree_model,
-        Testing_data = oob_xdata
-      )
-      
-      # Calculate R-squared for OOB predictions
-      if (ncol(oob_ydata) == 1) {
-        oob_ydata_numeric <- as.numeric(oob_ydata[[1]])
-        oob_predictions_numeric <- as.numeric(oob_predictions[[1]])
-        oob_r2 <- 1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) / 
+    # Prepare data for this tree
+    tree_data <- cbind(
+      o_xdata[rep$sample, rep$mfeature, drop = FALSE],
+      o_ydata[rep$sample, , drop = FALSE]
+    )
+    colnames(tree_data) <- c(feature_names, Y)
+
+    # Store the tree data
+    tree_info <- list(
+      Tree = rep$Tree,
+      Features = feature_names,
+      Sample_Indices = rep$sample
+    )
+
+    # Run SCA
+    tree_model <- sca(alpha = alpha, Nmin = Nmin, resolution = resolution,
+                     Training_data = tree_data,
+                     X = feature_names,
+                     Y = Y,
+                     verbose = verbose)
+
+    # Calculate OOB error
+    all_samples <- seq_len(n_samples)
+    sample_counts <- table(factor(rep$sample, levels = all_samples))
+    oob_indices <- which(sample_counts == 0)
+
+    # Prepare OOB data
+    oob_xdata <- o_xdata[oob_indices, rep$mfeature, drop = FALSE]
+    colnames(oob_xdata) <- feature_names
+    oob_ydata <- o_ydata[oob_indices, , drop = FALSE]
+
+    # Store OOB data
+    tree_info$OOB_Indices <- oob_indices
+    tree_info$OOB_XData <- oob_xdata
+    tree_info$OOB_YData <- oob_ydata
+
+    # Make predictions on OOB data
+    oob_predictions <- sca_tree_predict(
+      model = tree_model,
+      Testing_data = oob_xdata
+    )
+
+    # Calculate R-squared for OOB predictions
+    if (ncol(oob_ydata) == 1) {
+      oob_ydata_numeric <- as.numeric(oob_ydata[[1]])
+      oob_predictions_numeric <- as.numeric(oob_predictions[[1]])
+      oob_r2 <- 1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) /
                   sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
-      } else {
-        oob_r2 <- mean(sapply(1:ncol(oob_ydata), function(i) {
-          oob_ydata_numeric <- as.numeric(oob_ydata[,i])
-          oob_predictions_numeric <- as.numeric(oob_predictions[,i])
-          1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) / 
-              sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
-        }))
-      }
-      
-      # Add OOB error to model
-      tree_model$OOB_error <- oob_r2
-      tree_model$OOB_sim <- oob_predictions
-      tree_model$Sample <- rep$sample
-      tree_model$Tree_Info <- tree_info
-      tree_model$Training_data <- tree_data  # Add training data to output
-      return(tree_model)
+    } else {
+      oob_r2 <- mean(sapply(1:ncol(oob_ydata), function(i) {
+        oob_ydata_numeric <- as.numeric(oob_ydata[, i])
+        oob_predictions_numeric <- as.numeric(oob_predictions[, i])
+        1 - sum((oob_ydata_numeric - oob_predictions_numeric)^2) /
+            sum((oob_ydata_numeric - mean(oob_ydata_numeric))^2)
+      }))
+    }
+
+    # Add OOB error to model
+    tree_model$OOB_error <- oob_r2
+    tree_model$OOB_sim <- oob_predictions
+    tree_model$Sample <- rep$sample
+    tree_model$Tree_Info <- tree_info
+    tree_model$Training_data <- tree_data
+    return(tree_model)
+  }
+
+  # Decide whether to run in parallel. When only one worker would be
+  # available we fall through to sequential lapply so sce_res is always
+  # defined for downstream code.
+  use_parallel <- isTRUE(parallel)
+  if (use_parallel) {
+    available_cores <- parallel::detectCores()
+    if (is.na(available_cores) || available_cores < 2) {
+      use_parallel <- FALSE
+    } else {
+      max_cores <- min(available_cores, Ntree)
+      if (max_cores < 2) use_parallel <- FALSE
+    }
+  }
+
+  if (use_parallel) {
+    Clus <- parallel::makeCluster(max_cores)
+    on.exit(try(parallel::stopCluster(Clus), silent = TRUE), add = TRUE)
+
+    # Export required functions and objects to workers
+    parallel::clusterExport(Clus,
+      c("o_xdata", "o_ydata", "Y", "Nmin", "alpha", "resolution", "verbose",
+        "n_samples", "process_tree",
+        "find_best_split_iterative", "find_best_split",
+        "sca", "sca_object", "f_processnode", "f_min_wilks", "f_wilks_statistic",
+        "f_cal_chk_f", "f_checkif_leaf", "f_init", "f_main", "do_cluster",
+        "sca_tree_predict", "f_main_p", "f_predict_one", "f_predict", "inference"),
+      envir = environment()
+    )
+
+    # Load required packages in workers
+    parallel::clusterEvalQ(Clus, {
+      library(parallel)
     })
+
+    sce_res <- parallel::parLapply(Clus, Bootst_rep, process_tree)
+
+    parallel::stopCluster(Clus)
+    on.exit()
+  } else {
+    sce_res <- lapply(Bootst_rep, process_tree)
   }
   
   # Calculate weights based on OOB_RSQ
-  OOB_RSQ <- sapply(SCE_res, function(x) {
+  OOB_RSQ <- sapply(sce_res, function(x) {
     if (is.null(x$OOB_error)) return(0)
     if (is.na(x$OOB_error)) return(0)
     x$OOB_error
@@ -354,7 +297,7 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
     weight_OOB <- rep(1/length(OOB_RSQ), length(OOB_RSQ))
   }
   
-  SCE_res <- Map(function(x, w) c(x, list(weight = w)), x = SCE_res, w = weight_OOB)
+  sce_res <- Map(function(x, w) c(x, list(weight = w)), x = sce_res, w = weight_OOB)
   
   # Create parameters list
   parameters <- list(
@@ -369,8 +312,8 @@ SCE <- function(Training_data, X, Y, mfeature, Nmin, Ntree, alpha = 0.05, resolu
   )
   
   # Return S3 class object
-  return(SCE_object(
-    trees = SCE_res,
+  return(sce_object(
+    trees = sce_res,
     predictors = X,
     predictants = Y,
     parameters = parameters,
@@ -393,7 +336,7 @@ evaluate <- function(object, ...) {
 
 
 # Print method for SCE objects
-print.SCE <- function(x, ...) {
+print.sce <- function(x, ...) {
   cat("Stepwise Clustered Ensemble (SCE) Model\n")
   cat("=======================================\n\n")
   
@@ -430,7 +373,7 @@ print.SCE <- function(x, ...) {
 }
 
 # Summary method for SCE objects
-summary.SCE <- function(object, ...) {
+summary.sce <- function(object, ...) {
   cat("Stepwise Clustered Ensemble (SCE) Model Summary\n")
   cat("==============================================\n\n")
   
@@ -478,25 +421,25 @@ summary.SCE <- function(object, ...) {
 }
 
 # Predict method for SCE objects
-predict.SCE <- function(object, newdata, ...) {
-  # This is a wrapper for Model_simulation
+predict.sce <- function(object, newdata, ...) {
+  # This is a wrapper for model_simulation
   if (missing(newdata)) {
     stop("newdata is required for prediction")
   }
   
-  # Call Model_simulation which returns Training, Validation, and Testing predictions
-  return(Model_simulation(model = object, Testing_data = newdata))
+  # Call model_simulation which returns Training, Validation, and Testing predictions
+  return(model_simulation(model = object, Testing_data = newdata))
 }
 
 # Importance method for SCE objects
-importance.SCE <- function(object, OOB_weight = TRUE, digits = 2, ...) {
-  # This is a wrapper for Wilks_importance
-  return(Wilks_importance(model = object, OOB_weight = OOB_weight, digits = digits))
+importance.sce <- function(object, OOB_weight = TRUE, digits = 2, ...) {
+  # This is a wrapper for wilks_importance
+  return(wilks_importance(model = object, OOB_weight = OOB_weight, digits = digits))
 }
 
 # Evaluate method for SCE objects
-evaluate.SCE <- function(object, Testing_data, Training_data, digits = 3, ...) {
-  # This is a wrapper for SCE_Model_evaluation
+evaluate.sce <- function(object, Testing_data, Training_data, digits = 3, ...) {
+  # This is a wrapper for sce_model_evaluation
   if (missing(Testing_data)) {
     stop("Testing_data is required for evaluation")
   }
@@ -514,11 +457,11 @@ evaluate.SCE <- function(object, Testing_data, Training_data, digits = 3, ...) {
             paste(names(args), collapse = ", "))
   }
   
-  # Get simulations using Model_simulation
-  Simulations <- Model_simulation(model = object, Testing_data = Testing_data)
+  # Get simulations using model_simulation
+  Simulations <- model_simulation(model = object, Testing_data = Testing_data)
   
-  # Call SCE_Model_evaluation with validation simulations
-  return(SCE_Model_evaluation(
+  # Call sce_model_evaluation with validation simulations
+  return(sce_model_evaluation(
     Testing_data = Testing_data,
     Training_data = Training_data,
     Simulations = Simulations,
