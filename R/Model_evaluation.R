@@ -1,0 +1,153 @@
+#################################################################
+# Filename: 	Model_evaluation.R
+# Part of the SCE package, https://github.com/loong2020/Stepwise-Clustered-Ensemble.git
+# Created: 		2019/05/17, Regina, SK, Canada
+# Author: 		Kailong Li
+# Email:		lkl98509509@gmail.com
+# ===============================================================
+#: load the function
+rsq <- function(x, y) summary(lm(y~x))$r.squared #R squared function
+nse_equation <- function(x, y) {1-(sum((x - y)^2)/ sum((x - mean(x))^2))} #obs = x, sim = y
+kge_equation <- function(x,y) {
+  # x = observed, y = simulated
+  r <- cor(x, y)  # correlation coefficient
+  alpha <- sd(y)/sd(x)  # ratio of standard deviations
+  beta <- mean(y)/mean(x)  # ratio of means
+  KGE <- 1 - sqrt((r-1)^2 + (alpha-1)^2 + (beta-1)^2)
+  return(KGE)
+} #obs = x, sim = y
+
+gof <- function(obs, sim, digits=4)
+{
+  # Remove NaN values from both obs and sim
+  valid_idx <- !is.nan(sim) & !is.nan(obs)
+  obs <- obs[valid_idx]
+  sim <- sim[valid_idx]
+  
+  # Handle zero or negative values
+  sim[sim<=0] <- 0.0001
+  obs[obs<=0] <- 0.0001
+  
+  # Calculate metrics
+  mae <- mean(abs(obs-sim))
+  rmse <- sqrt(mean((obs-sim)^2))
+  nse <- nse_equation(x=obs,y=sim)
+  log_nse <- nse_equation(x=log(obs),y=log(sim))
+  R2 <- rsq(obs,sim)
+  kge <- kge_equation(x=obs,y=sim)
+  
+  # Name the metrics
+  names(log_nse) <- "Log.NSE"
+  
+  # Combine results
+  gof_mat <- rbind(mae,rmse,nse,log_nse,R2,kge)
+  gof_mat <- format(gof_mat, scientific = FALSE, digits = digits)
+  gof_mat <- as.matrix(gof_mat)
+  colnames(gof_mat) <- "GOF"
+  
+  return(gof_mat)
+}
+
+sca_model_evaluation <- function(testing_data, simulations, predictant, digits=3)
+{
+  # Input validation
+  
+  if (!is.character(predictant) || length(predictant) == 0) {
+    stop("predictant must be a non-empty character vector")
+  }
+  
+  # Check if predictants exist in data
+  missing_predictants <- predictant[!predictant %in% colnames(testing_data)]
+  if (length(missing_predictants) > 0) {
+    stop(sprintf("The following predictants are not found in testing_data: %s", 
+                paste(missing_predictants, collapse = ", ")))
+  }
+  
+  # Check row count match
+  if (nrow(testing_data) != nrow(simulations)) {
+    stop("The number of rows in testing_data must be equal to the number of rows in simulations")
+  }
+  
+  # For SCA, we only evaluate testing performance
+  all_results <- list()
+  for(pred in predictant) {
+    Testing_GOF <- gof(obs=testing_data[,pred], sim=simulations[,pred], digits=digits)
+    GOF_res <- data.frame(Testing=Testing_GOF)
+    colnames(GOF_res) <- "Testing"
+    all_results[[pred]] <- GOF_res
+  }
+  
+  if(length(predictant) == 1) {
+    return(all_results[[1]])
+  }
+  return(all_results)
+}
+
+sce_model_evaluation <- function(testing_data, training_data, simulations, predictant, digits=3)
+{
+  # Input validation
+  if (!is.list(simulations) || !all(c("Training", "Validation", "Testing") %in% names(simulations))) {
+    stop("simulations must be a list with 'Training', 'Validation', and 'Testing' components")
+  }
+  
+  if (!is.character(predictant) || length(predictant) == 0) {
+    stop("predictant must be a non-empty character vector")
+  }
+  
+  # Check if predictants exist in data
+  missing_predictants <- predictant[!predictant %in% colnames(testing_data)]
+  if (length(missing_predictants) > 0) {
+    stop(sprintf("The following predictants are not found in the data: %s", 
+                paste(missing_predictants, collapse = ", ")))
+  }
+  
+  # Check if predictants exist in simulations
+  for (pred in predictant) {
+    for (set in c("Training", "Validation", "Testing")) {
+      if (!pred %in% colnames(simulations[[set]])) {
+        stop(sprintf("predictant '%s' not found in %s simulations", pred, set))
+      }
+    }
+  }
+
+  # Total training data rows much be equal to the number of rows in the training simulations
+  if (nrow(training_data) != nrow(simulations[["Training"]])) {
+    stop("The number of rows in training_data must be equal to the number of rows in the Training simulations")
+  }
+
+  # total training data rows must be equal to the number of rows in the validation simulations
+  if (nrow(training_data) != nrow(simulations[["Validation"]])) {
+    stop("The number of rows in training_data must be equal to the number of rows in the Validation simulations")
+  }
+
+  # total testing data rows must be equal to the number of rows in the testing simulations
+  if (nrow(testing_data) != nrow(simulations[["Testing"]])) {
+    stop("The number of rows in testing_data must be equal to the number of rows in the Testing simulations")
+  }
+  
+  # Initialize a list to store results for each predictant
+  all_results <- list()
+  
+  # Loop through each predictant
+  for(pred in predictant) {
+    # Calculate GOF for each predictant
+    Training_GOF <- gof(obs=training_data[,pred],sim=simulations[["Training"]][,pred],digits=digits)
+    Validation_GOF <- gof(obs=training_data[,pred],sim=simulations[["Validation"]][,pred],digits=digits)
+    Testing_GOF <- gof(obs=testing_data[,pred],sim=simulations[["Testing"]][,pred],digits=digits)
+    
+    # Combine results for this predictant
+    GOF_res <- data.frame(Training_GOF,Validation_GOF,Testing_GOF)
+    colnames(GOF_res) <- c("Training","Validation","Testing")
+    
+    # Add to results list with predictant name
+    all_results[[pred]] <- GOF_res
+  }
+  
+  # If there's only one predictant, return the single result
+  if(length(predictant) == 1) {
+    return(all_results[[1]])
+  }
+  
+  # For multiple predictants, return the list of results
+  return(all_results)
+}
