@@ -59,15 +59,15 @@ The package provides S3 classes for both SCE and SCA models with convenient meth
 ### Quick Start with S3 Methods
 ```r
 # Build models
-sce_model <- sce(Training_data = data, X = predictors, Y = predictants, ...)
-sca_model <- sca(Training_data = data, X = predictors, Y = predictants, ...)
+sce_model <- sce(training_data = data, x = predictors, y = predictants, ...)
+sca_model <- sca(training_data = data, x = predictors, y = predictants, ...)
 
 # Use S3 methods
 print(sce_model)           # Display model info
 summary(sce_model)         # Detailed summary
 predictions <- predict(sce_model, newdata)  # Make predictions
 imp_ranking <- importance(sce_model)  # Calculate variable importance
-evaluation <- evaluate(sce_model, Testing_data, Training_data)  # Evaluate model
+evaluation <- evaluate(sce_model, testing_data, training_data)  # Evaluate model
 
 # Check available methods
 methods(class = "sce")
@@ -114,10 +114,10 @@ Predictants <- c("Flow")
 # Perform SCA
 set.seed(123)
 model <- sca(alpha = 0.05, 
-            Training_data = streamflow_training_10var, 
-            X = Predictors, 
-            Y = Predictants, 
-            Nmin = 5, 
+            training_data = streamflow_training_10var, 
+            x = Predictors, 
+            y = Predictants, 
+            nmin = 5, 
             resolution = 100)
 
 # Use S3 methods
@@ -134,8 +134,8 @@ prediction <- predict(model, streamflow_testing_10var)
 # Evaluate performance
 performance <- evaluate(
   object = model,
-  Testing_data = streamflow_testing_10var,
-  Training_data = streamflow_training_10var
+  testing_data = streamflow_testing_10var,
+  training_data = streamflow_training_10var
 )
 print(performance)
 
@@ -155,12 +155,12 @@ barplot(
 ```r
 # Build SCE model
 set.seed(123)
-Ensemble <- sce(Training_data = streamflow_training_10var,
-               X = Predictors,
-               Y = Predictants,
+Ensemble <- sce(training_data = streamflow_training_10var,
+               x = Predictors,
+               y = Predictants,
                mfeature = round(0.5 * length(Predictors)),
-               Nmin = 5,
-               Ntree = 40,
+               nmin = 5,
+               ntree = 40,
                alpha = 0.05,
                resolution = 100)
 
@@ -179,8 +179,8 @@ Imp_ranking <- importance(Ensemble, digits = 2)
 # Evaluate model performance
 evaluation <- evaluate(
   object = Ensemble,
-  Testing_data = streamflow_testing_10var,
-  Training_data = streamflow_training_10var,
+  testing_data = streamflow_testing_10var,
+  training_data = streamflow_training_10var,
   digits = 3
 )
 print(evaluation)
@@ -209,12 +209,12 @@ Predictants <- c("PM2.5", "PM10")
 
 # Build and evaluate model
 set.seed(123)
-Ensemble <- sce(Training_data = air_quality_training,
-               X = Predictors,
-               Y = Predictants,
+Ensemble <- sce(training_data = air_quality_training,
+               x = Predictors,
+               y = Predictants,
                mfeature = round(0.5 * length(Predictors)),
-               Nmin = 5,
-               Ntree = 40,
+               nmin = 5,
+               ntree = 40,
                alpha = 0.05,
                resolution = 100)
 
@@ -231,8 +231,8 @@ Imp_ranking <- importance(Ensemble, digits = 2)
 # Evaluate model performance
 evaluation <- evaluate(
   object = Ensemble,
-  Testing_data = air_quality_testing,
-  Training_data = air_quality_training
+  testing_data = air_quality_testing,
+  training_data = air_quality_training
 )
 print(evaluation)
 
@@ -267,12 +267,12 @@ Predictants <- c("Flow")
 # Perform RFE
 set.seed(1)
 result <- rfe_sce(
-  Training_data = streamflow_training_22var,
-  Testing_data = streamflow_testing_22var,
-  Predictors = Predictors,
-  Predictant = Predictants,
-  Nmin = 5,
-  Ntree = 48,
+  training_data = streamflow_training_22var,
+  testing_data = streamflow_testing_22var,
+  predictors = Predictors,
+  predictant = Predictants,
+  nmin = 5,
+  ntree = 48,
   alpha = 0.05,
   resolution = 1000,
   step = 3  # Number of predictors to remove at each iteration
