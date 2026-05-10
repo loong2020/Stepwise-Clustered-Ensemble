@@ -79,17 +79,11 @@ methods(class = "sca")
 The package includes several datasets for demonstration and testing:
 
 ### Streamflow Datasets
-- **Basic datasets (10 variables)**: `streamflow_training_10var`, `streamflow_testing_10var`
-  - Contains hydrological and meteorological variables
-  - Suitable for introductory examples and basic modeling
-- **Extended datasets (22 variables)**: `streamflow_training_22var`, `streamflow_testing_22var`
-  - Includes climate indices (IPO, Nino3.4, PDO, PNA) with lagged versions
-  - Suitable for advanced modeling and research applications
+- **Basic (10 variables)**: `streamflow_training_10var`, `streamflow_testing_10var` — hydrological and meteorological predictors.
+- **Extended (22 variables)**: `streamflow_training_22var`, `streamflow_testing_22var` — the basic predictors plus lagged climate indices (IPO, Nino3.4, PDO, PNA).
 
 ### Air Quality Datasets
-- `air_quality_training`, `air_quality_testing`
-  - Contains air quality monitoring data
-  - Useful for environmental modeling examples
+- `air_quality_training`, `air_quality_testing` — eleven variables from air-quality monitoring stations.
 
 ## Usage Examples
 
