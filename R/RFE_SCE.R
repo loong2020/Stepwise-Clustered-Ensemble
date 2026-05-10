@@ -140,7 +140,8 @@ plot_rfe <- function(
   pch = 16,
   lwd = 2,
   cex = 1.2,
-  legend_pos = "bottomleft",
+  cex_text = 1,
+  legend_pos = "bottom",
   ...
 ) {
   # Input validation
@@ -168,6 +169,22 @@ plot_rfe <- function(
   y_values <- y_values[!is.na(y_values)]
   ylim <- c(min(y_values), max(y_values))
   
+  # When the legend goes below the plot, expand the bottom margin so it
+  # sits outside the data panel and never overlaps the x-axis label.
+  # Tie cex.axis, cex.lab, and the legend text size together so tick
+  # labels, axis titles, and the legend all share the same font size.
+  legend_below <- identical(legend_pos, "bottom")
+  if (legend_below) {
+    old_par <- par(mar = c(7.5, 4.5, 2.1, 1.5),
+                   mgp = c(2.2, 0.7, 0),
+                   cex.axis = cex_text, cex.lab = cex_text,
+                   xpd = NA)
+    on.exit(par(old_par), add = TRUE)
+  } else {
+    old_par <- par(cex.axis = cex_text, cex.lab = cex_text)
+    on.exit(par(old_par), add = TRUE)
+  }
+  
   # Create the plot
   plot(n_predictors, validation_r2, 
        type = "b",  # both points and lines
@@ -186,12 +203,26 @@ plot_rfe <- function(
   lines(n_predictors, testing_r2, type = "b", col = col_testing, pch = pch, lwd = lwd, cex = cex)
   
   # Add legend
-  legend(legend_pos,
-         legend = c("OOB Validation", "Testing"),
-         col = c(col_validation, col_testing),
-         pch = pch,
-         lty = 1,
-         lwd = lwd)
+  if (legend_below) {
+    legend("bottom",
+           inset = c(0, -0.42),
+           horiz = TRUE,
+           bty = "n",
+           legend = c("Validation", "Testing"),
+           col = c(col_validation, col_testing),
+           pch = pch,
+           lty = 1,
+           lwd = lwd,
+           cex = cex_text)
+  } else {
+    legend(legend_pos,
+           legend = c("Validation", "Testing"),
+           col = c(col_validation, col_testing),
+           pch = pch,
+           lty = 1,
+           lwd = lwd,
+           cex = cex_text)
+  }
   
   # Return plot data invisibly
   invisible(list(
