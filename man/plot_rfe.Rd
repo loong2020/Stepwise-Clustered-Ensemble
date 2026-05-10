@@ -9,7 +9,7 @@
 }
 \usage{
 plot_rfe(rfe_result,
-         main = "OOB Validation and Testing R2 vs Number of Predictors",
+         main = NULL,
          col_validation = "blue",
          col_testing = "red",
          pch = 16,
@@ -20,7 +20,7 @@ plot_rfe(rfe_result,
 }
 \arguments{
   \item{rfe_result}{Result object from \code{\link{rfe_sce}} function}
-  \item{main}{Plot title}
+  \item{main}{Plot title. Defaults to \code{NULL} (no title) for clean publication output; pass a character string to add one.}
   \item{col_validation}{Color for validation line}
   \item{col_testing}{Color for testing line}
   \item{pch}{Point character}
@@ -30,7 +30,7 @@ plot_rfe(rfe_result,
   \item{...}{Additional arguments}
 }
 \value{
-  Plot showing validation and testing R2 vs number of predictors.
+  Plot showing validation and testing \eqn{R^2} vs number of predictors.
 }
 
 \seealso{
