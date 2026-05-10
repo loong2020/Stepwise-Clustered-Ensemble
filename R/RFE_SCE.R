@@ -134,7 +134,7 @@ rfe_sce <- function(
 # during recursive feature elimination. Uses the R2 values stored directly in the summary dataframe.
 plot_rfe <- function(
   rfe_result,
-  main = "OOB Validation and Testing R2 vs Number of Predictors",
+  main = NULL,
   col_validation = "blue",
   col_testing = "red",
   pch = 16,
@@ -178,7 +178,7 @@ plot_rfe <- function(
        xlim = rev(range(n_predictors)),  # reverse x-axis
        ylim = ylim,
        xlab = "Number of Predictors",
-       ylab = "R2",
+       ylab = expression(R^2),
        main = main,
        ...)
   
