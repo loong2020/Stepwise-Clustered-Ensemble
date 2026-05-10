@@ -15,7 +15,8 @@ plot_rfe(rfe_result,
          pch = 16,
          lwd = 2,
          cex = 1.2,
-         legend_pos = "bottomleft",
+         cex_text = 1,
+         legend_pos = "bottom",
          ...)
 }
 \arguments{
@@ -26,7 +27,8 @@ plot_rfe(rfe_result,
   \item{pch}{Point character}
   \item{lwd}{Line width}
   \item{cex}{Point size}
-  \item{legend_pos}{Legend position}
+  \item{cex_text}{Text size used uniformly for axis tick labels, axis titles, and legend text, so the plot uses a single consistent font size.}
+  \item{legend_pos}{Legend position. The default \code{"bottom"} places the legend horizontally below the plotting area so it does not overlap with the data; any other valid \code{\link[graphics]{legend}} keyword (e.g. \code{"topright"}, \code{"bottomleft"}) places it inside the panel at that position.}
   \item{...}{Additional arguments}
 }
 \value{
